@@ -251,7 +251,7 @@ class MainApplication(QtWidgets.QMainWindow, Fourier.Ui_MDFourier):
             self.graphicsView_fourier.setLabel('bottom', 'k', units='cm^-1')
             self.graphicsView_fourier.setLabel('left', 'Amplitude', units=None)
             if self.naturalBox.isChecked():
-                self.graphicsView_fourier.plot(self.reverseCm, self.energies_psd[self.i], pen='c')
+                self.graphicsView_fourier.plot(self.reverseCm, self.energies_psd[self.i], pen='r')
             if self.logBox.isChecked():
                 self.graphicsView_fourier.plot(self.reverseCm, np.log10(self.energies_psd[self.i]), pen='b')
             if self.tenLogsBox.isChecked():
@@ -265,7 +265,7 @@ class MainApplication(QtWidgets.QMainWindow, Fourier.Ui_MDFourier):
             self.graphicsView_fourier.setLabel('bottom', 'k', units='cm^-1')
             self.graphicsView_fourier.setLabel('left', 'Amplitude', units=None)
             if self.naturalBox.isChecked():
-                self.graphicsView_fourier.plot(self.fftFreq[self.i], self.energies_psd[self.i], pen='c')
+                self.graphicsView_fourier.plot(self.fftFreq[self.i], self.energies_psd[self.i], pen='r')
             if self.logBox.isChecked():
                 self.graphicsView_fourier.plot(self.fftFreq[self.i], np.log10(self.energies_psd[self.i]), pen='b')
             if self.tenLogsBox.isChecked():
@@ -277,12 +277,12 @@ class MainApplication(QtWidgets.QMainWindow, Fourier.Ui_MDFourier):
         df['AmplitudePure'] = self.energies_psd[self.i]
         df['AmplitudeLog10'] = np.log10(self.energies_psd[self.i])
         df['Amplitude10Log10'] = 10 * np.log10(self.energies_psd[self.i])
-        # te = pandas.DataFrame()
-        # te['t (ns)'] = self.times
-        # te['E (eV)'] = self.energ
+        te = pandas.DataFrame()
+        te['t (ps)'] = np.array(self.newTimes)*(10**12)
+        te['E (meV)'] = np.array(self.newEnergies)*1000
         with pd.ExcelWriter(str(self.directory)+"/"+'result.xlsx') as writer:
             df.to_excel(writer, sheet_name='fft', index=None, index_label=None)
-            # te.to_excel(writer, sheet_name='energy', index=None, index_label=None)
+            te.to_excel(writer, sheet_name='energy', index=None, index_label=None)
         self.graphicsView_fourier.clear()
         self.graphicsView_energy.clear()
         self.times = []
