@@ -273,7 +273,7 @@ class MainApplication(QtWidgets.QMainWindow, Fourier.Ui_MDFourier):
 # ----------------------------------------------------------------------------------------------------------------------
     def saveData(self):
         df = pandas.DataFrame()
-        df['f (Hz)'] = (self.fftFreq[self.i])
+        df['f (cm-1)'] = self.reverseCm
         df['AmplitudePure'] = self.energies_psd[self.i]
         df['AmplitudeLog10'] = np.log10(self.energies_psd[self.i])
         df['Amplitude10Log10'] = 10 * np.log10(self.energies_psd[self.i])
