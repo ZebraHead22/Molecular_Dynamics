@@ -1,5 +1,6 @@
 import re
 import pandas
+
 import Fourier
 import sys, os
 import numpy as np
