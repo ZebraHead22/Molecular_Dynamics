@@ -262,7 +262,7 @@ class MainApplication(QtWidgets.QMainWindow, Fourier.Ui_MDFourier):
             self.fftFreq = sp.fftpack.fftfreq(len(energies_fft), 1 / float(self.sampleRate))
             self.i = self.fftFreq > 0
             self.graphicsView_fourier.setBackground('w')
-            self.graphicsView_fourier.setLabel('bottom', 'k', units='cm^-1')
+            self.graphicsView_fourier.setLabel('bottom', 'k', units='cm-1')
             self.graphicsView_fourier.setLabel('left', 'Amplitude', units=None)
             if self.naturalBox.isChecked():
                 self.graphicsView_fourier.plot(self.fftFreq[self.i], self.energies_psd[self.i], pen='r')
