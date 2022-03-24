@@ -9,7 +9,6 @@ from pandas import Series
 from scipy import fftpack
 from PyQt5 import QtWidgets
 import subprocess
-from PyQt5.QtWidgets import QMessageBox
 #-----------------------------------------------------------------------------------------------------------------------
 class MainApplication(QtWidgets.QMainWindow, Fourier.Ui_MDFourier):
     def __init__(self):
