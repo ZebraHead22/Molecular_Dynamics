@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1259</width>
-    <height>819</height>
+    <width>906</width>
+    <height>655</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -98,7 +98,7 @@
              <string notr="true">color: rgb(81, 0, 255)</string>
             </property>
             <property name="text">
-             <string>Energy/DipMoments Graph</string>
+             <string>Energy Graph</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -266,129 +266,9 @@ border : none;</string>
               <number>0</number>
              </property>
              <item>
-              <widget class="QWidget" name="widget_14" native="true">
-               <layout class="QGridLayout" name="gridLayout">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="logLabelTitle">
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Rockwell</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(81, 0, 255)</string>
-                  </property>
-                  <property name="text">
-                   <string>log file:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QLabel" name="logLabel">
-                  <property name="font">
-                   <font>
-                    <family>Rockwell</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(81, 0, 255)</string>
-                  </property>
-                  <property name="text">
-                   <string>----------------------------</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="datLabelTitle">
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Rockwell</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(81, 0, 255)</string>
-                  </property>
-                  <property name="text">
-                   <string>data file:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QLabel" name="datLabel">
-                  <property name="font">
-                   <font>
-                    <family>Rockwell</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(81, 0, 255)</string>
-                  </property>
-                  <property name="text">
-                   <string>----------------------------</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
               <widget class="QWidget" name="widget_15" native="true">
                <layout class="QGridLayout" name="gridLayout_4">
                 <item row="0" column="0">
-                 <widget class="QLabel" name="datDcdLabelTitle">
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Rockwell</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(81, 0, 255)</string>
-                  </property>
-                  <property name="text">
-                   <string>dat file:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QLabel" name="datLabel_2">
-                  <property name="font">
-                   <font>
-                    <family>Rockwell</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(81, 0, 255)</string>
-                  </property>
-                  <property name="text">
-                   <string>----------------------------</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
                  <widget class="QLabel" name="csvLabelTitle">
                   <property name="maximumSize">
                    <size>
@@ -411,7 +291,7 @@ border : none;</string>
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QLabel" name="logLabel_2">
+                 <widget class="QLabel" name="datLabel_2">
                   <property name="font">
                    <font>
                     <family>Rockwell</family>
@@ -736,84 +616,6 @@ border : none;</string>
                   </layout>
                  </widget>
                 </item>
-                <item>
-                 <widget class="QWidget" name="widget_16" native="true">
-                  <layout class="QVBoxLayout" name="verticalLayout_8">
-                   <item>
-                    <widget class="QLabel" name="label_3">
-                     <property name="font">
-                      <font>
-                       <family>Rockwell</family>
-                       <pointsize>10</pointsize>
-                      </font>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">color: rgb(81, 0, 255)</string>
-                     </property>
-                     <property name="text">
-                      <string>Dipole moments processing, set sample rate:</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QWidget" name="widget_19" native="true">
-                     <layout class="QHBoxLayout" name="horizontalLayout_16">
-                      <item>
-                       <widget class="QLabel" name="atomNumValue_2">
-                        <property name="minimumSize">
-                         <size>
-                          <width>40</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>40</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Rockwell</family>
-                          <pointsize>10</pointsize>
-                         </font>
-                        </property>
-                        <property name="styleSheet">
-                         <string notr="true">color: rgb(81, 0, 255)</string>
-                        </property>
-                        <property name="text">
-                         <string>SR(fs)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QDoubleSpinBox" name="srNumValue">
-                        <property name="font">
-                         <font>
-                          <family>Rockwell</family>
-                          <pointsize>10</pointsize>
-                         </font>
-                        </property>
-                        <property name="styleSheet">
-                         <string notr="true">color: rgb(81, 0, 255)</string>
-                        </property>
-                        <property name="decimals">
-                         <number>0</number>
-                        </property>
-                        <property name="maximum">
-                         <double>100000.000000000000000</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>1.000000000000000</double>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
                </layout>
               </widget>
              </item>
@@ -873,73 +675,8 @@ border : none;</string>
               <number>0</number>
              </property>
              <item>
-              <widget class="QCheckBox" name="gaussBox">
-               <property name="font">
-                <font>
-                 <family>Rockwell</family>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">color: rgb(81, 0, 255)</string>
-               </property>
-               <property name="text">
-                <string>Hamming</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="gaussBox_2">
-               <property name="font">
-                <font>
-                 <family>Rockwell</family>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">color: rgb(81, 0, 255)</string>
-               </property>
-               <property name="text">
-                <string>Sin</string>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QWidget" name="widget_23" native="true">
-               <layout class="QHBoxLayout" name="horizontalLayout_17">
-                <item>
-                 <widget class="QLabel" name="sigmaLabel_3">
-                  <property name="font">
-                   <font>
-                    <family>Rockwell</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(81, 0, 255)</string>
-                  </property>
-                  <property name="text">
-                   <string>Period</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDoubleSpinBox" name="sigEdit_3">
-                  <property name="font">
-                   <font>
-                    <family>Rockwell</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(81, 0, 255)</string>
-                  </property>
-                  <property name="singleStep">
-                   <double>0.010000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <layout class="QHBoxLayout" name="horizontalLayout_17"/>
               </widget>
              </item>
             </layout>
@@ -1053,72 +790,6 @@ QPushButton:hover {
                   </property>
                  </widget>
                 </item>
-                <item>
-                 <widget class="QPushButton" name="opendatlogBtn">
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>30</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>40404</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Rockwell</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-	vorder:none;
-	border-radius: 8px;
-	background-color:rgb(200, 192, 255);
-}
-QPushButton:hover {
-	
-	background-color: rgb(198, 216, 255);
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Open dat/log</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="openDCDBtn_2">
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>30</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Rockwell</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-	vorder:none;
-	border-radius: 8px;
-	background-color:rgb(200, 192, 255);
-}
-QPushButton:hover {
-	
-	background-color: rgb(198, 216, 255);
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Open dat/dcd</string>
-                  </property>
-                 </widget>
-                </item>
                </layout>
               </widget>
              </item>
@@ -1218,36 +889,6 @@ QPushButton:hover {
                   </property>
                   <property name="text">
                    <string>Save data</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="vmdBtn">
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>30</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Rockwell</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-	vorder:none;
-	border-radius: 8px;
-	background-color:rgb(200, 192, 255);
-}
-QPushButton:hover {
-	
-	background-color: rgb(198, 216, 255);
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Open VMD</string>
                   </property>
                  </widget>
                 </item>
