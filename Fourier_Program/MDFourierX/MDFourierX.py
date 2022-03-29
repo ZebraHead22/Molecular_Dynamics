@@ -1,6 +1,6 @@
 import re
 import pandas
-import desingX
+import Ui_desingX
 import sys, os
 import numpy as np
 import scipy as sp
