@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 i=1
 big_df = pd.DataFrame()
-path="d://namd//trpVR//results"
+path="/Users/max/Yandex.Disk.localized/namd"
 dir=os.chdir(path)
 files=os.listdir()
 for file in files:
@@ -16,8 +16,10 @@ for file in files:
     if file_extension == ".csv":
         df=pd.read_csv(file)
         # big_df['TS']=df['TS']
-        big_df['ELECT'+str(i)]=np.array(df['ELECT'].tolist())/4131*0.0434*1000
+        big_df['TOTAL3'+str(i)]=np.array(df['TOTAL3'].tolist())/3910*0.0434
         i+=1
+
+print(big_df)
 #average
 # mean = big_df.mean(axis=1)
 # big_df['AVERAGE']=big_df.mean(axis=1)
