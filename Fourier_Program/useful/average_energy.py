@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 i=1
 big_df = pd.DataFrame()
-path="/Users/max/Yandex.Disk.localized/namd"
+path="/Users/max/Yandex.Disk.localized/namd" #Just import ur file
 dir=os.chdir(path)
 files=os.listdir()
 for file in files:
