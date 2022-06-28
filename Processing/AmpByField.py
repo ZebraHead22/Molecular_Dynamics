@@ -26,12 +26,12 @@ for folder in folders:
         allData[os.path.basename(folder)] = df['Amplitude']
         amplitudes = np.array(df['Amplitude'].to_list())
         #Make pictures
-            # plt.gcf().clear()
-            # plt.plot(frequencies, amplitudes)
-            # plt.ylabel('Spectral density (a.u.)')
-            # plt.xlabel('Frequency ($cm^{-1}$)')
-            # plt.grid()
-            # plt.savefig(str(directory)+'/'+str(folder)+'.png')
+        plt.gcf().clear()
+        plt.plot(frequencies, amplitudes)
+        plt.ylabel('Spectral density (a.u.)')
+        plt.xlabel('Frequency ($cm^{-1}$)')
+        plt.grid()
+        plt.savefig(str(directory)+'/'+str(folder)+'.png')
         #write amplitudes into the ./xlsx file
         with pd.ExcelWriter(str(directory)+"/"+'result.xlsx') as writer:
             allData.to_excel(writer, sheet_name='first_exp', index=None, index_label=None)
