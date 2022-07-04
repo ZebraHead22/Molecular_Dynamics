@@ -27,6 +27,7 @@ for folder in folders:
         amplitudes = np.array(df['Amplitude'].to_list())
         #Make pictures
         plt.gcf().clear()
+        print(folder)
         plt.plot(frequencies, amplitudes)
         plt.ylabel('Spectral Density (a.u.)')
         plt.xlabel('Frequency ($cm^{-1}$)')
