@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-path = 'D:/localNamd/nya/trp_noF_300/'
+path = '/Volumes/SamsungT5/localNamd/3_part_temperature/gly_3333/vacuum/305/'
 df = pd.read_csv(path+'spec.dat', delimiter=' ', index_col=None)
 df.rename(columns = {'0.0' : 'Freq', '0.0.1' : 'Amplitude'}, inplace = True) 
 
@@ -14,5 +14,6 @@ plt.plot(frequencies, amplitudes)
 plt.ylabel('Amplitude (rel.u.)')
 plt.xlabel('Frequency ($cm^{-1}$)')
 plt.grid()
-path = os.getcwd()
-plt.savefig(str(path)+'saved_figure.png')
+plt.show()
+# path = os.getcwd()
+# plt.savefig(str(path)+'saved_figure.png')
