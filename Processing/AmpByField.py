@@ -28,7 +28,7 @@ for folder in folders:
         #Make pictures
         plt.gcf().clear()
         plt.plot(frequencies, amplitudes)
-        plt.ylabel('Spectral density (a.u.)')
+        plt.ylabel('Spectral Density (a.u.)')
         plt.xlabel('Frequency ($cm^{-1}$)')
         plt.grid()
         plt.savefig(str(directory)+'/'+str(folder)+'.png')
