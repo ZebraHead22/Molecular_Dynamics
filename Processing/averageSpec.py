@@ -20,6 +20,9 @@ for folder in folders:
                 df.rename(columns = {'0.0' : 'Freq', '0.0.1' : 'Amplitude'}, inplace = True)
                 av['Freq'] = df['Freq']
                 av[os.path.basename(i)] = df['Amplitude']
+                #Make column with average amplitude
+                av_average = av.drop('Freq', axis = 1)
+                av['average'] = av_average.mean(axis = 1)
                 with pd.ExcelWriter(str(dirPath)+"/"+'result.xlsx') as writer:
                     av.to_excel(writer, sheet_name='average data', index=None, index_label=None)
         #Make average amplitude data
