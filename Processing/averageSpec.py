@@ -1,4 +1,5 @@
 import os
+import re
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
@@ -40,3 +41,37 @@ for folder in folders:
     else:
         pass
         continue
+
+
+
+#Go to make result graph
+amp = []
+time = []
+time_raw = []
+for folder in folders:
+    if os.path.isdir(folder) == True: 
+        dirPath = os.getcwd()+'/'+folder
+        res_files = os.getcwd()+'/'+folder + '/' +'result.xlsx'
+        xl_file = pd.ExcelFile(res_files)
+        res = pd.read_excel(res_files, index_col=None)
+        max_x = res['average'].max()
+        amp.append(max_x)
+        time_raw.append(re.findall(r'\d+', os.path.basename(dirPath)))
+
+for i in time_raw:
+    time.append(float(i[0]))
+
+#Make dataframe
+res_data = pd.DataFrame()
+res_data['Time'] = time
+res_data['Spectral Density'] = amp
+
+#Write to xlsx
+with pd.ExcelWriter(str(os.getcwd())+"/"+'result_data.xlsx') as writer:
+    res_data.to_excel(writer, sheet_name='result data', index=None, index_label=None)
+
+#Make png
+print('Реди, епта')
+
+
+
