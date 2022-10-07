@@ -78,10 +78,10 @@ for folder in folders:
 print(av.head())
 
 av_average = av.drop('Frames', axis = 1)
-av['average_dip_x'] = av_average[['first_exp dip_x', 'sec_exp dip_x']].mean(axis = 1)
-av['average_dip_y'] = av_average[['first_exp dip_y', 'sec_exp dip_y']].mean(axis = 1)
-av['average_dip_z'] = av_average[['first_exp dip_z', 'sec_exp dip_z']].mean(axis = 1)
-av['average_dip_abs'] = av_average[['first_exp dip_abs', 'sec_exp dip_abs']].mean(axis = 1)
+av['average_dip_x'] = av_average[['1st dip_x', '2nd dip_x', '3rd dip_x']].mean(axis = 1)
+av['average_dip_y'] = av_average[['1st dip_y', '2nd dip_y', '3rd dip_y']].mean(axis = 1)
+av['average_dip_z'] = av_average[['1st dip_z', '2nd dip_z', '3rd dip_z']].mean(axis = 1)
+av['average_dip_abs'] = av_average[['1st dip_abs', '2nd dip_abs', '3rd dip_abs']].mean(axis = 1)
 
 
 with pd.ExcelWriter(str(os.getcwd())+"/"+'main_result.xlsx') as writer:
@@ -94,13 +94,33 @@ av_y = np.array(av['average_dip_y'].tolist())
 av_z = np.array(av['average_dip_z'].tolist())
 av_abs = np.array(av['average_dip_abs'].tolist())
 
-# # Make plot
+# Make plot
 plt.gcf().clear()
-plt.scatter(av_frame, av_abs, c='deeppink', s=100, edgecolor='black')
-plt.ylabel('Dipole moment (D)')
-plt.xlabel('Frames (pci)')
-plt.grid()
-plt.savefig((os.getcwd())+"/"+'main_fig.png')
-print('Picture saved...')
+# plt.scatter(av_frame, av_abs, c='deeppink', s=100, edgecolor='black')
+# plt.ylabel('Dipole moment (D)')
+# plt.xlabel('Frames (pci)')
+# plt.grid()
+# plt.savefig((os.getcwd())+"/"+'main_fig.png')
+# print('Picture saved...')
 
 print('All done')
+
+plt.subplots(2,2)
+fig, axs = plt.subplots(2, 2)
+axs[0, 0].plot(av_frame, av_x)
+axs[0, 0].set_title('Dipole Moment Ox')
+axs[0, 1].plot(av_frame, av_y, 'tab:orange')
+axs[0, 1].set_title('Dipole Moment Oy')
+axs[1, 0].plot(av_frame, av_z, 'tab:green')
+axs[1, 0].set_title('Dipole Moment Oz')
+axs[1, 1].plot(av_frame, av_abs, 'tab:red')
+axs[1, 1].set_title('Dipole Moment |ABS|')
+
+for ax in axs.flat:
+    ax.set(xlabel='frame (u.)', ylabel='Dipole Moment (D)')
+
+# Hide x labels and tick labels for top plots and y ticks for right plots.
+for ax in axs.flat:
+    ax.label_outer()
+
+plt.savefig((os.getcwd())+"/"+'main_4g.png')
