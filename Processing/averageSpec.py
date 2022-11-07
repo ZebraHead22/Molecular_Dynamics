@@ -30,6 +30,7 @@ for folder in folders:
         av_average = av.drop('Freq', axis = 1)
         av_average = np.array(av_average.mean(axis = 1))
         av_freq = np.array(av['Freq'])
+        
         #Make plot
         plt.gcf().clear()
         plt.plot(av_freq, av_average)
