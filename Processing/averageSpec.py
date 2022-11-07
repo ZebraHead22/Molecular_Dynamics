@@ -43,9 +43,7 @@ for folder in folders:
         pass
         continue
 
-
-
-#Go to make result graph
+#Go to make global result
 amp = []
 time = []
 time_raw = []
@@ -55,7 +53,7 @@ for folder in folders:
         res_files = os.getcwd()+'/'+folder + '/' +'result.xlsx'
         xl_file = pd.ExcelFile(res_files)
         res = pd.read_excel(res_files, index_col=None)
-        max_x = res['average'].max()
+        max_x = res['average'].where(res['Freq']>3000).max()
         amp.append(max_x)
         time_raw.append(re.findall(r'\d+', os.path.basename(dirPath)))
 
@@ -71,8 +69,7 @@ res_data['Spectral Density'] = amp
 with pd.ExcelWriter(str(os.getcwd())+"/"+'result_data.xlsx') as writer:
     res_data.to_excel(writer, sheet_name='result data', index=None, index_label=None)
 
-#Make png
-print('Реди, епта')
+print('All done')
 
 
 
