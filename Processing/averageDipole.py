@@ -96,31 +96,31 @@ av_abs = np.array(av['average_dip_abs'].tolist())
 
 # Make plot
 plt.gcf().clear()
-# plt.scatter(av_frame, av_abs, c='deeppink', s=100, edgecolor='black')
-# plt.ylabel('Dipole moment (D)')
-# plt.xlabel('Frames (pci)')
-# plt.grid()
-# plt.savefig((os.getcwd())+"/"+'main_fig.png')
-# print('Picture saved...')
+plt.scatter(av_frame, av_abs, c='deeppink', s=50, edgecolor='black')
+plt.ylabel('Dipole moment (D)')
+plt.xlabel('Frames (pci)')
+plt.grid()
+plt.savefig((os.getcwd())+"/"+'main_fig.png')
+print('Picture saved...')
 
 print('All done')
 
-plt.subplots(2,2)
-fig, axs = plt.subplots(2, 2)
-axs[0, 0].plot(av_frame, av_x)
-axs[0, 0].set_title('Dipole Moment Ox')
-axs[0, 1].plot(av_frame, av_y, 'tab:orange')
-axs[0, 1].set_title('Dipole Moment Oy')
-axs[1, 0].plot(av_frame, av_z, 'tab:green')
-axs[1, 0].set_title('Dipole Moment Oz')
-axs[1, 1].plot(av_frame, av_abs, 'tab:red')
-axs[1, 1].set_title('Dipole Moment |ABS|')
+# plt.subplots(2,2)
+# fig, axs = plt.subplots(2, 2)
+# axs[0, 0].plot(av_frame, av_x)
+# axs[0, 0].set_title('Dipole Moment Ox')
+# axs[0, 1].plot(av_frame, av_y)
+# axs[0, 1].set_title('Dipole Moment Oy')
+# axs[1, 0].plot(av_frame, av_z)
+# axs[1, 0].set_title('Dipole Moment Oz')
+# axs[1, 1].plot(av_frame, av_abs)
+# axs[1, 1].set_title('Dipole Moment |ABS|')
 
-for ax in axs.flat:
-    ax.set(xlabel='frame (u.)', ylabel='Dipole Moment (D)')
+# for ax in axs.flat:
+#     ax.set(xlabel='frame (u.)', ylabel='Dipole Moment (D)')
 
-# Hide x labels and tick labels for top plots and y ticks for right plots.
-for ax in axs.flat:
-    ax.label_outer()
+# # Hide x labels and tick labels for top plots and y ticks for right plots.
+# for ax in axs.flat:
+#     ax.label_outer()
 
-plt.savefig((os.getcwd())+"/"+'main_4g.png')
+# plt.savefig((os.getcwd())+"/"+'main_4g.png')
