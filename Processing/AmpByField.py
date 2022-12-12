@@ -42,22 +42,7 @@ def one_experiment():
     with pd.ExcelWriter('dependence.xlsx') as writer:
         exp.to_excel(writer, sheet_name='Dependence', index=None, index_label=None)
 
-def few_experiments():
-    av = pd.DataFrame()
-    field_amplutide = []
-    amplitude = []
-    list_files = []
 
-    folders = os.listdir(os.getcwd())
-    for folder in folders:
-        if os.path.isdir(folder) == True:       
-            #Define variable
-            dirPath = os.getcwd()+'/'+folder
-            folders_2 = os.listdir(dirPath)
-            for i in folders_2:
-                exp_folder = dirPath+'/'+i
-                files = os.listdir(exp_folder)
-                for a in files:
                     # filename, file_extension = os.path.splitext(dirPath+'/'+a)
                     # if file_extension == ".dat":
                     #     print(a)
@@ -88,7 +73,7 @@ def few_experiments():
 
 
 
-few_experiments()
+
 # for folder in folders:
 #     if os.path.isdir(folder) == True: 
 #         df = pd.read_excel(os.getcwd()+'/'+folder+'/'+'dependence.xlsx')

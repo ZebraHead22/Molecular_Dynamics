@@ -64,46 +64,46 @@ for folder in folders:
         with pd.ExcelWriter(dirPath+'/'+'dependence.xlsx') as writer:                 
             dipole.to_excel(writer, sheet_name='Dipole', index=None, index_label=None)
 
-av = pd.DataFrame()
-av_p = pd.DataFrame()
-for folder in folders:
-    if os.path.isdir(folder) == True: 
-        df = pd.read_excel(os.getcwd()+'/'+folder+'/'+'dependence.xlsx')
-        av['Frames'] = df['Frames']
-        av[folder+' '+'dip_x'] = df['dip_x']
-        av[folder+' '+'dip_y'] = df['dip_y']
-        av[folder+' '+'dip_z'] = df['dip_z']
-        av[folder+' '+'dip_abs'] = df['|dip|']
+# av = pd.DataFrame()
+# av_p = pd.DataFrame()
+# for folder in folders:
+#     if os.path.isdir(folder) == True: 
+#         df = pd.read_excel(os.getcwd()+'/'+folder+'/'+'dependence.xlsx')
+#         av['Frames'] = df['Frames']
+#         av[folder+' '+'dip_x'] = df['dip_x']
+#         av[folder+' '+'dip_y'] = df['dip_y']
+#         av[folder+' '+'dip_z'] = df['dip_z']
+#         av[folder+' '+'dip_abs'] = df['|dip|']
 
-print(av.head())
+# print(av.head())
 
-av_average = av.drop('Frames', axis = 1)
-av['average_dip_x'] = av_average[['1st dip_x', '2nd dip_x', '3rd dip_x']].mean(axis = 1)
-av['average_dip_y'] = av_average[['1st dip_y', '2nd dip_y', '3rd dip_y']].mean(axis = 1)
-av['average_dip_z'] = av_average[['1st dip_z', '2nd dip_z', '3rd dip_z']].mean(axis = 1)
-av['average_dip_abs'] = av_average[['1st dip_abs', '2nd dip_abs', '3rd dip_abs']].mean(axis = 1)
-
-
-with pd.ExcelWriter(str(os.getcwd())+"/"+'main_result.xlsx') as writer:
-    av.to_excel(writer, sheet_name='Average data', index=None, index_label=None)
+# av_average = av.drop('Frames', axis = 1)
+# av['average_dip_x'] = av_average[['1st dip_x', '2nd dip_x', '3rd dip_x']].mean(axis = 1)
+# av['average_dip_y'] = av_average[['1st dip_y', '2nd dip_y', '3rd dip_y']].mean(axis = 1)
+# av['average_dip_z'] = av_average[['1st dip_z', '2nd dip_z', '3rd dip_z']].mean(axis = 1)
+# av['average_dip_abs'] = av_average[['1st dip_abs', '2nd dip_abs', '3rd dip_abs']].mean(axis = 1)
 
 
-av_frame = np.array(av['Frames'].tolist())
-av_x = np.array(av['average_dip_x'].tolist())
-av_y = np.array(av['average_dip_y'].tolist())
-av_z = np.array(av['average_dip_z'].tolist())
-av_abs = np.array(av['average_dip_abs'].tolist())
+# with pd.ExcelWriter(str(os.getcwd())+"/"+'main_result.xlsx') as writer:
+#     av.to_excel(writer, sheet_name='Average data', index=None, index_label=None)
 
-# Make plot
-plt.gcf().clear()
-plt.scatter(av_frame, av_abs, c='deeppink', s=50, edgecolor='black')
-plt.ylabel('Dipole moment (D)')
-plt.xlabel('Frames (pci)')
-plt.grid()
-plt.savefig((os.getcwd())+"/"+'main_fig.png')
-print('Picture saved...')
 
-print('All done')
+# av_frame = np.array(av['Frames'].tolist())
+# av_x = np.array(av['average_dip_x'].tolist())
+# av_y = np.array(av['average_dip_y'].tolist())
+# av_z = np.array(av['average_dip_z'].tolist())
+# av_abs = np.array(av['average_dip_abs'].tolist())
+
+# # Make plot
+# plt.gcf().clear()
+# plt.scatter(av_frame, av_abs, c='deeppink', s=50, edgecolor='black')
+# plt.ylabel('Dipole moment (D)')
+# plt.xlabel('Frames (pci)')
+# plt.grid()
+# plt.savefig((os.getcwd())+"/"+'main_fig.png')
+# print('Picture saved...')
+
+# print('All done')
 
 # plt.subplots(2,2)
 # fig, axs = plt.subplots(2, 2)
