@@ -20,6 +20,7 @@ for i in files:
     
     filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
     if file_extension == ".dat":
+        print(i)
         df = pd.read_csv(dirPath+'/'+i, sep = ' ')
         df.dropna(how='all', axis=1, inplace=True)
         df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y', 'Unnamed: 6': 'dip_z', 'Unnamed: 8': '|dip|'}, inplace=True)
