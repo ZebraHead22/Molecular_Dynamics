@@ -1,12 +1,11 @@
 #Здесь считаем полный дипольный момент для одной реализации для вычисления добротности
+#Сшиваем в один несколько .dat файлов
 
 import os
 import re
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
-
-
 
 df = pd.DataFrame()
 files = os.listdir(os.getcwd())
@@ -17,7 +16,6 @@ dip_z_1 = []
 dip_abs_1 = []
 frames = []
 for i in files:
-    
     filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
     if file_extension == ".dat":
         print(i)
@@ -60,6 +58,38 @@ dipole = pd.DataFrame(list(zip(frames, dip_x, dip_y, dip_z, dip_abs)),
 with pd.ExcelWriter(dirPath+'/'+'dependence.xlsx') as writer:                 
     dipole.to_excel(writer, sheet_name='Dipole', index=None, index_label=None)
 
+# Make plot
+plt.gcf().clear()
+plt.plot(np.array(frames), np.array(dip_x), color = 'crimson', linewidth = 2)
+plt.ylabel('Spectral Density (a.u.)')
+plt.xlabel('Time (ps)')
+plt.grid()
+plt.savefig(dirPath+"/"+'dipoleMoment_X.png')
+print('Dip X picture saved...')
+
+plt.gcf().clear()
+plt.plot(np.array(frames), np.array(dip_y), color = 'darkmagenta', linewidth = 2)
+plt.ylabel('Spectral Density (a.u.)')
+plt.xlabel('Time (ps)')
+plt.grid()
+plt.savefig(dirPath+"/"+'dipoleMoment_Y.png')
+print('Dip X picture saved...')
+
+plt.gcf().clear()
+plt.plot(np.array(frames), np.array(dip_z), color = 'indigo', linewidth = 2)
+plt.ylabel('Spectral Density (a.u.)')
+plt.xlabel('Time (ps)')
+plt.grid()
+plt.savefig(dirPath+"/"+'dipoleMoment_Z.png')
+print('Dip X picture saved...')
+
+plt.gcf().clear()
+plt.plot(np.array(frames), np.array(dip_abs), color = 'darkblue', linewidth = 2)
+plt.ylabel('Spectral Density (a.u.)')
+plt.xlabel('Time (ps)')
+plt.grid()
+plt.savefig(dirPath+"/"+'dipoleMoment_ABS.png')
+print('Dip ABS picture saved...')
 
 plt.gcf().clear()
 plt.plot(np.array(frames), np.array(dip_abs))
