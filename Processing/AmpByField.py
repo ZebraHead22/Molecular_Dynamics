@@ -39,7 +39,8 @@ def one_experiment():
                     #Find max over 3333cm-1 and add to list
                     field_amplutide.append(float(folder))
                     amplitude.append(df['Amplitude'].where(df['Frequency']>3000).max())
-    exp = pd.DataFrame(list(zip(field_amplutide, amplitude)), columns =['Field Fmplutide (kcal/mol*A*e)', 'Spectral Density (a.u.)'])
+    exp = pd.DataFrame(list(zip(field_amplutide, amplitude)), columns =['Field Amplutide (kcal/mol*A*e)', 'Spectral Density (a.u.)'])
+    print(exp.head())
     with pd.ExcelWriter('dependence.xlsx') as writer:
         exp.to_excel(writer, sheet_name='Dependence', index=None, index_label=None)
 
