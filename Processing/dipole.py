@@ -60,3 +60,10 @@ dipole = pd.DataFrame(list(zip(frames, dip_x, dip_y, dip_z, dip_abs)),
 with pd.ExcelWriter(dirPath+'/'+'dependence.xlsx') as writer:                 
     dipole.to_excel(writer, sheet_name='Dipole', index=None, index_label=None)
 
+
+plt.gcf().clear()
+plt.plot(np.array(frames), np.array(dip_abs))
+plt.ylabel('Time (ps))')
+plt.xlabel('Frequency ($cm^{-1}$)')
+plt.grid()
+plt.show()
