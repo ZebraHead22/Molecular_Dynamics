@@ -15,8 +15,7 @@ for i in files:
         df.rename(columns = {'0.0' : 'Frequency', '0.0.1' : 'Amplitude'}, inplace = True)
         dfFreq = np.array(df['Frequency'].tolist())
         dfAmp = np.array(df['Amplitude'].tolist())
-        df.loc[df['Frequency'].idxmax()]
-        #Make png
+        print(os.path.basename(filename)+" - " +str(df.loc[df['Amplitude'].idxmax(), 'Frequency']))
         plt.gcf().clear()
         plt.plot(dfFreq, dfAmp)
         plt.ylabel('Spectral Density (a.u.)')
@@ -24,6 +23,4 @@ for i in files:
         plt.grid()
         plt.savefig(filename+'.png')
 
-exp = pd.DataFrame(list(zip(names, mf)), columns =['File', 'Frequency ($cm^{-1}$)'])
-with pd.ExcelWriter('res.xlsx') as writer:
-        exp.to_excel(writer, sheet_name='Dependence', index=None, index_label=None)
+
