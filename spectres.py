@@ -6,7 +6,8 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 
-
+names = []
+mf = []
 av = pd.DataFrame()
 field_amplutide = []
 amplitude = []
@@ -21,6 +22,9 @@ for i in files:
         print(df.head())
         dfFreq = np.array(df['Frequency'].tolist())
         dfAmp = np.array(df['Amplitude'].tolist())
+        names.append(os.path.basename(filename))
+        #mf.append(df['Amplitude'].max())
+        mf.append(df['Frequency'].where(df['Amplitude'].max()==df['Amplitude']).dropna())
         #Make png
         plt.gcf().clear()
         plt.plot(dfFreq, dfAmp)
@@ -29,3 +33,9 @@ for i in files:
         plt.grid()
         plt.savefig(filename+'.png')
         print('Picture saved'+' '+filename+'.png')
+    
+exp = pd.DataFrame(list(zip(names, mf)), columns =['File', 'Frequency ($cm^{-1}$)'])
+with pd.ExcelWriter('res.xlsx') as writer:
+        exp.to_excel(writer, sheet_name='Dependence', index=None, index_label=None)
+
+
