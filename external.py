@@ -7,17 +7,17 @@ from matplotlib import pyplot as plt
 from scipy.fft import rfft, rfftfreq
 
 time = np.array(list(range(0, 1000000)))
-magnitude = np.array([1, 1, 1, 1, 1, -1, -1, -1 ,-1, -1]*100000)
+magnitude = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1 ,-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]*100000)
 
 time1 = np.array(list(range(0, 50)))
 magnitude1 = np.array([1, 1, 1, 1, 1, -1, -1, -1 ,-1, -1]*5)
 
-plt.scatter(time1, magnitude1)
+plt.scatter(time, magnitude)
 plt.ylabel('Amplitude (kcal/mol*A*e)')
 plt.xlabel('Time (ps)')
 plt.grid()
 
-# plt.savefig('timeDependence.png')
+plt.savefig('timeDependence_17.png')
 
 energies_fft = sp.fftpack.fft(magnitude)
 energies_psd = np.abs(energies_fft)
