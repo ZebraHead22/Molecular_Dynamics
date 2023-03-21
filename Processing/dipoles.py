@@ -1,4 +1,5 @@
 import os
+import re
 import pandas as pd
 import numpy as np
 import scipy as sc
@@ -52,19 +53,26 @@ def main():
             df = pd.read_csv(dirPath+'/'+i, sep = ' ')
             df.dropna(how='all', axis=1, inplace=True)
             df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y', 'Unnamed: 6': 'dip_z', 'Unnamed: 8': 'dip_abs'}, inplace=True)
-            print
             df.insert(1, "Time", (df['frame'] * timeframe)*10**12)
-            # print(df.head(-1))
             yList = np.array(df[axis])
             xList = np.array(df["Time"])
             plt.gcf().clear()
-            plt.scatter(xList, yList, c = 'darkblue', s = 15)
-            plt.vlines(fieldtime, -50, 50, color = 'r')
-            plt.ylabel('Dipole moment (D)')
-            plt.xlabel('Time (ps)')
-            plt.ylim([-20, 20])
-            plt.grid()
-            plt.savefig(filename+axis+'.png')
+
+            if os.path.basename(filename) == "dipole_00":
+                plt.scatter(xList, yList, c = 'darkblue', s = 15)
+                plt.ylabel('Dipole moment (D)')
+                plt.xlabel('Time (ps)')
+                plt.ylim([-20, 20])
+                plt.grid()
+                plt.savefig(filename+axis+'.png')
+            else:
+                plt.scatter(xList, yList, c = 'darkblue', s = 15)
+                plt.vlines(fieldtime, -50, 50, color = 'r')
+                plt.ylabel('Dipole moment (D)')
+                plt.xlabel('Time (ps)')
+                plt.ylim([-20, 20])
+                plt.grid()
+                plt.savefig(filename+axis+'.png')
 
 def ampDependence():
     maxValues = []
