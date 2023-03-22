@@ -44,7 +44,7 @@ def oneSpectrum():
  
     xSamp = [float(x) for x in xSamp]
     for i in xSamp:
-        wv.append((1/i)*10**6)
+        wv.append((1/i)*10**4)
 
     plt.gcf().clear()
     plt.stem(np.array(wv), np.array(ySamp))
