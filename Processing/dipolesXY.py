@@ -19,6 +19,7 @@ for i in files:
         df.dropna(how='all', axis=1, inplace=True)
         df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y', 'Unnamed: 6': 'dip_z', 'Unnamed: 8': 'dip_abs'}, inplace=True)
         df.insert(1, "Time", (df['frame'] * timeframe)*10**12)
+        print(df.head())
         yList = np.array((((df['dip_x'])**2)+((df['dip_y'])**2))**(1/2)) #(x^2+y^2)^1/2
         # yList = df['dip_x'] + df['dip_y'] * 1j
         xList = np.array(df["Time"])
