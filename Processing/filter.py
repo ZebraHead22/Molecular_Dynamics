@@ -9,28 +9,29 @@ from matplotlib import pyplot as plt
 from scipy import signal
 
 
-file = "C:/Users/baranov_ma/YandexDisk/NamdData/noField/glycine_5fs/dipole.dat"
+file = "/Users/max/Yandex.Disk.localized/NamdData/noField/glycine_5fs/dipole.dat"
 df = pd.read_csv(file, sep = ' ')
 df.dropna(how='all', axis=1, inplace=True)
 df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y', 'Unnamed: 6': 'dip_z', 'Unnamed: 8': 'dip_abs'}, inplace=True)
-df.insert(1, "Time", (df['frame'] *10**(-3)))
+df.insert(1, "Time", (df['frame']*10**(-15)))
+f0 = rfft(df['dip_abs'].tolist())
+f0 = np.abs(f0)
+f1 = f0.copy()
+f1[:3330] = 0
+z = irfft(f1)
 
+fftFreq = sc.fftpack.fftfreq(len(df['Time'].tolist()), 5*10**(-15))
 
-# n = 2 ** 8
-# x = np.linspace(0, 2 * np.pi, n)
-# y = np.sin(x) + np.cos(x * 30)
-# f0 = rfft(y)
-# f1 = f0.copy()
-# f1[:n // 8] = 0
-# z = irfft(f1)
-# f, (spectra, signal) = plt.subplots(2, 1, sharey=False)
-# spectra.plot(x, f0, label='f0')
-# spectra.plot(x, f1, label='f1')
-# spectra.legend()
-# spectra.title.set_text('spectra')
-# signal.plot(x, y, label='y')
-# signal.plot(x, z, label='z')
-# signal.legend()
-# signal.title.set_text('signal')
-# plt.legend()
-# plt.show()
+i = fftFreq > 0
+
+reverseCm = 1/((3*(10**10))/(fftFreq[i]))
+
+f, (dip1, dip2) = plt.subplots(2, 1, sharey=False)
+
+dip1.plot(np.array(np.array(fftFreq[i])), f0[i], label='dip1')
+dip1.title.set_text('dip1')
+
+dip2.plot(np.array(fftFreq[i]), z[i], label='dip2')
+dip2.title.set_text('dip2')
+
+plt.show()
