@@ -51,6 +51,6 @@ def oneSpectrum():
     plt.ylabel('Spectral Density (a.u.)')
     plt.xlabel('Wavelenght ($\mu$m)')
     plt.grid()
-    plt.show()
+    plt.savefig("dep.png")
 
 oneSpectrum()    
