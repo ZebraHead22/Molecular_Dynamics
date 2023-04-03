@@ -30,15 +30,12 @@ if len(time) == len(magnitude):
     plt.xlabel('Frequency ($cm^{-1}$)')
     plt.grid()
     # plt.show()
-    data = pd.DataFrame(list(zip(reverseCm, energies_psd[i])), columns=['Frequency', 'Amplitude'])
+    data = pd.DataFrame(list(zip(reverseCm, energies_psd[i])), columns=[
+                        'Frequency', 'Amplitude'])
     # print(data.loc[data['Amplitude'].idxmax()])
     for i in data['Amplitude'].nlargest(2):
-        print(data['Frequency'].where(data['Amplitude']==i).dropna())
+        print(data['Frequency'].where(data['Amplitude'] == i).dropna())
 else:
     print("False")
     print("len time="+str(len(time)))
     print("len magnitude="+str(len(magnitude)))
-
-
-
-
