@@ -51,7 +51,8 @@ def one_spectrum():
                 df['Frequency']-float(int(frequency)-20)).abs().argsort()[:1]].index.tolist()
             closest_value_max = df.iloc[(
                 df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
-            max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
+            max_amplitude = df.loc[closest_value_min[0]
+                : closest_value_max[0], 'Amplitude'].max()
             max_amplitude_frequency = df.loc[df['Amplitude']
                                              == max_amplitude, 'Frequency']
             x_samples.append(max_amplitude_frequency)
@@ -60,22 +61,22 @@ def one_spectrum():
     x_samples = [float(x) for x in x_samples]
     for i in x_samples:
         wv.append((1/i)*10**4)
-   
+
     plt.gcf().clear()
     plt.stem(np.array(wv), np.array(y_samples))
     plt.ylabel('Spectral Density (a.u.)')
     plt.xlabel('Wavelenght ($\mu$m)')
     plt.grid()
     # plt.savefig("dep.png")
-    
-    x_samples.sort()
+
+    x_samples.sort()  # Чекнуть решение струн
     for i in x_samples:
         d = float(float(i)/x_samples[0])
         print(d)
         strings.append(d)
-        
     strings.sort()
     # print(strings)
+
 
 one_spectrum()
 # makeSpectres()
