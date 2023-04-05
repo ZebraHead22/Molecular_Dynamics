@@ -65,15 +65,13 @@ for i in files:
 
         plt.gcf().clear()
         plt.plot(x_samples, y_samples, c='darkblue', linewidth = 1)
-        plt.vlines(fieldtime, int(min(y_samples))-20,
-                    int(max(y_samples))+10, color='r')
-        plt.vlines(int(max(x_samples)-fieldtime), int(min(y_samples)) -
-                    20, int(max(y_samples))+10, color='r')
+        plt.vlines(fieldtime, 0, 600, color='r')
+        plt.vlines(int(max(x_samples)-fieldtime), 0, 600, color='r')
         plt.ylabel('Square dipole moment (D$^{2}$)')
         plt.xlabel('Time (ps)')
-        plt.ylim([int(min(y_samples))-1, int(max(y_samples))+3])
+        plt.ylim([0, 600])
         # plt.xlim([0, float(fieldtime)+float(field_realization)+10])
-        plt.xlim([0, float(fieldtime)+float(field_realization)+10])
+        plt.xlim([0, 110])
         plt.grid()
         plt.savefig(filename+axis+'.png')
 
