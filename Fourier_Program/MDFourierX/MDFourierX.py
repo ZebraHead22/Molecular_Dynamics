@@ -1,7 +1,8 @@
 import re
 import pandas
 import Ui_designX
-import sys, os
+import sys
+import os
 import numpy as np
 import scipy as sp
 import pandas as pd
@@ -9,7 +10,9 @@ from pandas import Series
 from scipy import fftpack
 from PyQt5 import QtWidgets
 import subprocess
-#-----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------
+
+
 class MainApplication(QtWidgets.QMainWindow, Ui_designX.Ui_MDFourier):
     def __init__(self):
         super().__init__()
@@ -24,7 +27,8 @@ class MainApplication(QtWidgets.QMainWindow, Ui_designX.Ui_MDFourier):
         self.extBtn.clicked.connect(self.exitMode)
         self.openCSVBtn.clicked.connect(self.fastCsv)
         self.miscBtn.clicked.connect(self.misc)
-#-----------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------
+
     def fastCsv(self):
         self.graphicsView_fourier.clear()
         self.graphicsView_energy.clear()
@@ -33,13 +37,15 @@ class MainApplication(QtWidgets.QMainWindow, Ui_designX.Ui_MDFourier):
         self.srLabel.setText("----------------------------")
         self.mlLabel.setText("----------------------------")
         self.tsLabel.setText("----------------------------")
-        self.csvfile = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file')[0]
+        self.csvfile = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file')[
+            0]
         self.datLabel_2.setText(os.path.basename(self.csvfile))
-#-----------------------------------------------------------------------------------------------------------------------
-    def upload(self):    
+# -----------------------------------------------------------------------------------------------------------------------
+
+    def upload(self):
         try:
-            self.newTimes=[]
-            self.newEnergies=[]
+            self.newTimes = []
+            self.newEnergies = []
             self.atoms = float(self.atomNumValue.value())
             self.df = pd.read_csv(self.csvfile)
             self.newTimes = self.df['TS']
@@ -58,11 +64,13 @@ class MainApplication(QtWidgets.QMainWindow, Ui_designX.Ui_MDFourier):
             self.graphicsView_energy.setBackground('w')
             self.graphicsView_energy.setLabel('bottom', 'time', units='s')
             self.graphicsView_energy.setLabel('left', 'Energy', units='eV')
-            self.graphicsView_energy.plot(self.newTimes, self.newEnergies, pen='b')
+            self.graphicsView_energy.plot(
+                self.newTimes, self.newEnergies, pen='b')
             self.directory = os.path.dirname(self.csvfile)
         except ValueError:
             pass
 # ----------------------------------------------------------------------------------------------------------------------
+
     def goProcess(self):
         self.graphicsView_fourier.clear()
         self.xSamp = []
@@ -73,23 +81,29 @@ class MainApplication(QtWidgets.QMainWindow, Ui_designX.Ui_MDFourier):
         self.y_res = self.ySamp * self.window
         energies_fft = sp.fftpack.fft(np.array(self.y_res))
         self.energies_psd = np.abs(energies_fft)
-        self.fftFreq = sp.fftpack.fftfreq(len(energies_fft), 1 / float(self.sampleRate))
+        self.fftFreq = sp.fftpack.fftfreq(
+            len(energies_fft), 1 / float(self.sampleRate))
         self.i = self.fftFreq > 0
         self.reverseCm = 1/((3*(10**10))/(self.fftFreq[self.i]))
         self.graphicsView_fourier.setBackground('w')
         self.graphicsView_fourier.setLabel('bottom', 'k', units='cm^-1')
         self.graphicsView_fourier.setLabel('left', 'Amplitude', units=None)
         if self.naturalBox.isChecked():
-            self.graphicsView_fourier.plot(self.reverseCm, self.energies_psd[self.i], pen='r')
+            self.graphicsView_fourier.plot(
+                self.reverseCm, self.energies_psd[self.i], pen='r')
         if self.logBox.isChecked():
-            self.graphicsView_fourier.plot(self.reverseCm, np.log10(self.energies_psd[self.i]), pen='b')
+            self.graphicsView_fourier.plot(
+                self.reverseCm, np.log10(self.energies_psd[self.i]), pen='b')
         if self.tenLogsBox.isChecked():
-            self.graphicsView_fourier.plot(self.reverseCm, 10 * np.log10(self.energies_psd[self.i]), pen='r')
+            self.graphicsView_fourier.plot(
+                self.reverseCm, 10 * np.log10(self.energies_psd[self.i]), pen='r')
 # ----------------------------------------------------------------------------------------------------------------------
+
     def misc(self):
         self.directory = QtWidgets.QFileDialog.getExistingDirectory()
         print(self.directory)
- # ----------------------------------------------------------------------------------------------------------------------       
+ # ----------------------------------------------------------------------------------------------------------------------
+
     def saveData(self):
         df = pandas.DataFrame()
         df['f (cm-1)'] = self.reverseCm
@@ -103,7 +117,8 @@ class MainApplication(QtWidgets.QMainWindow, Ui_designX.Ui_MDFourier):
         te['E (meV)'] = np.array(self.newEnergies)*1000
         with pd.ExcelWriter(str(self.directory)+"/"+'result.xlsx') as writer:
             df.to_excel(writer, sheet_name='fft', index=None, index_label=None)
-            te.to_excel(writer, sheet_name='energy', index=None, index_label=None)
+            te.to_excel(writer, sheet_name='energy',
+                        index=None, index_label=None)
         self.graphicsView_fourier.clear()
         self.graphicsView_energy.clear()
         self.newTimes = []
@@ -113,13 +128,18 @@ class MainApplication(QtWidgets.QMainWindow, Ui_designX.Ui_MDFourier):
         self.tsLabel.setText("----------------------------")
         self.directory = None
 # ----------------------------------------------------------------------------------------------------------------------
+
     def exitMode(self):
         exit()
 # ----------------------------------------------------------------------------------------------------------------------
+
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
     window = MainApplication()
     window.show()
     app.exec_()
+
+
 if __name__ == '__main__':
     main()
