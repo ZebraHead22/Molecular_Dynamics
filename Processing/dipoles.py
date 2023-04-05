@@ -56,13 +56,26 @@ for i in files:
                   'Unnamed: 6': 'dip_z', 'Unnamed: 8': 'dip_abs'}, inplace=True)
         df.insert(1, "Time", (df['frame'] * timeframe)*10**12)
         y_samples = np.array(df[axis])
-        print(y_samples)
         average_value = np.mean(df[axis])
         y_samples = y_samples - average_value  # удаление постоянной составляющей
-        # y_samples = [x**2 for x in y_samples]
+        y_samples = [x**2 for x in y_samples]
         x_samples = np.array(df["Time"])
+        field_realization = re.search(r'\d+', filename)
+        field_realization = field_realization.group(0)
 
-        # plt.gcf().clear()
+        plt.gcf().clear()
+        plt.plot(x_samples, y_samples, c='darkblue', linewidth = 1)
+        plt.vlines(fieldtime, int(min(y_samples))-20,
+                    int(max(y_samples))+10, color='r')
+        plt.vlines(int(max(x_samples)-fieldtime), int(min(y_samples)) -
+                    20, int(max(y_samples))+10, color='r')
+        plt.ylabel('Square dipole moment (D$^{2}$)')
+        plt.xlabel('Time (ps)')
+        plt.ylim([int(min(y_samples))-1, int(max(y_samples))+3])
+        plt.xlim([40, float(fieldtime)+float(field_realization)+10])
+        plt.grid()
+        plt.savefig(filename+axis+'.png')
+
         # # Если нет поля, рисовать без полос
         # if os.path.basename(filename) == "dipole_00":
         #     plt.scatter(x_samples, y_samples, c='darkblue', s=7)
@@ -83,3 +96,4 @@ for i in files:
         #     plt.ylim([int(min(y_samples))-10, int(max(y_samples))+10])
         #     plt.grid()
         #     plt.savefig(filename+axis+'.png')
+        

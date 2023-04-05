@@ -31,6 +31,7 @@ def make_spectres():
 
 
 def one_spectrum():
+    strings = []
     x_samples = []
     y_samples = []
     wv = []
@@ -53,20 +54,28 @@ def one_spectrum():
             max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
             max_amplitude_frequency = df.loc[df['Amplitude']
                                              == max_amplitude, 'Frequency']
-            xSamp.append(max_amplitude_frequency)
-            ySamp.append(max_amplitude)
+            x_samples.append(max_amplitude_frequency)
+            y_samples.append(max_amplitude)
 
-    xSamp = [float(x) for x in xSamp]
-    for i in xSamp:
+    x_samples = [float(x) for x in x_samples]
+    for i in x_samples:
         wv.append((1/i)*10**4)
-
+   
     plt.gcf().clear()
-    plt.stem(np.array(wv), np.array(ySamp))
+    plt.stem(np.array(wv), np.array(y_samples))
     plt.ylabel('Spectral Density (a.u.)')
     plt.xlabel('Wavelenght ($\mu$m)')
     plt.grid()
-    plt.savefig("dep.png")
-
+    # plt.savefig("dep.png")
+    
+    x_samples.sort()
+    for i in x_samples:
+        d = float(float(i)/x_samples[0])
+        print(d)
+        strings.append(d)
+        
+    strings.sort()
+    # print(strings)
 
 one_spectrum()
 # makeSpectres()
