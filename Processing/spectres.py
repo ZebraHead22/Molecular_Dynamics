@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 
-
+# Функция создает набор графиков спектральных зависимостей
 def make_spectres():
     folder = os.getcwd()
     files = os.listdir(os.getcwd())
@@ -29,7 +29,7 @@ def make_spectres():
             plt.savefig(filename+'.png')
     file.close()
 
-
+# Функция 
 def one_spectrum():
     strings = []
     x_samples = []
