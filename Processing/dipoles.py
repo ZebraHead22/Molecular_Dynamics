@@ -72,7 +72,8 @@ for i in files:
         plt.ylabel('Square dipole moment (D$^{2}$)')
         plt.xlabel('Time (ps)')
         plt.ylim([int(min(y_samples))-1, int(max(y_samples))+3])
-        plt.xlim([40, float(fieldtime)+float(field_realization)+10])
+        # plt.xlim([0, float(fieldtime)+float(field_realization)+10])
+        plt.xlim([0, float(fieldtime)+float(field_realization)+10])
         plt.grid()
         plt.savefig(filename+axis+'.png')
 
