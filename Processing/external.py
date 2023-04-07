@@ -6,20 +6,24 @@ from scipy import fftpack
 from matplotlib import pyplot as plt
 from scipy.fft import rfft, rfftfreq
 
-time = np.array(list(range(0, 3000)))
-magnitude = [1, 1, 1, 1, 1, -1, -1, -1, -1, -1]*100
-zeros = [0]*1000
-all = np.array(zeros + magnitude + zeros)
+impuls_time = list()
+impuls_list = list()
+amplitudes =list()
+zeros = [0]*1000  # Start and ending RI
+factor = 100  # Start since 1ps
+# One impuls period 10fs (0.01ps)
+one_impuls_list = [1, 1, 1, 1, 1, -1, -1, -1, -1, -1]
 
+all = np.array(zeros + impuls_list + zeros)
+time = np.array(list(range(0, len(all))))
 
-if len(time) == len(all):
-    print("True")
-    plt.scatter(time, all)
-    plt.ylabel('Amplitude (kcal/mol*A*e)')
-    plt.xlabel('Time (ps)')
-    plt.grid()
+for factor in range(1, 20, 1):
+    
+    impuls_list = one_impuls_list * factor
+    all = np.array(zeros + impuls_list + zeros)
+    time = np.array(list(range(0, len(all))))
 
-    plt.savefig('timeDependence_4.png')
+    impuls_time.append(len(impuls_list)/1000)
 
     energies_fft = sp.fftpack.fft(all)
     energies_psd = np.abs(energies_fft)
@@ -27,20 +31,16 @@ if len(time) == len(all):
     i = fftFreq > 0
     reverseCm = 1/((3*(10**10))/(fftFreq[i]))
 
-    plt.gcf().clear()
-    plt.plot(reverseCm, energies_psd[i])
-    plt.ylabel('Spectral Density (a.u.)')
-    plt.xlabel('Frequency ($cm^{-1}$)')
-    plt.grid()
-    plt.show()
-    # plt.show()
     data = pd.DataFrame(list(zip(reverseCm, energies_psd[i])), columns=[
                         'Frequency', 'Amplitude'])
-    # print(data.loc[data['Amplitude'].idxmax()])
-    for i in data['Amplitude'].nlargest(2):
-        print(data['Frequency'].where(data['Amplitude'] == i).dropna())
-
-else:
-    print("False")
-    print("len time="+str(len(time)))
-    print("len magnitude="+str(len(all)))
+    # print(data.loc[data['Amplitude'].idxmax(), 'Frequency'])
+    
+    amplitudes.append(data.loc[data['Amplitude'].idxmax(), 'Frequency'])
+    
+plt.gcf().clear()
+plt.plot(np.array(impuls_time), np.array(amplitudes), c = 'darkblue')
+# plt.ylabel('Spectral Density (a.u.)')
+plt.ylabel('Frequency ($cm^{-1}$)')
+plt.xlabel('Radio pulse duration (ps)')
+plt.grid()
+plt.show()
