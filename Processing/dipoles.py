@@ -44,6 +44,8 @@ else:
 timeframe = input("Укажите время разделения фреймов (фс): ")
 timeframe = float(float(timeframe) * (10 ** -15))
 fieldtime = int(input("Укажите время действия поля (пс): "))
+# Запрос лимита по Y-оси
+y_limit = int(input("Укажите лимиты по Y:  "))
 # Тело
 files = os.listdir(os.getcwd())
 dir_path = os.getcwd()
@@ -66,33 +68,13 @@ for i in files:
         plt.gcf().clear()
         plt.plot(x_samples, y_samples, c='darkblue', linewidth = 1)
         plt.vlines(fieldtime, 0, 600, color='r')
-        plt.vlines(int(max(x_samples)-fieldtime), 0, 600, color='r')
+        plt.vlines(int(max(x_samples)-fieldtime), 0, y_limit, color='r')
         plt.ylabel('Square dipole moment (D$^{2}$)')
         plt.xlabel('Time (ps)')
-        plt.ylim([0, 600])
+        plt.ylim([0, y_limit])
         # plt.xlim([0, float(fieldtime)+float(field_realization)+10])
-        plt.xlim([0, 110])
+        # plt.xlim([0, 110])
         plt.grid()
         plt.savefig(filename+axis+'.png')
 
-        # # Если нет поля, рисовать без полос
-        # if os.path.basename(filename) == "dipole_00":
-        #     plt.scatter(x_samples, y_samples, c='darkblue', s=7)
-        #     plt.ylabel('Dipole moment (D)')
-        #     plt.xlabel('Time (ps)')
-        #     plt.ylim([-20, 20])
-        #     plt.grid()
-        #     plt.savefig(filename+axis+'.png')
-        # # Если поле есть, отрисовывать полосы
-        # else:
-        #     plt.scatter(x_samples, y_samples, c='darkblue', s=10)
-        #     plt.vlines(fieldtime, int(min(y_samples))-20,
-        #                int(max(y_samples))+10, color='r')
-        #     plt.vlines(int(max(x_samples)-fieldtime), int(min(y_samples)) -
-        #                20, int(max(y_samples))+10, color='r')
-        #     plt.ylabel('Dipole moment (D)')
-        #     plt.xlabel('Time (ps)')
-        #     plt.ylim([int(min(y_samples))-10, int(max(y_samples))+10])
-        #     plt.grid()
-        #     plt.savefig(filename+axis+'.png')
         
