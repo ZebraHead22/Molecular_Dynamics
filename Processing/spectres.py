@@ -78,7 +78,7 @@ def one_spectrum():
     print(strings)
     plt.stem(np.array(wv), np.array(strings))
     plt.ylabel('Level (a.u.)')
-    plt.xlabel('Wavelenght ($\mu$m)')
+    plt.xlabel('Frequency ($cm^{-1}$)')
     plt.grid()
     plt.show()
 
