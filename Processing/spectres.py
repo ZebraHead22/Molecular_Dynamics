@@ -63,20 +63,24 @@ def one_spectrum():
         wv.append((1/i)*10**4)
 
     plt.gcf().clear()
-    plt.stem(np.array(wv), np.array(y_samples))
-    plt.ylabel('Spectral Density (a.u.)')
-    plt.xlabel('Wavelenght ($\mu$m)')
-    plt.grid()
+    # plt.stem(np.array(wv), np.array(y_samples))
+    # plt.ylabel('Spectral Density (a.u.)')
+    # plt.xlabel('Wavelenght ($\mu$m)')
+    # plt.grid()
     # plt.savefig("dep.png")
 
     x_samples.sort()  # Чекнуть решение струн
     for i in x_samples:
         d = float(float(i)/x_samples[0])
-        print(d)
-        strings.append(d)
+        strings.append(round(d))
     strings.sort()
     # print(strings)
-
+    print(strings)
+    plt.stem(np.array(wv), np.array(strings))
+    plt.ylabel('Level (a.u.)')
+    plt.xlabel('Wavelenght ($\mu$m)')
+    plt.grid()
+    plt.show()
 
 one_spectrum()
 # makeSpectres()
