@@ -1,5 +1,4 @@
 # Здесь строим кучу спектров из набора дат файлов в одной папке
-
 import os
 import re
 import pandas as pd
@@ -29,7 +28,7 @@ def make_spectres():
             plt.savefig(filename+'.png')
     file.close()
 
-# Функция 
+# Функция строит один спектр
 def one_spectrum():
     strings = []
     x_samples = []
@@ -45,14 +44,15 @@ def one_spectrum():
                       '0.0.1': 'Amplitude'}, inplace=True)
 
             frequency = re.search(r'\d+', str(os.path.basename(filename)))
+            print(filename)
+            print(frequency)
             frequency = frequency.group(0)
 
             closest_value_min = df.iloc[(
                 df['Frequency']-float(int(frequency)-20)).abs().argsort()[:1]].index.tolist()
             closest_value_max = df.iloc[(
                 df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
-            max_amplitude = df.loc[closest_value_min[0]
-                : closest_value_max[0], 'Amplitude'].max()
+            max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
             max_amplitude_frequency = df.loc[df['Amplitude']
                                              == max_amplitude, 'Frequency']
             x_samples.append(max_amplitude_frequency)
@@ -63,24 +63,25 @@ def one_spectrum():
         wv.append((1/i)*10**4)
 
     plt.gcf().clear()
-    # plt.stem(np.array(wv), np.array(y_samples))
-    # plt.ylabel('Spectral Density (a.u.)')
-    # plt.xlabel('Wavelenght ($\mu$m)')
-    # plt.grid()
-    # plt.savefig("dep.png")
-
-    x_samples.sort()  # Чекнуть решение струн
-    for i in x_samples:
-        d = float(float(i)/x_samples[0])
-        strings.append(round(d))
-    strings.sort()
-    # print(strings)
-    print(strings)
-    plt.stem(np.array(wv), np.array(strings))
-    plt.ylabel('Level (a.u.)')
-    plt.xlabel('Frequency ($cm^{-1}$)')
+    plt.stem(np.array(wv), np.array(y_samples))
+    plt.ylabel('Spectral Density (a.u.)')
+    plt.xlabel('Wavelenght ($\mu$m)')
     plt.grid()
-    plt.show()
+    plt.savefig("dep.png")
+
+    # x_samples.sort()  # Чекнуть решение струн
+    # for i in x_samples:
+    #     d = float(float(i)/x_samples[0])
+    #     strings.append(round(d))
+    # strings.sort()
+    # print(strings)
+    # print(strings)
+    # plt.stem(np.array(wv), np.array(strings))
+    # plt.ylabel('Level (a.u.)')
+    # plt.xlabel('Frequency ($cm^{-1}$)')
+    # plt.grid()
+    # plt.show()
+
 
 one_spectrum()
-# makeSpectres()
+
