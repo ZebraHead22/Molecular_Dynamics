@@ -67,7 +67,7 @@ for i in files:
 
         plt.gcf().clear()
         plt.plot(x_samples, y_samples, c='darkblue', linewidth = 1)
-        plt.vlines(fieldtime, 0, 600, color='r')
+        # plt.vlines(fieldtime, 0, 600, color='r')
         plt.vlines(int(max(x_samples)-fieldtime), 0, y_limit, color='r')
         plt.ylabel('Square dipole moment (D$^{2}$)')
         plt.xlabel('Time (ps)')
