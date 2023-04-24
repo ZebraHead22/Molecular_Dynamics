@@ -172,8 +172,8 @@ def levels():
     #    ylim=(0, 8), yticks=np.arange(1, 8))
 
     ax.set_ylabel('Frequency (THz)')
-    ax.set_ylim(0, 5)
-    ax_e.set_ylim(0, 20.5)
+    ax.set_ylim(0, 15)
+    # ax_e.set_ylim(0, 20.5)
     ax_e.set_ylabel('Energy (meV)')
 
     ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),
