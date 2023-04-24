@@ -107,6 +107,7 @@ def levels():
                     closest_value_max = df.iloc[(
                         df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
                     max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
+                    print(max_amplitude)
                     max_amplitude_frequency = df.loc[df['Amplitude']
                                                      == max_amplitude, 'Frequency']
                     if folder == "gly":
@@ -114,7 +115,7 @@ def levels():
                     elif folder == "ff":
                         FREQUENCIES_FF.append(max_amplitude_frequency)
                     elif folder == "trp":
-                        FREQUENCIES_TRP.append(max_amplitude_frequency)
+                        FREQUENCIES_TRP.append(max_amplitude_frequency)  
 # # --------------------------------------------------------------------------------------------
             literature_files = os.listdir(folder+"/Literature/")
             for lit_file in literature_files:
@@ -136,6 +137,7 @@ def levels():
                     closest_value_max = df.iloc[(
                         df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
                     max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
+                    print(max_amplitude)
                     max_amplitude_frequency = df.loc[df['Amplitude']
                                                      == max_amplitude, 'Frequency']
                     if folder == "gly":
@@ -143,46 +145,33 @@ def levels():
                     elif folder == "ff":
                         FREQUENCIES_FF.append(max_amplitude_frequency)
                     elif folder == "trp":
-                        FREQUENCIES_TRP.append(max_amplitude_frequency)        
+                        FREQUENCIES_TRP.append(max_amplitude_frequency)  
 
 
     FREQUENCIES_GLY = [float(x*0.03) for x in FREQUENCIES_GLY]
     FREQUENCIES_FF = [float(x*0.03) for x in FREQUENCIES_FF]
     FREQUENCIES_TRP = [float(x*0.03) for x in FREQUENCIES_TRP]
-
     ENERGY_GLY = [float(x*4.1) for x in FREQUENCIES_GLY]
     ENERGY_FF = [float(x*4.1) for x in FREQUENCIES_FF]
     ENERGY_TRP = [float(x*4.1) for x in FREQUENCIES_TRP]
 
     plt.gcf().clear()
-
-    species = ["Glycine", "Diphenylalanine", "Tryptophan"]
     fig, ax = plt.subplots()
-
     ax_e = ax.twinx()
-
-    ax.eventplot(FREQUENCIES_GLY, orientation="vertical", lineoffsets=-2, linewidth=0.75, color = "red")
-    ax.eventplot(FREQUENCIES_FF, orientation="vertical", lineoffsets=0, linewidth=0.75, color = "blue")
-    ax.eventplot(FREQUENCIES_TRP, orientation="vertical", lineoffsets=2, linewidth=0.75, color = 'black')
-    # ax_e.eventplot(ENERGY_GLY, orientation="vertical", lineoffsets=-2, linewidth=0.75, color = "red")
-    # ax_e.eventplot(ENERGY_FF, orientation="vertical", lineoffsets=0, linewidth=0.75, color = "blue")
-    # ax_e.eventplot(ENERGY_TRP, orientation="vertical", lineoffsets=2, linewidth=0.75, color = 'black')
-
-    # ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
-    #    ylim=(0, 8), yticks=np.arange(1, 8))
-
+    ax.eventplot(FREQUENCIES_GLY, orientation="vertical", lineoffsets=-1.5, linewidth=0.75, color = "black")
+    ax.eventplot(FREQUENCIES_TRP, orientation="vertical", lineoffsets=0, linewidth=0.75, color = 'black')
+    ax.eventplot(FREQUENCIES_FF, orientation="vertical", lineoffsets=1.5, linewidth=0.75, color = "black")
+    
     ax.set_ylabel('Frequency (THz)')
     ax.set_ylim(0, 15)
-    # ax_e.set_ylim(0, 20.5)
+    ax_e.set_ylim(0, 61.5)
     ax_e.set_ylabel('Energy (meV)')
-
-    ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),
-          ncol=3, fancybox=True, shadow=True, labels=['Glycine','Diphenylalanine', 'Tryptophan'])
-
-    # ax.legend(loc = 4, labels=['Glycine','Diphenylalanine', 'Tryptophan'])
-    # ax.xaxis.set_major_locator(locator)
+    ax.text(-1.8, 14, 'Glycine                 Tryptophan        Diphenylalanine')
     ax.set_xticks([])
 
+    # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),
+        #   ncol=3, fancybox=True, shadow=True, labels=['Glycine', 'Tryptophan', 'Diphenylalanine'])
+    
     fig.savefig(os.getcwd()+'/'+"eveplot_amino.png")
 
 
