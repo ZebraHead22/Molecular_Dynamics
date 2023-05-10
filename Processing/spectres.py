@@ -83,5 +83,5 @@ def one_spectrum():
     # plt.show()
 
 
-one_spectrum()
+make_spectres()
 

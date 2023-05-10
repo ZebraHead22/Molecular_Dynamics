@@ -43,9 +43,9 @@ else:
 # Запросы времен
 timeframe = input("Укажите время разделения фреймов (фс): ")
 timeframe = float(float(timeframe) * (10 ** -15)) 
-# fieldtime = int(input("Укажите время действия поля (пс): "))
+fieldtime = int(input("Укажите время действия поля (пс): "))
 # Запрос лимита по Y-оси
-# y_limit = int(input("Укажите лимиты по Y:  "))
+y_limit = int(input("Укажите лимиты по Y:  "))
 # Тело
 files = os.listdir(os.getcwd())
 dir_path = os.getcwd()
@@ -60,7 +60,7 @@ for i in files:
         y_samples = np.array(df[axis])
         average_value = np.mean(df[axis])
         y_samples = y_samples - average_value  # удаление постоянной составляющей
-        # y_samples = [x**2 for x in y_samples]
+        y_samples = [x**2 for x in y_samples]
         x_samples = np.array(df["Time"])
         field_realization = re.search(r'\d+', filename)
         field_realization = field_realization.group(0)
@@ -68,14 +68,20 @@ for i in files:
         plt.gcf().clear()
         plt.plot(x_samples, y_samples, c='darkblue', linewidth = 1)
         # plt.vlines(fieldtime, 0, 600, color='r')
-        # plt.vlines(int(max(x_samples)-fieldtime), 0, y_limit, color='r')
+        plt.vlines(int(max(x_samples)-fieldtime), 0, y_limit, color='r')
         # plt.ylabel('Square dipole moment (D$^{2}$)')
-        plt.ylabel('Dipole moment (D\u2013<D>)')
+        plt.ylabel('Dipole moment (D\u2013<D>)$^{2}$')
         plt.xlabel('Time (ps)')
         # plt.ylim([0, y_limit])
         # plt.xlim([0, float(fieldtime)+float(field_realization)+10])
-        plt.xlim([200, 201])
+        # plt.xlim([200, 201])
         plt.grid()
-        plt.savefig(filename+'_'+axis+'_short.png')
+        plt.savefig(filename+'_'+axis+'.png')
 
+        dipole = pd.DataFrame(list(zip(x_samples, y_samples)),
+                      columns=['Time (ps)', '(d-<d>)^2ip_x'])
+
+
+        with pd.ExcelWriter('dependence.xlsx') as writer:
+             dipole.to_excel(writer, sheet_name='Dipole', index=None, index_label=None)
         
