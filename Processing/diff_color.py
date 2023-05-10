@@ -92,6 +92,10 @@ def two_classes():
 
 
 def levels():
+    GLY = list()
+    FF = list()
+    TRP = list()
+
     FREQUENCIES_GLY = list()
     FREQUENCIES_FF = list()
     FREQUENCIES_TRP = list()
@@ -121,15 +125,15 @@ def levels():
                     closest_value_max = df.iloc[(
                         df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
                     max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
-                    print(max_amplitude)
+
                     max_amplitude_frequency = df.loc[df['Amplitude']
                                                      == max_amplitude, 'Frequency']
                     if folder == "gly":
-                        FREQUENCIES_GLY.append(max_amplitude_frequency)
+                        GLY.append(max_amplitude_frequency)
                     elif folder == "ff":
-                        FREQUENCIES_FF.append(max_amplitude_frequency)
+                        FF.append(max_amplitude_frequency)
                     elif folder == "trp":
-                        FREQUENCIES_TRP.append(max_amplitude_frequency)  
+                        TRP.append(max_amplitude_frequency)  
 # # --------------------------------------------------------------------------------------------
             literature_files = os.listdir(folder+"/Literature/")
             for lit_file in literature_files:
@@ -151,23 +155,42 @@ def levels():
                     closest_value_max = df.iloc[(
                         df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
                     max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
-                    print(max_amplitude)
+
                     max_amplitude_frequency = df.loc[df['Amplitude']
                                                      == max_amplitude, 'Frequency']
                     if folder == "gly":
-                        FREQUENCIES_GLY.append(max_amplitude_frequency)
+                        GLY.append(max_amplitude_frequency)
                     elif folder == "ff":
-                        FREQUENCIES_FF.append(max_amplitude_frequency)
+                        FF.append(max_amplitude_frequency)
                     elif folder == "trp":
-                        FREQUENCIES_TRP.append(max_amplitude_frequency)  
+                        TRP.append(max_amplitude_frequency)  
+    for i in np.array(GLY):
+        FREQUENCIES_GLY.append(i[0])
 
+    unique = set(FREQUENCIES_GLY)
+    for number in unique:
+        FREQUENCIES_GLY.append(number)
 
-    FREQUENCIES_GLY = [float(x*0.03) for x in FREQUENCIES_GLY]
-    FREQUENCIES_FF = [float(x*0.03) for x in FREQUENCIES_FF]
-    FREQUENCIES_TRP = [float(x*0.03) for x in FREQUENCIES_TRP]
-    ENERGY_GLY = [float(x*4.1) for x in FREQUENCIES_GLY]
-    ENERGY_FF = [float(x*4.1) for x in FREQUENCIES_FF]
-    ENERGY_TRP = [float(x*4.1) for x in FREQUENCIES_TRP]
+    for i in np.array(FF):
+        FREQUENCIES_FF.append(i[0])
+
+    unique = set(FREQUENCIES_FF)
+    for number in unique:
+        FREQUENCIES_FF.append(number)
+
+    for i in np.array(TRP):
+        FREQUENCIES_TRP.append(i[0])
+
+    unique = set(FREQUENCIES_TRP)
+    for number in unique:
+        FREQUENCIES_TRP.append(number)
+    
+    FREQUENCIES_THZ_GLY = [float(x*0.03) for x in FREQUENCIES_GLY]
+    FREQUENCIES_THZ_FF = [float(x*0.03) for x in FREQUENCIES_FF]
+    FREQUENCIES_THZ_TRP = [float(x*0.03) for x in FREQUENCIES_TRP]
+    # ENERGY_GLY = [float(x*4.1) for x in FREQUENCIES_GLY]
+    # ENERGY_FF = [float(x*4.1) for x in FREQUENCIES_FF]
+    # ENERGY_TRP = [float(x*4.1) for x in FREQUENCIES_TRP]
 
     plt.gcf().clear()
     fig, ax = plt.subplots()
@@ -176,11 +199,12 @@ def levels():
     ax.eventplot(FREQUENCIES_TRP, orientation="vertical", lineoffsets=0, linewidth=0.75, color = 'black')
     ax.eventplot(FREQUENCIES_FF, orientation="vertical", lineoffsets=1.5, linewidth=0.75, color = "black")
     
-    ax.set_ylabel('Frequency (THz)')
-    ax.set_ylim(0, 15)
-    ax_e.set_ylim(0, 61.5)
-    ax_e.set_ylabel('Energy (meV)')
-    ax.text(-1.8, 14, 'Glycine                 Tryptophan        Diphenylalanine')
+    ax.set_ylabel('Frequency ($cm^{-1}$)')
+    ax_e.set_ylabel('Frequency (THz)')
+    # ax.set_ylim(0, 15)
+    # ax_e.set_ylim(0, 61.5)
+    # ax_e.set_ylabel('Energy (meV)')
+    ax.text(-1.8, -80, 'Glycine                 Tryptophan        Diphenylalanine')
     ax.set_xticks([])
 
     # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),
@@ -191,4 +215,4 @@ def levels():
 
 
 # levels()
-two_classes()
+levels()
