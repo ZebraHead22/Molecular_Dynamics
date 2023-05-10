@@ -205,8 +205,8 @@ def levels():
 
     ax.set_ylabel('Frequency ($cm^{-1}$)')
     ax_e.set_ylabel('Frequency (THz)')
-    ax.set_ylim(0, 1000)
-    ax_e.set_ylim(0, 30)
+    ax.set_ylim(0, 200)
+    ax_e.set_ylim(0, 6)
     # ax_e.set_ylabel('Energy (meV)')
     ax.text(-1.8, -80, 'Glycine                 Tryptophan        Diphenylalanine')
     ax.set_xticks([])
@@ -214,7 +214,7 @@ def levels():
     # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),
         #   ncol=3, fancybox=True, shadow=True, labels=['Glycine', 'Tryptophan', 'Diphenylalanine'])
     
-    fig.savefig(os.getcwd()+'/'+"eveplot_amino.png")
+    fig.savefig(os.getcwd()+'/'+"eveplot_amino_collective.png")
 
 
 
