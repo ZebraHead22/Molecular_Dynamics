@@ -199,10 +199,14 @@ def levels():
     ax.eventplot(FREQUENCIES_TRP, orientation="vertical", lineoffsets=0, linewidth=0.75, color = 'black')
     ax.eventplot(FREQUENCIES_FF, orientation="vertical", lineoffsets=1.5, linewidth=0.75, color = "black")
     
+    # ax.eventplot(FREQUENCIES_THZ_GLY, orientation="vertical", lineoffsets=-1.5, linewidth=0.75, color = "black")
+    # ax.eventplot(FREQUENCIES_THZ_TRP, orientation="vertical", lineoffsets=0, linewidth=0.75, color = 'black')
+    # ax.eventplot(FREQUENCIES_THZ_FF, orientation="vertical", lineoffsets=1.5, linewidth=0.75, color = "black")
+
     ax.set_ylabel('Frequency ($cm^{-1}$)')
     ax_e.set_ylabel('Frequency (THz)')
-    # ax.set_ylim(0, 15)
-    # ax_e.set_ylim(0, 61.5)
+    ax.set_ylim(0, 1000)
+    ax_e.set_ylim(0, 30)
     # ax_e.set_ylabel('Energy (meV)')
     ax.text(-1.8, -80, 'Glycine                 Tryptophan        Diphenylalanine')
     ax.set_xticks([])
