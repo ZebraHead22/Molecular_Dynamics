@@ -4,6 +4,7 @@ import re
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
+import matplotlib
 
 
 def two_classes():
@@ -193,7 +194,15 @@ def levels():
     # ENERGY_TRP = [float(x*4.1) for x in FREQUENCIES_TRP]
 
     plt.gcf().clear()
+
+    def cm_to_inch(value):
+        return value/2.54
+
     fig, ax = plt.subplots()
+
+    fig.set_figheight(cm_to_inch(26))
+    fig.set_figwidth(cm_to_inch(16))
+
     ax_e = ax.twinx()
     ax.eventplot(FREQUENCIES_GLY, orientation="vertical", lineoffsets=-1.5, linewidth=0.75, color = "black")
     ax.eventplot(FREQUENCIES_TRP, orientation="vertical", lineoffsets=0, linewidth=0.75, color = 'black')
@@ -205,8 +214,8 @@ def levels():
 
     ax.set_ylabel('Frequency ($cm^{-1}$)')
     ax_e.set_ylabel('Frequency (THz)')
-    ax.set_ylim(0, 200)
-    ax_e.set_ylim(0, 6)
+    ax.set_ylim(200, 1000)
+    ax_e.set_ylim(6, 30)
     # ax_e.set_ylabel('Energy (meV)')
     ax.text(-1.8, -80, 'Glycine                 Tryptophan        Diphenylalanine')
     ax.set_xticks([])
@@ -214,7 +223,10 @@ def levels():
     # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),
         #   ncol=3, fancybox=True, shadow=True, labels=['Glycine', 'Tryptophan', 'Diphenylalanine'])
     
-    fig.savefig(os.getcwd()+'/'+"eveplot_amino_collective.png")
+
+    
+
+    fig.savefig(os.getcwd()+'/'+"eveplot_amino_local.png")
 
 
 
