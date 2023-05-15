@@ -1,10 +1,11 @@
 # Здесь строим кучу спектров из набора дат файлов в одной папке
 import os
 import re
-import pandas as pd
-import numpy as np
-from matplotlib import pyplot as plt
 import matplotlib
+import numpy as np
+import pandas as pd
+from math import sqrt
+from matplotlib import pyplot as plt
 
 
 def two_classes():
@@ -35,7 +36,7 @@ def two_classes():
             max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
             max_amplitude_frequency = df.loc[df['Amplitude']
                                              == max_amplitude, 'Frequency']
-            
+
             if max_amplitude > 0.002:
                 x_samples_1.append(max_amplitude_frequency)
                 y_samples_1.append(max_amplitude)
@@ -92,143 +93,40 @@ def two_classes():
     plt.savefig(os.getcwd()+'/'+"TRP.png")
 
 
-def levels():
-    GLY = list()
-    FF = list()
-    TRP = list()
-
-    FREQUENCIES_GLY = list()
-    FREQUENCIES_FF = list()
-    FREQUENCIES_TRP = list()
-
-    molecules_path = os.getcwd()
-    folders = os.listdir(molecules_path)
-    for folder in folders:
-        if os.path.isdir(folder) == True:
-# --------------------------------------------------------------------------------------------
-            files = os.listdir(folder)
-            for some_file in files:
-                filename, file_extension = os.path.splitext(folder+'/'+some_file)
-                if file_extension == ".dat":
-                    
-                    df = pd.read_csv(
-                        folder+'/'+some_file, delimiter=' ', index_col=None)
-
-                    df.rename(columns={'0.0': 'Frequency',
-                                       '0.0.1': 'Amplitude'}, inplace=True)
-
-                    frequency = re.search(
-                        r'\d+', str(os.path.basename(filename)))
-                    frequency = frequency.group(0)
-
-                    closest_value_min = df.iloc[(
-                        df['Frequency']-float(int(frequency)-20)).abs().argsort()[:1]].index.tolist()
-                    closest_value_max = df.iloc[(
-                        df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
-                    max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
-
-                    max_amplitude_frequency = df.loc[df['Amplitude']
-                                                     == max_amplitude, 'Frequency']
-                    if folder == "gly":
-                        GLY.append(max_amplitude_frequency)
-                    elif folder == "ff":
-                        FF.append(max_amplitude_frequency)
-                    elif folder == "trp":
-                        TRP.append(max_amplitude_frequency)  
-# # --------------------------------------------------------------------------------------------
-            literature_files = os.listdir(folder+"/Literature/")
-            for lit_file in literature_files:
-                filename, file_extension = os.path.splitext(folder+'/Literature/'+lit_file)
-                if file_extension == ".dat":
-
-                    df = pd.read_csv(
-                        folder+'/'+some_file, delimiter=' ', index_col=None)
-
-                    df.rename(columns={'0.0': 'Frequency',
-                                       '0.0.1': 'Amplitude'}, inplace=True)
-
-                    frequency = re.search(
-                        r'\d+', str(os.path.basename(filename)))
-                    frequency = frequency.group(0)
-
-                    closest_value_min = df.iloc[(
-                        df['Frequency']-float(int(frequency)-20)).abs().argsort()[:1]].index.tolist()
-                    closest_value_max = df.iloc[(
-                        df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
-                    max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
-
-                    max_amplitude_frequency = df.loc[df['Amplitude']
-                                                     == max_amplitude, 'Frequency']
-                    if folder == "gly":
-                        GLY.append(max_amplitude_frequency)
-                    elif folder == "ff":
-                        FF.append(max_amplitude_frequency)
-                    elif folder == "trp":
-                        TRP.append(max_amplitude_frequency)  
-    for i in np.array(GLY):
-        FREQUENCIES_GLY.append(i[0])
-
-    unique = set(FREQUENCIES_GLY)
-    for number in unique:
-        FREQUENCIES_GLY.append(number)
-
-    for i in np.array(FF):
-        FREQUENCIES_FF.append(i[0])
-
-    unique = set(FREQUENCIES_FF)
-    for number in unique:
-        FREQUENCIES_FF.append(number)
-
-    for i in np.array(TRP):
-        FREQUENCIES_TRP.append(i[0])
-
-    unique = set(FREQUENCIES_TRP)
-    for number in unique:
-        FREQUENCIES_TRP.append(number)
-    
-    FREQUENCIES_THZ_GLY = [float(x*0.03) for x in FREQUENCIES_GLY]
-    FREQUENCIES_THZ_FF = [float(x*0.03) for x in FREQUENCIES_FF]
-    FREQUENCIES_THZ_TRP = [float(x*0.03) for x in FREQUENCIES_TRP]
-    # ENERGY_GLY = [float(x*4.1) for x in FREQUENCIES_GLY]
-    # ENERGY_FF = [float(x*4.1) for x in FREQUENCIES_FF]
-    # ENERGY_TRP = [float(x*4.1) for x in FREQUENCIES_TRP]
-
+def vertical_graph():
+    amplitudes = list()
+    frequencies = list()
+    am_folder = os.getcwd()
+    for address, dirs, files in os.walk(am_folder):
+        for name in files:
+            filename, file_extension = os.path.splitext(name)
+            if file_extension == ".dat":
+                df = pd.read_csv(os.path.join(address, name),
+                                 delimiter=' ', index_col=None)
+                df.rename(columns={'0.0': 'Frequency',
+                                   '0.0.1': 'Amplitude'}, inplace=True)
+                frequency = re.search(r'\d+', str(os.path.basename(filename)))
+                frequency = frequency.group(0)
+                closest_value_min = df.iloc[(
+                    df['Frequency']-float(int(frequency)-20)).abs().argsort()[:1]].index.tolist()
+                closest_value_max = df.iloc[(
+                    df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
+                max_amplitude = df.loc[closest_value_min[0]:closest_value_max[0], 'Amplitude'].max()
+                max_amplitude_frequency = df.loc[df['Amplitude']
+                                                 == max_amplitude, 'Frequency'].values[0]
+                amplitudes.append(max_amplitude)
+                frequencies.append(max_amplitude_frequency)
     plt.gcf().clear()
-
-    def cm_to_inch(value):
-        return value/2.54
-
-    fig, ax = plt.subplots()
-
-    fig.set_figheight(cm_to_inch(26))
-    fig.set_figwidth(cm_to_inch(16))
-
-    ax_e = ax.twinx()
-    ax.eventplot(FREQUENCIES_GLY, orientation="vertical", lineoffsets=-1.5, linewidth=0.75, color = "black")
-    ax.eventplot(FREQUENCIES_TRP, orientation="vertical", lineoffsets=0, linewidth=0.75, color = 'black')
-    ax.eventplot(FREQUENCIES_FF, orientation="vertical", lineoffsets=1.5, linewidth=0.75, color = "black")
-    
-    # ax.eventplot(FREQUENCIES_THZ_GLY, orientation="vertical", lineoffsets=-1.5, linewidth=0.75, color = "black")
-    # ax.eventplot(FREQUENCIES_THZ_TRP, orientation="vertical", lineoffsets=0, linewidth=0.75, color = 'black')
-    # ax.eventplot(FREQUENCIES_THZ_FF, orientation="vertical", lineoffsets=1.5, linewidth=0.75, color = "black")
-
-    ax.set_ylabel('Frequency ($cm^{-1}$)')
-    ax_e.set_ylabel('Frequency (THz)')
-    ax.set_ylim(200, 1000)
-    ax_e.set_ylim(6, 30)
-    # ax_e.set_ylabel('Energy (meV)')
-    ax.text(-1.8, -80, 'Glycine                 Tryptophan        Diphenylalanine')
-    ax.set_xticks([])
-
-    # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),
-        #   ncol=3, fancybox=True, shadow=True, labels=['Glycine', 'Tryptophan', 'Diphenylalanine'])
-    
-
-    
-
-    fig.savefig(os.getcwd()+'/'+"eveplot_amino_local.png")
+    plt.scatter(amplitudes, frequencies, c='white',
+                s=1, linewidths=5, edgecolors='red')
+    plt.grid()
+    plt.xlabel('Spectral density (a.u.)')
+    plt.ylabel('Frequency ($cm^{-1}$)')
+    plt.ylim(0, 1000)
+    # thresh = float(min(amplitudes))/float(sqrt(2)/2)
+    # plt.xlim(thresh, 0.1)
+    # plt.show()
+    plt.savefig(am_folder + '/vertical_gly.png')
 
 
-
-# levels()
-levels()
+barcode()
