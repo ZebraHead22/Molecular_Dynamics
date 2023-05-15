@@ -29,8 +29,7 @@ def barcode():
                     df['Frequency']-float(int(frequency)-20)).abs().argsort()[:1]].index.tolist()
                 closest_value_max = df.iloc[(
                     df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
-                max_amplitude = df.loc[closest_value_min[0]
-                    : closest_value_max[0], 'Amplitude'].max()
+                max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
                 max_amplitude_frequency = df.loc[df['Amplitude']
                                                  == max_amplitude, 'Frequency'].values[0]
                 amino = re.search(r'^[\w]{1,2}[^\_]', str(
@@ -50,9 +49,8 @@ def barcode():
     plt.gcf().clear()
     # Make subplots
     fig, ax = plt.subplots()
-    # Define picture size, calc cm in inch
 
-    def cm_to_inch(value):
+    def cm_to_inch(value):  # Define picture size, calc cm in inch
         return value/2.54
     fig.set_figheight(cm_to_inch(26))  # 26 cm in height
     fig.set_figwidth(cm_to_inch(16))  # 16 cm in width
