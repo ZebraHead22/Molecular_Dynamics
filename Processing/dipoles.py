@@ -58,22 +58,22 @@ for i in files:
                   'Unnamed: 6': 'dip_z', 'Unnamed: 8': 'dip_abs'}, inplace=True)
         df.insert(1, "Time", (df['frame'] * timeframe)*10**12)
         y_samples = np.array(df[axis])
-        average_value = np.mean(df[axis])
-        y_samples = y_samples - average_value  # удаление постоянной составляющей
-        y_samples = [x**2 for x in y_samples]
+        # average_value = np.mean(df[axis])
+        # y_samples = y_samples - average_value  # удаление постоянной составляющей
+        # y_samples = [x**2 for x in y_samples]
         x_samples = np.array(df["Time"])
-        field_realization = re.search(r'\d+', filename)
-        field_realization = field_realization.group(0)
+        # field_realization = re.search(r'\d+', filename)
+        # field_realization = field_realization.group(0)
 
         plt.gcf().clear()
-        plt.plot(x_samples, y_samples, c='darkblue', linewidth=1)
-        # plt.vlines(fieldtime, 0, 600, color='r')
-        plt.vlines(int(max(x_samples)-fieldtime), 0, y_limit, color='r')
+        plt.plot(x_samples, y_samples, c='black', linewidth=1)
+        plt.vlines(fieldtime, -1*int(y_limit), y_limit, color='r')
+        plt.vlines(int(max(x_samples)-fieldtime), -1*int(y_limit), y_limit, color='r')
         # plt.ylabel('Square dipole moment (D$^{2}$)')
-        # plt.ylabel('Dipole moment (D\u2013<D>)$^{2}$')
-        plt.ylabel('|'+r'$\vec D$(t)-<$\vec D$(t)>'+'|'+r'$^{2}$')
+        plt.ylabel('Dipole moment (D)')
+        # plt.ylabel('|'+r'$\vec D$(t)-<$\vec D$(t)>'+'|'+r'$^{2}$')
         plt.xlabel('Time (ps)')
-        # plt.ylim([0, y_limit])
+        plt.ylim([-1*int(y_limit), y_limit])
         # plt.xlim([0, float(fieldtime)+float(field_realization)+10])
         # plt.xlim([200, 201])
         plt.grid()
