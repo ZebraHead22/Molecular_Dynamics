@@ -15,6 +15,7 @@ menu_options = {    # Делаем объекты меню
     5: 'Exit',
 }
 
+
 def print_menu():
     for key in menu_options.keys():
         print(key, '--', menu_options[key])
@@ -65,22 +66,41 @@ for i in files:
         # field_realization = re.search(r'\d+', filename)
         # field_realization = field_realization.group(0)
 
+        # Считаем перпендикулярку
+        y1_samples = np.array(df['dip_y'])
+        y2_samples = np.array(df['dip_z'])
+        average_value1 = np.mean(df['dip_y'])
+        average_value2 = np.mean(df['dip_z'])
+        y1_samples = y1_samples - average_value1
+        y2_samples = y2_samples - average_value2
+        y1_samples = [x**2 for x in y1_samples]
+        y2_samples = [x**2 for x in y2_samples]
+        ym_samples = map(sum, zip(y1_samples, y2_samples))
+        ym_samples = list(ym_samples)
+   
         plt.gcf().clear()
-        plt.plot(x_samples, y_samples, c='black', linewidth=1)
-        plt.vlines(fieldtime, -1*int(y_limit), y_limit, color='r')
-        # plt.vlines(int(max(x_samples)-fieldtime), -1*int(y_limit), y_limit, color='r')
-        plt.ylabel('Square dipole moment (D$^{2}$)')
-        # plt.ylabel('Dipole moment (D)')
-        # plt.ylabel('|'+r'$\vec D$(t)-<$\vec D$(t)>'+'|'+r'$^{2}$')
+        plt.plot(x_samples, ym_samples, c='black', linewidth=1)
         plt.xlabel('Time (ps)')
-        plt.ylim([0, y_limit])
-        # plt.xlim([0, float(fieldtime)+float(field_realization)+10])
-        # plt.xlim([200, 201])
+        plt.ylabel('|'+r'dipY$^{2}$(t)+dipZ$^{2}$>'+r'(D)')
+        plt.vlines(fieldtime, 0, y_limit, color='r')
         plt.grid()
-        plt.savefig(filename+'_'+axis+'.png')
+        plt.savefig(filename+'_parallel'+'.png')
 
-        # dipole = pd.DataFrame(list(zip(x_samples, y_samples)),
-        #               columns=['Time (ps)', '(d-<d>)^2ip_x'])
+        # plt.plot(x_samples, y_samples, c='black', linewidth=1)
+        # plt.vlines(fieldtime, -1*int(y_limit), y_limit, color='r')
+        # # plt.vlines(int(max(x_samples)-fieldtime), -1*int(y_limit), y_limit, color='r')
+        # plt.ylabel('Square dipole moment (D$^{2}$)')
+        # # plt.ylabel('Dipole moment (D)')
+        # # plt.ylabel('|'+r'$\vec D$(t)-<$\vec D$(t)>'+'|'+r'$^{2}$')
+        # plt.xlabel('Time (ps)')
+        # plt.ylim([0, y_limit])
+        # # plt.xlim([0, float(fieldtime)+float(field_realization)+10])
+        # # plt.xlim([200, 201])
+        # plt.grid()
+        # plt.savefig(filename+'_'+axis+'.png')
 
-        # with pd.ExcelWriter('dependence.xlsx') as writer:
-        #  dipole.to_excel(writer, sheet_name='Dipole', index=None, index_label=None)
+        # # dipole = pd.DataFrame(list(zip(x_samples, y_samples)),
+        # #               columns=['Time (ps)', '(d-<d>)^2ip_x'])
+
+        # # with pd.ExcelWriter('dependence.xlsx') as writer:
+        # #  dipole.to_excel(writer, sheet_name='Dipole', index=None, index_label=None)
