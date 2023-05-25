@@ -15,11 +15,9 @@ menu_options = {    # Делаем объекты меню
     5: 'Exit',
 }
 
-
 def print_menu():
     for key in menu_options.keys():
         print(key, '--', menu_options[key])
-
 
 print_menu()
 # Выбор оси
@@ -79,19 +77,20 @@ for i in files:
         ym_samples = list(ym_samples)
    
         plt.gcf().clear()
+
         plt.plot(x_samples, ym_samples, c='black', linewidth=1)
         plt.xlabel('Time (ps)')
-        plt.ylabel('|'+r'dipY$^{2}$(t)+dipZ$^{2}$>'+r'(D)')
+        plt.ylabel(r'$W_{\bot}$=D$_{y}$$^{2}$+D$_{z}$$^{2}$')
         plt.vlines(fieldtime, 0, y_limit, color='r')
         plt.grid()
-        plt.savefig(filename+'_parallel'+'.png')
+        plt.savefig(filename+'_perpendicular'+'.png')
 
         # plt.plot(x_samples, y_samples, c='black', linewidth=1)
-        # plt.vlines(fieldtime, -1*int(y_limit), y_limit, color='r')
+        # plt.vlines(fieldtime, 0, y_limit, color='r')
         # # plt.vlines(int(max(x_samples)-fieldtime), -1*int(y_limit), y_limit, color='r')
-        # plt.ylabel('Square dipole moment (D$^{2}$)')
+        # # plt.ylabel('Square dipole moment (D$^{2}$)')
         # # plt.ylabel('Dipole moment (D)')
-        # # plt.ylabel('|'+r'$\vec D$(t)-<$\vec D$(t)>'+'|'+r'$^{2}$')
+        # plt.ylabel('|'+r'$\vec D$(t)-<$\vec D$(t)>'+'|'+r'$^{2}$')
         # plt.xlabel('Time (ps)')
         # plt.ylim([0, y_limit])
         # # plt.xlim([0, float(fieldtime)+float(field_realization)+10])
@@ -99,8 +98,8 @@ for i in files:
         # plt.grid()
         # plt.savefig(filename+'_'+axis+'.png')
 
-        # # dipole = pd.DataFrame(list(zip(x_samples, y_samples)),
-        # #               columns=['Time (ps)', '(d-<d>)^2ip_x'])
+        # dipole = pd.DataFrame(list(zip(x_samples, y_samples)),
+        #               columns=['Time (ps)', '(d-<d>)^2ip_x'])
 
         # # with pd.ExcelWriter('dependence.xlsx') as writer:
         # #  dipole.to_excel(writer, sheet_name='Dipole', index=None, index_label=None)
