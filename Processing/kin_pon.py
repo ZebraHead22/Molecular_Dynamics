@@ -29,7 +29,8 @@ for address, dirs, names in os.walk(directory):
     for name in names:
         filename, ext = os.path.splitext(name)
         if ext == '.dat':
-            df = pd.read_csv(os.path.join(address, name), delimiter=' ', index_col=None, header=None)
+            df = pd.read_csv(os.path.join(address, name),
+                             delimiter=' ', index_col=None, header=None)
             df.rename(columns={0: 'TS', 1: 'Amplitude'}, inplace=True)
             df = df.drop_duplicates(keep='last')
             df.insert(1, "Time", (df['TS'] * 0.001))
@@ -39,7 +40,7 @@ for address, dirs, names in os.walk(directory):
             field_amplitude = field_amplitude.group(0)
             energy_type = re.search(r'\w{3}$', filename)
             energy_type = energy_type.group(0)
-          
+
             time = df['Time'].values.tolist()
             energy = df['Energy'].values.tolist()
 
@@ -75,8 +76,10 @@ for address, dirs, names in os.walk(directory):
 plt.gcf().clear()
 fig, ax = plt.subplots(nrows=1, ncols=2)
 
+
 def cm_to_inch(value):  # Define picture size, calc cm in inch
     return value/2.54
+
 
 fig.set_figheight(cm_to_inch(10))
 fig.set_figwidth(cm_to_inch(30))
