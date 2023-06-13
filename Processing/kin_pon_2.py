@@ -21,47 +21,11 @@ for address, dirs, names in os.walk(directory):
             one_data.insert(1, "Time", (one_data["TS"]) * 0.001)
             one_data.insert(3, "Kinetic", (one_data["KINETIC"] * 0.0434/5400))
             one_data.insert(3, "Potential", (one_data["POTENTIAL"] * 0.0434/5400))
-            data[(str(filename)+"_Time")] = one_data["Time"]
-            data[(str(filename)+"_Kinetic")] = one_data["Kinetic"]
+            data["Time"] = one_data["Time"]
+            # data[(str(filename)+"_Kinetic")] = one_data["Kinetic"]
             data[(str(filename)+"_Potential")] = one_data["Potential"]
-
-plt.gcf().clear()
-amplitudes = ['09', '10', '03', '08', '12', '04', '11', '05', '07', '02', '01', '06']
-en_type = ['Kinetic', 'Potential']
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
-
-"""Построение семейтв энергий в шести окнах для всех АК"""
-for i in data.columns.values:
-    amino_acid = re.search(r'^\w{,2}[^\_]', str(i))
-    amino_acid = amino_acid.group(0)
-    if amino_acid == 'trp':
-        for i in amplitudes:
-            ax.bar(data[str(amino_acid)+"_"+str(i)+'_data_Time'], data[(str(amino_acid)+"_"+str(i)+'_data_Kinetic')], alpha=0.8)
-
-
-plt.show()   
-        
-
-# fig, ax = plt.subplots(nrows=3, ncols=2)
-# def cm_to_inch(value):  # Define picture size, calc cm in inch
-#     return value/2.54
-# fig.set_figheight(cm_to_inch(30))
-# fig.set_figwidth(cm_to_inch(10))
-# ax[0].scatter(data["2_kin_Time"].tolist(), data["2_kin_Energy"].tolist(), s=2)
-
-
-# ax[0].set_xlabel('Time (ps)')
-# ax[1].set_xlabel('Time (ps)')
-# ax[0].set_ylabel('Energy (eV)')
-# ax[1].set_ylabel('Energy (eV)')
-# ax[0].grid()
-# ax[1].grid()
-# ax[0].title.set_text('Kinetic')
-# ax[1].title.set_text('Potential')
-# plt.legend(['0.087 V/nm', '0.173 V/nm', '0.260 V/nm', '0.346 V/nm'], markerscale=5.)
-plt.savefig(directory+'/'+'dependence.png')
-
+            print(filename)
+data.to_excel(directory+"/trp_potential.xlsx")
 
 """Построение семейтв энергий в двух окнах"""
 # fig, ax = plt.subplots(nrows=1, ncols=2)
