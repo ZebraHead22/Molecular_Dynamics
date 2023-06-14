@@ -14,6 +14,7 @@ from matplotlib.collections import PolyCollection
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 amino_acids = list()
+legend = list()
 energy_type = ['KINETIC', 'POTENTIAL']
 field_amplitudes = [0.0435,	0.087,	0.1305,	0.174,	0.2175,
                     0.261,	0.3045,	0.348,	0.3915,	0.435,	0.4785,	0.522]
@@ -44,19 +45,34 @@ for i in amino_acids:
                     data[(str(filename)+"_"+j)] = (one_data[j]) * 0.0434/5400
         # print(data.head())
         # data.to_excel(directory+"_"+j+".xlsx")
-        """Вычисление спектров энергий"""
-        spectre_data = pd.DataFrame()
+
+        """Зависмость значений энергий от поля в последний момент времени"""
+        last_moment_energies = list()
+        legend.append(os.path.basename(directory)+" "+j.lower())
         for energy_column in data.columns.values[1:]:
-            energies_psd = np.abs(sp.fftpack.fft(data[energy_column].tolist()))
-            n = len(energies_psd)
-            window = sp.signal.windows.gaussian(n, std=5000, sym=False)
-            module_w = energies_psd
-            b, a = sp.signal.butter(2, 0.05)
-            filtered = sp.signal.filtfilt(b, a, module_w)
-            fftFreq = sp.fftpack.fftfreq(len(data[energy_column].tolist()), 1/10**15)
-            i = fftFreq > 0
-            reverseCm = 1/((3*(10**10))/(fftFreq[i]))
-            spectre_data["FREQUENCY"] = reverseCm
-            spectre_data[(str(energy_column))] = filtered[i]
-        print(spectre_data.head())
-        spectre_data.to_excel(directory+"_"+j+"_spectre.xlsx")
+            last_moment_energies.append(float(data.iloc[-1, data.columns.get_loc(energy_column)]))
+        plt.scatter(field_amplitudes, last_moment_energies, s=20)      
+plt.grid()
+plt.xlabel('Field amplitude (V/nm)')
+plt.ylabel('Energy (eV)')
+plt.title('Energy in 500ps time step \n(field amplitude)')
+plt.legend(legend)
+plt.savefig(directory+"/dependenge_2.png")
+
+            
+        # """Вычисление спектров энергий"""
+        # spectre_data = pd.DataFrame()
+        # for energy_column in data.columns.values[1:]:
+        #     energies_psd = np.abs(sp.fftpack.fft(data[energy_column].tolist()))
+        #     n = len(energies_psd)
+        #     window = sp.signal.windows.gaussian(n, std=5000, sym=False)
+        #     module_w = energies_psd
+        #     b, a = sp.signal.butter(2, 0.05)
+        #     filtered = sp.signal.filtfilt(b, a, module_w)
+        #     fftFreq = sp.fftpack.fftfreq(len(data[energy_column].tolist()), 1/10**15)
+        #     i = fftFreq > 0
+        #     reverseCm = 1/((3*(10**10))/(fftFreq[i]))
+        #     spectre_data["FREQUENCY"] = reverseCm
+        #     spectre_data[(str(energy_column))] = filtered[i]
+        # print(spectre_data.head())
+        # spectre_data.to_excel(directory+"_"+j+"_spectre.xlsx")
