@@ -8,44 +8,12 @@ from scipy import fftpack
 from matplotlib import cm
 from matplotlib import pyplot as plt
 from scipy.fft import rfft, rfftfreq
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import colors as mcolors
-from matplotlib.collections import PolyCollection
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 amino_acids = list()
 legend = list()
 energy_type = ['KINETIC', 'POTENTIAL']
 field_amplitudes = [0.0435,	0.087,	0.1305,	0.174,	0.2175,
                     0.261,	0.3045,	0.348,	0.3915,	0.435,	0.4785,	0.522]
-
-
-def plot_3d(amino_data):
-    data = amino_data
-    plt.gcf().clear()
-    fig = plt.figure()
-    ax = fig.add_subplot(projection="3d")
-    # for y_column in data.drop('TIME', axis=1):
-    for z in field_amplitudes:
-        x = data["TIME"]
-        for y_column in data.iloc[:, 1:12]:
-            y = np.array(data[y_column].to_list())
-
-        def plot2din3d(x, y, z):
-            ax.plot(x, y, zs=z, zdir='z')
-            d_col_obj = ax.fill_between(x, 0, y, step='pre', alpha=0.01)
-            ax.add_collection3d(d_col_obj, zs=z, zdir='z')
-        plot2din3d(x, y, z)
-    # ax.legend(field_amplitudes)
-    # ax.set_xlim(100, 1)
-    ax.set_ylim(0, 1)
-    ax.set_zlim(0, 50)
-    ax.set_xlabel("Time (ps)")
-    ax.set_ylabel("Energy (eV)")
-    ax.set_zlabel("Field amplitude (V/nm)")
-    ax.view_init(elev=20., azim=-35)
-    plt.savefig(i+"_"+j+"_"+"fig.png")
-
 
 data = pd.DataFrame()
 directory = os.getcwd()
@@ -78,8 +46,6 @@ for i in amino_acids:
         print(data.head())
         data.to_excel(directory+"_"+j+".xlsx")
 
-        # plot_3d(data)
-
         spectre_data = pd.DataFrame()
         for energy_column in data.columns.values[1:]:
             energies_psd = np.abs(sp.fftpack.fft(data[energy_column].tolist()))
@@ -96,8 +62,6 @@ for i in amino_acids:
             spectre_data[(str(energy_column))] = filtered[i]
         print(spectre_data.head())
         spectre_data.to_excel(directory+"_"+j+"_spectre.xlsx")
-
-        # plot_3d(spectre_data)
 
         last_moment_energies = list()
         legend.append(os.path.basename(directory)+" "+j.lower())
