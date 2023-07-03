@@ -21,6 +21,7 @@ def make_spectres():
             file.write(str(os.path.basename(filename)+" - " +
                        str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
             plt.gcf().clear()
+            # Обычные графики спектров
             plt.plot(dfFreq, dfAmp)
             plt.ylabel('Spectral Density (a.u.)')
             plt.xlabel('Frequency ($cm^{-1}$)')
@@ -84,4 +85,5 @@ def one_spectrum():
 
 
 make_spectres()
+# one_spectrum()
 
