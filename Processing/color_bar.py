@@ -34,45 +34,24 @@ for i in amino_acids:
         dat_files.append(file)
     dat_files.sort()
     for file in dat_files:
-        frequency = re.search(r'\d+', file)
-        frequency = frequency.group(0)
-        field_frequency.append(frequency)
-        df = pd.read_csv(directory+'/'+file, delimiter=' ', index_col=None)
-        df.rename(columns={'0.0': 'Frequency',
-                      '0.0.1': 'Amplitude'}, inplace=True)
-        data.merge(df, how='inner', left_index=True, right_index=True)
+        filename, file_extension = os.path.splitext(file)
+        if file_extension == ".dat":
+            frequency = re.search(r'\d+', file)
+            frequency = frequency.group(0)
+            field_frequency.append(frequency)
+            df = pd.read_csv(directory+'/'+file, delimiter=' ', index_col=None)
+            df.rename(columns={'0.0': 'Frequency',
+                               '0.0.1': 'Amplitude'}, inplace=True)
+            df["Frequency"] = [round(x) for x in df["Frequency"].tolist()]
+            df = df.drop_duplicates(subset=["Frequency"])
 
-    print(data.head())
-
-
-    #     for i in df['Frequency'].tolist():
-    #         frequencies.append(i)
-    # frequencies = list(set(frequencies))
-    # frequencies.sort()
-    # data['Frequency'] = frequencies
-    # print(data.head())
-    # for file in dat_files:
-    #     df = pd.read_csv(directory+'/'+file, delimiter=' ', index_col=None)
-    #     df.rename(columns={'0.0': 'Frequency',
-    #                   '0.0.1': 'Amplitude'}, inplace=True)
-    #     for j in frequencies:
-    #         data[file] = df['Amplitude'].where(df['Frequency'].isin(j)==[j])
-    # data = data.dropna()
-    # print(data.head())
-
-
-
-
-
-
-    #     amplitudes = df['Amplitude'].tolist()
-    #     amplitudes = [round(float(x*(10**3))) for x in amplitudes]
-    #     all_amplitudes.append(amplitudes)
-    # # print(all_amplitudes)
-    # fig = px.imshow(all_amplitudes,
-    #                 labels=dict(x="$Frequency, cm^{-1}$", y="$FieldFrequency, cm^{-1}$", color="Spectral density, a.u."),
-    #                 x=df["Frequency"].tolist(),
-    #                 y=field_frequency)
-    # fig.update_xaxes(side="top")
-    # fig.write_image(file='./staff_plot.png', format='png')
-        
+            amplitudes = df['Amplitude'].tolist()
+            amplitudes = [round(float(x*(10**9))) for x in amplitudes]
+            all_amplitudes.append(amplitudes)
+    fig = px.imshow(all_amplitudes,
+                    labels=dict(
+                        x="$Frequency, cm^{-1}$", y="$FieldFrequency, cm^{-1}$", color="Spectral density, a.u."),
+                    x=df["Frequency"].tolist(),
+                    y=field_frequency)
+    fig.update_xaxes(side="top")
+    fig.write_image(file="./"+i+'_staff_plot.png', format='png')
