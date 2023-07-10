@@ -55,10 +55,11 @@ for i in amino_acids:
     cmap = matplotlib.cm.jet
     # cmap.set_bad('white',1.)
 
-    fig = px.imshow(all_amplitudes,
+    fig = px.imshow(np.array(all_amplitudes),
                     labels=dict(
                         x="$Frequency, cm^{-1}$", y="$FieldFrequency, cm^{-1}$", color="Spectral density, a.u."),
-                    x=df["Frequency"].tolist(),
-                    y=field_frequency, color_continuous_scale="Bluered")
-    fig.update_xaxes(side="top")
+                    x=np.array(df["Frequency"].tolist()),
+                    y=np.array(field_frequency), color_continuous_scale="Bluered")
+    fig.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)', 'paper_bgcolor': 'rgba(0, 0, 0, 0)',})
+    fig.update_yaxes(side="left", gridcolor='black', ticks="inside", tickson="boundaries", ticklen=20)
     fig.write_image(file="./"+i+'_staff_plot.png', format='png')
