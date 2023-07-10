@@ -43,15 +43,22 @@ for i in amino_acids:
             df.rename(columns={'0.0': 'Frequency',
                                '0.0.1': 'Amplitude'}, inplace=True)
             df["Frequency"] = [round(x) for x in df["Frequency"].tolist()]
-            df = df.drop_duplicates(subset=["Frequency"])
-
+            df = df.set_index("Frequency")
+            df = df.groupby(level='Frequency').mean()
+            max_value = df.loc[df["Amplitude"].idxmax(), "Amplitude"]
+            df[df["Amplitude"] < max_value*0.15 ] = np.nan
+            df = df.reset_index()
             amplitudes = df['Amplitude'].tolist()
-            amplitudes = [round(float(x*(10**9))) for x in amplitudes]
             all_amplitudes.append(amplitudes)
+
+    masked_array = np.ma.array (all_amplitudes, mask=np.isnan(all_amplitudes))
+    cmap = matplotlib.cm.jet
+    # cmap.set_bad('white',1.)
+
     fig = px.imshow(all_amplitudes,
                     labels=dict(
                         x="$Frequency, cm^{-1}$", y="$FieldFrequency, cm^{-1}$", color="Spectral density, a.u."),
                     x=df["Frequency"].tolist(),
-                    y=field_frequency)
+                    y=field_frequency, color_continuous_scale="Bluered")
     fig.update_xaxes(side="top")
     fig.write_image(file="./"+i+'_staff_plot.png', format='png')
