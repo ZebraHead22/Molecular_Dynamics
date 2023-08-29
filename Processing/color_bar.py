@@ -47,7 +47,7 @@ for i in amino_acids:
             df = df.groupby(level='Frequency').mean()
             max_value = df.loc[df["Amplitude"].idxmax(), "Amplitude"]
             df[df["Amplitude"] < max_value*0.14 ] = np.nan
-            df[df["Amplitude"] > max_value*0.28 ] = np.nan
+            # df[df["Amplitude"] > max_value*0.99 ] = np.nan
             df = df.reset_index()
             df["Amplitude"] = df["Amplitude"]*3
             amplitudes = df['Amplitude'].tolist()
