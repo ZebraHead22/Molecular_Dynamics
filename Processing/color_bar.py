@@ -47,7 +47,7 @@ for i in amino_acids:
             df = df.groupby(level='Frequency').mean()
             max_value = df.loc[df["Amplitude"].idxmax(), "Amplitude"]
             df[df["Amplitude"] < max_value*0.14 ] = np.nan
-            # df[df["Amplitude"] > max_value*0.99 ] = np.nan
+            df[df["Amplitude"] > max_value*0.28 ] = np.nan
             df = df.reset_index()
             df["Amplitude"] = df["Amplitude"]*3
             amplitudes = df['Amplitude'].tolist()
@@ -63,5 +63,5 @@ for i in amino_acids:
                     x=np.array(df["Frequency"].tolist()),
                     y=np.array(field_frequency), color_continuous_scale="Turbo")
     fig.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)', 'paper_bgcolor': 'rgba(0, 0, 0, 0)',})
-    fig.update_yaxes(side="left", gridcolor='black', ticks="inside", tickson="labels", ticklen=10, spikedash="dashdot")
+    fig.update_yaxes(side="left", gridcolor='black', ticks="inside", tickson="boundaries", ticklen=10, spikedash="dashdot")
     fig.write_image(file="./"+i+'_staff_plot.png', format='png') 
