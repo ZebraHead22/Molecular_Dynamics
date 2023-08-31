@@ -45,11 +45,12 @@ for i in amino_acids:
             df["Frequency"] = [round(x) for x in df["Frequency"].tolist()]
             df = df.set_index("Frequency")
             df = df.groupby(level='Frequency').mean()
+            df = df.drop(df.index[4001:]) # Delete over 4000 cm-1
             max_value = df.loc[df["Amplitude"].idxmax(), "Amplitude"]
-            df[df["Amplitude"] < max_value*0.14 ] = np.nan
-            df[df["Amplitude"] > max_value*0.28 ] = np.nan
+            df[df["Amplitude"] < max_value*0.14] = np.nan  #ff good 0.1-0.2 x3, gly - 0.11-0.19 x2, trp - 0.14-0.27 x2
+            df[df["Amplitude"] > max_value*0.27] = np.nan  
             df = df.reset_index()
-            df["Amplitude"] = df["Amplitude"]*3
+            df["Amplitude"] = df["Amplitude"]*2
             amplitudes = df['Amplitude'].tolist()
             all_amplitudes.append(amplitudes)
 
@@ -59,9 +60,9 @@ for i in amino_acids:
 
     fig = px.imshow(np.array(all_amplitudes),
                     labels=dict(
-                        x="$Frequency, cm^{-1}$", y="$FieldFrequency, cm^{-1}$", color="Spectral density, a.u."),
+                        x='$Frequency, cm^{-1}$', y="$Field Frequency, cm^{-1}$", color="Spectral density, a.u."),
                     x=np.array(df["Frequency"].tolist()),
                     y=np.array(field_frequency), color_continuous_scale="Turbo")
     fig.update_layout({'plot_bgcolor': 'rgba(0, 0, 0, 0)', 'paper_bgcolor': 'rgba(0, 0, 0, 0)',})
-    fig.update_yaxes(side="left", gridcolor='black', ticks="inside", tickson="boundaries", ticklen=10, spikedash="dashdot")
+    fig.update_yaxes(side="left", gridcolor='black', ticks="inside", tickson="boundaries", ticklen=1, spikedash="dashdot")
     fig.write_image(file="./"+i+'_staff_plot.png', format='png') 
