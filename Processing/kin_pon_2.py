@@ -96,11 +96,17 @@ for i in amino_acids:
         slice_of_energy[str(i)+'_'+str(j)
                         ] = spectre_data.loc[200].to_list()
         legend.append(os.path.basename(directory)+" "+j.lower())
-        # slice_of_energy.insert(0, "FIELD_AMPLITUDES", field_amplitudes)
-        plt.plot(field_amplitudes, slice_of_energy[str(i)+'_'+str(j)].tolist())
+        
+
+slice_of_energy.insert(0, "FIELD_AMPLITUDES", field_amplitudes)
+# Пробуем удалить амплитуды больше 0.3915
+slice_of_energy = slice_of_energy.set_index('FIELD_AMPLITUDES')
+slice_of_energy = slice_of_energy.drop([0.435, 0.4785, 0.522], axis=0)
+slice_of_energy = slice_of_energy.reset_index()
+plot = slice_of_energy.plot(x = 'FIELD_AMPLITUDES')
 plt.grid()
 plt.legend(legend)
 plt.xlabel("Field amplitudes (V/nm)")
 plt.ylabel("Energy (eV)")
 plt.savefig("slice.png") 
-
+plt.show()
