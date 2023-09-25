@@ -97,7 +97,7 @@ for i in amino_acids:
                         ] = spectre_data.loc[200].to_list()
         legend.append(os.path.basename(directory)+" "+j.lower())
         # slice_of_energy.insert(0, "FIELD_AMPLITUDES", field_amplitudes)
-        plt.scatter(field_amplitudes, slice_of_energy[str(i)+'_'+str(j)].tolist())
+        plt.plot(field_amplitudes, slice_of_energy[str(i)+'_'+str(j)].tolist())
 plt.grid()
 plt.legend(legend)
 plt.xlabel("Field amplitudes (V/nm)")
