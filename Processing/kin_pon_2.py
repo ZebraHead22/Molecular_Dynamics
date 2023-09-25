@@ -1,6 +1,6 @@
 import os
-import re
 import numpy as np
+import re
 import scipy as sp
 import pandas as pd
 from scipy import signal
@@ -79,19 +79,28 @@ for i in amino_acids:
         # for energy_column in data.columns.values[1:]:
         #     last_moment_energies.append(
         #         float(data.iloc[-1, data.columns.get_loc(energy_column)]))
+        # print(last_moment_energies)
         # plt.scatter(field_amplitudes, last_moment_energies, s=20)
         # plt.grid()
         # plt.xlabel('Field amplitude (V/nm)')
         # plt.ylabel('Energy (eV)')
         # plt.title('Energy in 500ps time step \n(field amplitude)')
         # plt.legend(legend)
-        # plt.savefig(directory+"/dependence.png")
+        # plt.savefig(directory+"/dependence111.png")
         '''
         Делаем срезы в спектрах
         '''
-        spectre_data["FREQUENCY"] = [round(x, 2) for x in spectre_data["FREQUENCY"].tolist()]
+        spectre_data["FREQUENCY"] = [
+            round(x, 2) for x in spectre_data["FREQUENCY"].tolist()]
         spectre_data = spectre_data.set_index("FREQUENCY")
-        slice_of_energy[str(i)+'_'+str(j)] = spectre_data.loc[3333.33].to_list()
-slice_of_energy.insert(0, "FIELD_AMPLITUDES", field_amplitudes)
-plot = slice_of_energy.plot(x='FIELD_AMPLITUDES', title="DataFrame Plot")
-plt.show()
+        slice_of_energy[str(i)+'_'+str(j)
+                        ] = spectre_data.loc[200].to_list()
+        legend.append(os.path.basename(directory)+" "+j.lower())
+        # slice_of_energy.insert(0, "FIELD_AMPLITUDES", field_amplitudes)
+        plt.scatter(field_amplitudes, slice_of_energy[str(i)+'_'+str(j)].tolist())
+plt.grid()
+plt.legend(legend)
+plt.xlabel("Field amplitudes (V/nm)")
+plt.ylabel("Energy (eV)")
+plt.savefig("slice.png") 
+
