@@ -6,6 +6,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # Функция создает набор графиков спектральных зависимостей
+
+
 def make_spectres():
     folder = os.getcwd()
     files = os.listdir(os.getcwd())
@@ -30,6 +32,8 @@ def make_spectres():
     file.close()
 
 # Функция строит один спектр
+
+
 def one_spectrum():
     strings = []
     x_samples = []
@@ -53,7 +57,8 @@ def one_spectrum():
                 df['Frequency']-float(int(frequency)-20)).abs().argsort()[:1]].index.tolist()
             closest_value_max = df.iloc[(
                 df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
-            max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
+            max_amplitude = df.loc[closest_value_min[0]
+                : closest_value_max[0], 'Amplitude'].max()
             max_amplitude_frequency = df.loc[df['Amplitude']
                                              == max_amplitude, 'Frequency']
             x_samples.append(max_amplitude_frequency)
@@ -86,4 +91,3 @@ def one_spectrum():
 
 make_spectres()
 # one_spectrum()
-
