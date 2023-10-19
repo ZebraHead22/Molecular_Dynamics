@@ -14,17 +14,21 @@ def make_spectres():
     file = open("res_freq.txt", "w")
     for i in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
-        if file_extension == ".dat":
-            df = pd.read_csv(os.getcwd()+'/'+i, delimiter=' ', index_col=None)
-            df.rename(columns={'0.0': 'Frequency',
-                      '0.0.1': 'Amplitude'}, inplace=True)
+        if file_extension == ".dpt":
+            df = pd.read_csv(os.getcwd()+'/'+i, delimiter=',', index_col=None, header=None)
+            df.rename(columns={0: 'Frequency',
+                      1: 'Amplitude'}, inplace=True)
+            print(df)        
             dfFreq = np.array(df['Frequency'].tolist())
             dfAmp = np.array(df['Amplitude'].tolist())
+
+            # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
+            
             file.write(str(os.path.basename(filename)+" - " +
                        str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
             plt.gcf().clear()
             # Обычные графики спектров
-            plt.plot(dfFreq, dfAmp)
+            plt.plot(dfFreq, dfAmpRev)
             plt.ylabel('Spectral Density (a.u.)')
             plt.xlabel('Frequency ($cm^{-1}$)')
             plt.grid()
