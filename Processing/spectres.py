@@ -11,33 +11,32 @@ from matplotlib import pyplot as plt
 def make_spectres():
     folder = os.getcwd()
     files = os.listdir(os.getcwd())
-    file = open("res_freq.txt", "w")
+    # file = open("res_freq.txt", "w")
     for i in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
         if file_extension == ".dpt":
             df = pd.read_csv(os.getcwd()+'/'+i, delimiter=',', index_col=None, header=None)
             df.rename(columns={0: 'Frequency',
                       1: 'Amplitude'}, inplace=True)
-            print(df)        
+            df.iloc[:1900] = np.nan
+            df.iloc[21000:] = np.nan
             dfFreq = np.array(df['Frequency'].tolist())
             dfAmp = np.array(df['Amplitude'].tolist())
             dfAmp = np.array([x*1000 for x in dfAmp])
 
             dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
-
-
-            file.write(str(os.path.basename(filename)+" - " +
-                       str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
+            # file.write(str(os.path.basename(filename)+" - " +
+            #            str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
             plt.gcf().clear()
             # Обычные графики спектров
             plt.plot(dfFreq, dfAmpRev)
             plt.ylabel('Spectral Density (a.u.)')
             plt.xlabel('Frequency ($cm^{-1}$)')
             plt.xlim(-300, 6300)
-            plt.ylim(-250, 0)
+            plt.ylim(-250, -50)
             plt.grid()
             plt.savefig(filename+'.png')
-    file.close()
+    # file.close()
 
 # Функция строит один спектр
 
