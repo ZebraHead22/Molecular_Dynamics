@@ -22,7 +22,7 @@ def make_spectres():
             df.iloc[21000:] = np.nan
             dfFreq = np.array(df['Frequency'].tolist())
             dfAmp = np.array(df['Amplitude'].tolist())
-            dfAmp = np.array([x*1000 for x in dfAmp])
+            # dfAmp = np.array([x*1000 for x in dfAmp])
 
             dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
             # file.write(str(os.path.basename(filename)+" - " +
@@ -33,7 +33,7 @@ def make_spectres():
             plt.ylabel('Spectral Density (a.u.)')
             plt.xlabel('Frequency ($cm^{-1}$)')
             plt.xlim(-300, 6300)
-            plt.ylim(-250, -50)
+            plt.ylim(0.75, 0.9)
             plt.grid()
             plt.savefig(filename+'.png')
     # file.close()
