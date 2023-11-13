@@ -46,7 +46,6 @@ def one_spectrum():
     x_samples = []
     y_samples = []
     wv = []
-    folder = os.getcwd()
     files = os.listdir(os.getcwd())
     for i in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
@@ -96,5 +95,37 @@ def one_spectrum():
     # plt.show()
 
 
-make_spectres()
-# one_spectrum()
+def ir_spectres():
+    all_data = pd.DataFrame()
+
+    folder = os.getcwd()
+    files = os.listdir(folder)
+    for file in files:
+        filename, file_extension = os.path.splitext(os.getcwd()+'/'+file)
+        if file_extension == ".dpt":
+            df = pd.read_csv(os.getcwd()+'/'+file, delimiter=',', index_col=None, header=None)
+            df.rename(columns={0: 'Frequency_'+str(os.path.basename(filename)),
+                      1: 'Amplitude_'+str(os.path.basename(filename))}, inplace=True)
+            all_data.insert(0, 'Frequency_'+str(os.path.basename(filename)), df['Frequency_'+str(os.path.basename(filename))])
+            all_data.insert(1, 'Amplitude_'+str(os.path.basename(filename)), df['Amplitude_'+str(os.path.basename(filename))])
+    
+
+    # all_data.iloc[:1900] = np.nan
+    # all_data.iloc[21000:] = np.nan
+
+    plt.plot(all_data["Frequency_Valine"], all_data["Amplitude_Valine"], c = 'black')
+    plt.plot(all_data["Frequency_Glycine"], all_data["Amplitude_Glycine"], c = 'royalblue')
+    plt.plot(all_data["Frequency_Alanine"], all_data["Amplitude_Alanine"], c = 'red')
+    plt.plot(all_data["Frequency_Tryptophan"], all_data["Amplitude_Tryptophan"], c = 'green')
+    plt.legend(["Valine", "Glycine", "Alanine", "Tryptophan"])
+    plt.grid()
+    plt.xlim(-300, 6300)
+    plt.ylim(0, 1)
+    plt.xlabel("Frequency ($cm^{-1}$)")
+    plt.ylabel("Energy (a.u.)")
+    # plt.show()
+    plt.savefig(folder + "/result.png")
+
+
+
+ir_spectres()
