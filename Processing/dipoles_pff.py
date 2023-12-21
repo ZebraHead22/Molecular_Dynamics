@@ -24,22 +24,22 @@ for address, dirs, names in os.walk(os.getcwd()):
             if a == 0:
                 df.insert(1, "Time", (df['frame'] * 5 / 1000))
             else:
-                df.insert(1, "Time", (df['frame'] * a / 1000))
+                df.insert(1, "Time", (df['frame'] * 5 / 1000))
 
             #Создаем словарь {freq:average D}
             field_dict[int(a)] = float(df['|dip|'].mean())
             #Построение графиков АВР ДМ и сохранение в файл
-            # plt.gcf().clear()
-            # plt.plot(np.array(df["Time"].tolist()), np.array(df["dip_x"].tolist()), color='#EB9700', linewidth=2)
-            # plt.plot(np.array(df["Time"].tolist()), np.array(df["dip_y"].tolist()), color='#EB00A2', linewidth=2)
-            # plt.plot(np.array(df["Time"].tolist()), np.array(df["dip_z"].tolist()), color='#1EEB00', linewidth=2)
-            # plt.plot(np.array(df["Time"].tolist()), np.array(df["|dip|"].tolist()), color='#006AEB', linewidth=2)
-            # plt.legend(["dip_x", "dip_y", "dip_z", "|dip|"])
-            # plt.ylabel('Dipole Moment (D)')  
-            # plt.xlabel('Time (ps)')
-            # plt.grid()
-            # plt.savefig(os.getcwd() + "/" + 'dipoleplot' + str(a) + ".png")
-            # print("Ready" + " " + name)
+            plt.gcf().clear()
+            plt.plot(np.array(df["Time"].tolist()), np.array(df["dip_x"].tolist()), color='#EB9700', linewidth=2)
+            plt.plot(np.array(df["Time"].tolist()), np.array(df["dip_y"].tolist()), color='#EB00A2', linewidth=2)
+            plt.plot(np.array(df["Time"].tolist()), np.array(df["dip_z"].tolist()), color='#1EEB00', linewidth=2)
+            plt.plot(np.array(df["Time"].tolist()), np.array(df["|dip|"].tolist()), color='#006AEB', linewidth=2)
+            plt.legend(["dip_x", "dip_y", "dip_z", "|dip|"])
+            plt.ylabel('Dipole Moment (D)')  
+            plt.xlabel('Time (ps)')
+            plt.grid()
+            plt.savefig(os.getcwd() + "/" + 'dipoleplot' + str(a) + ".png")
+            print("Ready" + " " + name)
 
 #Обработка словаря
 field_dict = dict(sorted(field_dict.items())) #Сортировка
