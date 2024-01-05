@@ -1,29 +1,48 @@
+import matplotlib.pyplot as plt
 import numpy as np
-import scipy as sp
-from scipy import fftpack
-from scipy.fft import rfft, rfftfreq
-from matplotlib import pyplot as plt
 
-F = 100.e14          # No. of cycles per second, 
-T = 10.e-15         # Time period, T = 10 fs
-Fs = 1.e17        # No. of samples per second, 
-Ts = 1./Fs        # Sampling interval, 
-N = int(T/Ts)     # No. of samples for 2 ms, N = 100
+plt.style.use('seaborn-poster')
+# %matplotlib inline
+# sampling rate
+sr = 2000
+# sampling interval
+ts = 1.0/sr
+t = np.arange(0,1,ts)
 
-t = np.linspace(0, T, N)
+# freq = 1.
+# x = 3*np.sin(2*np.pi*freq*t)
 
-f = np.sin(2*np.pi*100.e14*t) #Функция для флуктуации
-signal = np.sin(2*np.pi*F*t+f)
-signal2 = 0.3*np.sin(2*np.pi*F*t+2*f)
-s = signal*signal2
+freq = 4
+x = np.sin(2*np.pi*freq*t)
 
-fft = sp.fftpack.fft(s)
-psd = np.abs(fft)
-fftFreq = sp.fftpack.fftfreq(len(fft))
-i = fftFreq > 0
-plt.plot(fftFreq[i], psd[i])
-# plt.plot(t, signal2)
+# freq = 7   
+# x += 0.5* np.sin(2*np.pi*freq*t)
+
+plt.figure(figsize = (8, 6))
+plt.plot(t, x, 'r')
+plt.ylabel('Amplitude')
+
+plt.show()
+from numpy.fft import fft, ifft
+
+X = fft(x)
+N = len(X)
+n = np.arange(N)
+T = N/sr
+freq = n/T 
+
+plt.figure(figsize = (12, 6))
+plt.subplot(121)
+
+plt.stem(freq, np.abs(X), 'b', \
+         markerfmt=" ", basefmt="-b")
+plt.xlabel('Freq (Hz)')
+plt.ylabel('FFT Amplitude |X(freq)|')
+plt.xlim(0, 10)
+
+plt.subplot(122)
+plt.plot(t, ifft(X), 'r')
 plt.xlabel('Time (s)')
-plt.ylabel('Voltage (V)')
-plt.grid()
+plt.ylabel('Amplitude')
+plt.tight_layout()
 plt.show()
