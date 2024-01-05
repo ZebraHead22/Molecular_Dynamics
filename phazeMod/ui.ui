@@ -341,7 +341,7 @@ border:None;</string>
                 <cursorShape>OpenHandCursor</cursorShape>
                </property>
                <property name="minimum">
-                <number>1</number>
+                <number>0</number>
                </property>
                <property name="maximum">
                 <number>20</number>
@@ -350,7 +350,7 @@ border:None;</string>
                 <number>1</number>
                </property>
                <property name="value">
-                <number>1</number>
+                <number>0</number>
                </property>
               </widget>
              </item>
