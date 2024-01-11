@@ -29,7 +29,6 @@ class MainApplication(QtWidgets.QMainWindow, ui.Ui_MainWindow):
         self.fff = self.fff_dsb.value()*(10**12)
         self.add_fun = self.coeff_dial.value()/10
     
-        # F = 0.1*10**15          #Частота сигнала
         SR = 10**18        # No. of samples per second, 
         Ts = 1./SR          # Sampling interval 
         self.t = np.arange(0, 0.5*10**(-12), Ts)
@@ -68,7 +67,6 @@ class MainApplication(QtWidgets.QMainWindow, ui.Ui_MainWindow):
         self.fff = self.fff_dsb.value()*(10**12)
         self.add_fun = self.coeff_dial.value()/10
     
-        # F = 0.1*10**15          #Частота сигнала
         SR = 10**18        # No. of samples per second, 
         Ts = 1./SR          # Sampling interval 
         self.t = np.arange(0, 10**(-12), Ts)
