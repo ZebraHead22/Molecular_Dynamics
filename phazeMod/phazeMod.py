@@ -54,9 +54,9 @@ class MainApplication(QtWidgets.QMainWindow, ui.Ui_MainWindow):
 
         self.spec_wid.setLabel('bottom', 'k', units='Hz')
         self.spec_wid.setLabel('left', 'Amplitude', units='a.u.')
-        self.spec_wid.setXRange(0, 0.5*10**15, padding=0)
+        self.spec_wid.setXRange(0, 10**15, padding=0)
         self.spec_wid.plot(self.freq, np.abs(self.X), pen='r')
-
+    #-------------------------------------------------------------------------------
     def plot(self):
         self.time_wid.clear()
         self.spec_wid.clear()
