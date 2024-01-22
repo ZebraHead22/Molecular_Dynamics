@@ -14,27 +14,30 @@ def make_spectres():
     # file = open("res_freq.txt", "w")
     for i in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
-        if file_extension == ".dat":
-            df = pd.read_csv(os.getcwd()+'/'+i, delimiter=' ', index_col=None)
-            df.rename(columns={'0.0': 'Frequency',
-                      '0.0.1': 'Amplitude'}, inplace=True)
+        if file_extension == ".dpt":
+            df = pd.read_csv(os.getcwd()+'/'+i, delimiter=',', index_col=None, header=None)
+            df.rename(columns={0: 'Frequency',
+                      1: 'Amplitude'}, inplace=True)
             print(df.head())
             # df.iloc[:1900] = np.nan
             # df.iloc[21000:] = np.nan
+            df = df.loc[(df['Frequency'] >=500 ) & (df['Frequency'] <=5000)]
             dfFreq = np.array(df['Frequency'].tolist())
             dfAmp = np.array(df['Amplitude'].tolist())
+            # dfAmp = [x*10**4 for x in dfAmp]
+
             # dfAmp = np.array([x*1000 for x in dfAmp])
 
-            # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
+            dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
             # file.write(str(os.path.basename(filename)+" - " +
             #            str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
             plt.gcf().clear()
             # Обычные графики спектров
-            plt.plot(dfFreq, dfAmp)
-            plt.ylabel('Spectral Density (a.u.)')
+            plt.plot(dfFreq, dfAmpRev)
+            plt.ylabel('Spectral Density (a.u. × 1E04)')
             plt.xlabel('Frequency ($cm^{-1}$)')
-            # plt.xlim(-300, 6300)
-            # plt.ylim(0.75, 0.9)
+            plt.xlim(-300, 6300)
+            # plt.ylim(0, 2)
             plt.grid()
             plt.savefig(filename+'.png')
     # file.close()
@@ -97,34 +100,58 @@ def one_spectrum():
 
 
 def ir_spectres():
-    all_data = pd.DataFrame()
+    gly_data = pd.DataFrame()
+    val_data = pd.DataFrame()
+    trp_data = pd.DataFrame()
+    ala_data = pd.DataFrame()
+    
 
     folder = os.getcwd()
     files = os.listdir(folder)
     for file in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+file)
         if file_extension == ".dpt":
-            df = pd.read_csv(os.getcwd()+'/'+file, delimiter=',', index_col=None, header=None)
-            df.rename(columns={0: 'Frequency_'+str(os.path.basename(filename)),
-                      1: 'Amplitude_'+str(os.path.basename(filename))}, inplace=True)
-            all_data.insert(0, 'Frequency_'+str(os.path.basename(filename)), df['Frequency_'+str(os.path.basename(filename))])
-            all_data.insert(1, 'Amplitude_'+str(os.path.basename(filename)), df['Amplitude_'+str(os.path.basename(filename))])
-    
+            if os.path.basename(filename) == 'Tryptophan':
+                df = pd.read_csv(os.getcwd()+'/'+file, delimiter=',', index_col=None, header=None)
+                df.rename(columns={0: 'Frequency_'+str(os.path.basename(filename)),
+                        1: 'Amplitude_'+str(os.path.basename(filename))}, inplace=True)
+                trp_data.insert(0, 'Frequency_'+str(os.path.basename(filename)), df['Frequency_'+str(os.path.basename(filename))])
+                trp_data.insert(1, 'Amplitude_'+str(os.path.basename(filename)), df['Amplitude_'+str(os.path.basename(filename))])
+            elif os.path.basename(filename) == 'Alanine':
+                df = pd.read_csv(os.getcwd()+'/'+file, delimiter=',', index_col=None, header=None)
+                df.rename(columns={0: 'Frequency_'+str(os.path.basename(filename)),
+                        1: 'Amplitude_'+str(os.path.basename(filename))}, inplace=True)
+                ala_data.insert(0, 'Frequency_'+str(os.path.basename(filename)), df['Frequency_'+str(os.path.basename(filename))])
+                ala_data.insert(1, 'Amplitude_'+str(os.path.basename(filename)), df['Amplitude_'+str(os.path.basename(filename))])
+            elif os.path.basename(filename) == 'Glycine':
+                df = pd.read_csv(os.getcwd()+'/'+file, delimiter=',', index_col=None, header=None)
+                df.rename(columns={0: 'Frequency_'+str(os.path.basename(filename)),
+                        1: 'Amplitude_'+str(os.path.basename(filename))}, inplace=True)
+                gly_data.insert(0, 'Frequency_'+str(os.path.basename(filename)), df['Frequency_'+str(os.path.basename(filename))])
+                gly_data.insert(1, 'Amplitude_'+str(os.path.basename(filename)), df['Amplitude_'+str(os.path.basename(filename))])
+            else:
+                df = pd.read_csv(os.getcwd()+'/'+file, delimiter=',', index_col=None, header=None)
+                df.rename(columns={0: 'Frequency_'+str(os.path.basename(filename)),
+                        1: 'Amplitude_'+str(os.path.basename(filename))}, inplace=True)
+                val_data.insert(0, 'Frequency_'+str(os.path.basename(filename)), df['Frequency_'+str(os.path.basename(filename))])
+                val_data.insert(1, 'Amplitude_'+str(os.path.basename(filename)), df['Amplitude_'+str(os.path.basename(filename))])
 
-    # all_data.iloc[:1900] = np.nan
-    # all_data.iloc[21000:] = np.nan
 
-    plt.plot(all_data["Frequency_Valine"], all_data["Amplitude_Valine"], c = 'black')
-    plt.plot(all_data["Frequency_Glycine"], all_data["Amplitude_Glycine"], c = 'royalblue')
-    plt.plot(all_data["Frequency_Alanine"], all_data["Amplitude_Alanine"], c = 'red')
-    plt.plot(all_data["Frequency_Tryptophan"], all_data["Amplitude_Tryptophan"], c = 'green')
+    trp_data = trp_data.loc[(trp_data['Frequency_Tryptophan'] >=500) & (trp_data['Frequency_Tryptophan'] <=5000)] 
+    ala_data = ala_data.loc[(ala_data['Frequency_Alanine'] >=500) & (ala_data['Frequency_Alanine'] <=5000)] 
+    val_data = val_data.loc[(val_data['Frequency_Valine'] >=500) & (val_data['Frequency_Valine'] <=5000)] 
+    gly_data = gly_data.loc[(gly_data['Frequency_Glycine'] >=500) & (gly_data['Frequency_Glycine'] <=5000)] 
+
+    plt.plot(val_data["Frequency_Valine"], val_data["Amplitude_Valine"])
+    plt.plot(gly_data["Frequency_Glycine"], gly_data["Amplitude_Glycine"])
+    plt.plot(ala_data["Frequency_Alanine"], ala_data["Amplitude_Alanine"])
+    plt.plot(trp_data["Frequency_Tryptophan"], trp_data["Amplitude_Tryptophan"])
     plt.legend(["Valine", "Glycine", "Alanine", "Tryptophan"])
     plt.grid()
     plt.xlim(-300, 6300)
     plt.ylim(0, 1)
     plt.xlabel("Frequency ($cm^{-1}$)")
     plt.ylabel("Energy (a.u.)")
-    # plt.show()
     plt.savefig(folder + "/result.png")
 
 
