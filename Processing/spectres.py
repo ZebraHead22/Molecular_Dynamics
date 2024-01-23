@@ -14,32 +14,34 @@ def make_spectres():
     # file = open("res_freq.txt", "w")
     for i in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
-        if file_extension == ".dpt":
-            df = pd.read_csv(os.getcwd()+'/'+i, delimiter=',', index_col=None, header=None)
-            df.rename(columns={0: 'Frequency',
-                      1: 'Amplitude'}, inplace=True)
+        if file_extension == ".dat":
+            df = pd.read_csv(os.getcwd()+'/'+i, delimiter=' ', index_col=None)
+            df.rename(columns={'0.0': 'Frequency',
+                      '0.0.1': 'Amplitude'}, inplace=True)
             print(df.head())
             # df.iloc[:1900] = np.nan
             # df.iloc[21000:] = np.nan
-            df = df.loc[(df['Frequency'] >=500 ) & (df['Frequency'] <=5000)]
+            # df = df.loc[(df['Frequency'] >=500 ) & (df['Frequency'] <=5000)]
             dfFreq = np.array(df['Frequency'].tolist())
             dfAmp = np.array(df['Amplitude'].tolist())
             # dfAmp = [x*10**4 for x in dfAmp]
 
             # dfAmp = np.array([x*1000 for x in dfAmp])
 
-            dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
+            # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
             # file.write(str(os.path.basename(filename)+" - " +
             #            str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
             plt.gcf().clear()
             # Обычные графики спектров
-            plt.plot(dfFreq, dfAmpRev)
-            plt.ylabel('Spectral Density (a.u. × 1E04)')
+            plt.plot(dfFreq, dfAmp)
+            plt.ylabel('Spectral Density (a.u.)')
             plt.xlabel('Frequency ($cm^{-1}$)')
             plt.xlim(-300, 6300)
             # plt.ylim(0, 2)
             plt.grid()
-            plt.savefig(filename+'.png')
+            plt.title(str(os.path.basename(filename)))
+            # plt.savefig(filename+'.png')
+            plt.show()
     # file.close()
 
 # Функция строит один спектр
