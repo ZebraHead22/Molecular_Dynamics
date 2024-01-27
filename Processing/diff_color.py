@@ -128,5 +128,3 @@ def vertical_graph():
     # plt.show()
     plt.savefig(am_folder + '/vertical_gly.png')
 
-
-barcode()

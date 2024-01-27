@@ -7,7 +7,6 @@ import pandas as pd
 import pylab as pl
 from math import sqrt
 from matplotlib import pyplot as plt
-import plotly.express as px
 
 amino_acids = list()
 
