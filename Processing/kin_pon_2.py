@@ -27,9 +27,9 @@ for address, dirs, names in os.walk(directory):
             amino_acid = re.search(r'^\w{,2}[^\_]', filename)
             amino_acid = amino_acid.group(0)
             amino_acids.append(amino_acid)
-amino_acids = list(set(amino_acids))
+amino_acids = sorted(list(set(amino_acids)))
 '''
-Формирует список .dat файлов в папке    определенной аминокислоты + сортировка
+Формирует список .dat файлов в папке определенной аминокислоты + сортировка
 '''
 for i in amino_acids:
     directory = os.getcwd()
@@ -49,9 +49,9 @@ for i in amino_acids:
                 one_data = pd.read_csv(
                     directory+"/"+file, delimiter=' ', index_col=None, header=[0])
                 data["TIME"] = (one_data["TS"]) * 0.001
-                data[(str(filename)+"_"+j)] = (one_data[j]) * 0.0434/5400
+                data[(str(filename)+"_"+j)] = (one_data[j]) * 0.0434/5400 # переводим усл.ед. в эВ
         # print(data.head())
-        # data.to_excel(directory+"_"+j+".xlsx")
+        # data.to_excel(directory + "_" + j + ".xlsx")
         '''
         Тут считаются спектры
         '''
@@ -74,39 +74,42 @@ for i in amino_acids:
         """
         Делаем графики по последнему моменту
         """
-        # last_moment_energies = list()
-        # legend.append(os.path.basename(directory)+" "+j.lower())
-        # for energy_column in data.columns.values[1:]:
-        #     last_moment_energies.append(
-        #         float(data.iloc[-1, data.columns.get_loc(energy_column)]))
-        # print(last_moment_energies)
-        # plt.scatter(field_amplitudes, last_moment_energies, s=20)
-        # plt.grid()
-        # plt.xlabel('Field amplitude (V/nm)')
-        # plt.ylabel('Energy (eV)')
-        # plt.title('Energy in 500ps time step \n(field amplitude)')
-        # plt.legend(legend)
-        # plt.savefig(directory+"/dependence111.png")
-        '''
-        Делаем срезы в спектрах
-        '''
-        spectre_data["FREQUENCY"] = [
-            round(x, 2) for x in spectre_data["FREQUENCY"].tolist()]
-        spectre_data = spectre_data.set_index("FREQUENCY")
-        slice_of_energy[str(i)+'_'+str(j)
-                        ] = spectre_data.loc[200].to_list()
+        last_moment_energies = list()
         legend.append(os.path.basename(directory)+" "+j.lower())
+        for energy_column in data.columns.values[1:]:
+            last_moment_energies.append(
+                float(data.iloc[-1, data.columns.get_loc(energy_column)]))
+        
+        # Добавляем набор в график
+        print(os.path.basename(directory)+" "+j.lower())
+        plt.plot(field_amplitudes, last_moment_energies, linewidth=2, c='black')
+# Строим график вне циклов для корректного отбражения настроек на полотне (сетка и т.д.)       
+plt.grid()
+plt.xlabel('Field amplitude (V/nm)')
+plt.ylabel('Energy (eV)')
+# plt.title('Energy in 500ps time step \n(field amplitude)')
+# plt.legend(legend)
+plt.savefig("dependence.png")
+'''
+Делаем срезы в спектрах
+'''
+#         spectre_data["FREQUENCY"] = [
+#             round(x, 2) for x in spectre_data["FREQUENCY"].tolist()]
+#         spectre_data = spectre_data.set_index("FREQUENCY")
+#         slice_of_energy[str(i)+'_'+str(j)
+#                         ] = spectre_data.loc[200].to_list()
+#         legend.append(os.path.basename(directory)+" "+j.lower())
         
 
-slice_of_energy.insert(0, "FIELD_AMPLITUDES", field_amplitudes)
-# Пробуем удалить амплитуды больше 0.3915
-slice_of_energy = slice_of_energy.set_index('FIELD_AMPLITUDES')
-slice_of_energy = slice_of_energy.drop([0.435, 0.4785, 0.522], axis=0)
-slice_of_energy = slice_of_energy.reset_index()
-plot = slice_of_energy.plot(x = 'FIELD_AMPLITUDES')
-plt.grid()
-plt.legend(legend)
-plt.xlabel("Field amplitudes (V/nm)")
-plt.ylabel("Energy (eV)")
-plt.savefig("slice.png") 
-plt.show()
+# slice_of_energy.insert(0, "FIELD_AMPLITUDES", field_amplitudes)
+# # Пробуем удалить амплитуды больше 0.3915
+# slice_of_energy = slice_of_energy.set_index('FIELD_AMPLITUDES')
+# slice_of_energy = slice_of_energy.drop([0.435, 0.4785, 0.522], axis=0)
+# slice_of_energy = slice_of_energy.reset_index()
+# plot = slice_of_energy.plot(x = 'FIELD_AMPLITUDES')
+# plt.grid()
+# plt.legend(legend)
+# plt.xlabel("Field amplitudes (V/nm)")
+# plt.ylabel("Energy (eV)")
+# plt.savefig("slice.png") 
+# plt.show()
