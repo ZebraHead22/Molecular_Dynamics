@@ -83,7 +83,6 @@ for i in amino_acids:
         
         # Добавляем набор в график
         print(os.path.basename(directory)+" "+j.lower())
-        legend.append(os.path.basename(directory)+" "+j.lower())
         field_amplitudes = np.array(field_amplitudes)
         last_moment_energies = np.array(last_moment_energies)
         X_Y_Spline = make_interp_spline(field_amplitudes, last_moment_energies)
@@ -98,7 +97,7 @@ plt.ylabel('Energy (eV)')
 # plt.title('Energy in 500ps time step \n(field amplitude)')
 plt.legend(legend)
 plt.savefig("dependence_color.png")
-# plt.show()
+plt.show()
 '''
 Делаем срезы в спектрах
 '''
