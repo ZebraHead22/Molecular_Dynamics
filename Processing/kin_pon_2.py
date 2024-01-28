@@ -8,6 +8,7 @@ from scipy import fftpack
 from matplotlib import cm
 from matplotlib import pyplot as plt
 from scipy.fft import rfft, rfftfreq
+from scipy.interpolate import make_interp_spline
 
 amino_acids = list()
 legend = list()
@@ -82,14 +83,21 @@ for i in amino_acids:
         
         # Добавляем набор в график
         print(os.path.basename(directory)+" "+j.lower())
-        plt.plot(field_amplitudes, last_moment_energies, linewidth=2, c='black')
+        field_amplitudes = np.array(field_amplitudes)
+        last_moment_energies = np.array(last_moment_energies)
+        X_Y_Spline = make_interp_spline(field_amplitudes, last_moment_energies)
+        X_ = np.linspace(field_amplitudes.min(), field_amplitudes.max(), 500)
+        Y_ = X_Y_Spline(X_)
+        plt.plot(X_, Y_,  linewidth=2, c='black')
+        # plt.plot(field_amplitudes, last_moment_energies, linewidth=2, c='black')
 # Строим график вне циклов для корректного отбражения настроек на полотне (сетка и т.д.)       
 plt.grid()
 plt.xlabel('Field amplitude (V/nm)')
 plt.ylabel('Energy (eV)')
 # plt.title('Energy in 500ps time step \n(field amplitude)')
 # plt.legend(legend)
-plt.savefig("dependence.png")
+plt.savefig("dependence_black.png")
+# plt.show()
 '''
 Делаем срезы в спектрах
 '''
