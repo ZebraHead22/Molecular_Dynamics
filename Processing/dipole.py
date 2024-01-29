@@ -56,8 +56,8 @@ dipole = pd.DataFrame(list(zip(frames, dip_x, dip_y, dip_z, dip_abs)),
                       columns=['Time (ps)', 'dip_x', 'dip_y', 'dip_z', '|dip|'])
 
 
-with pd.ExcelWriter(dirPath+'/'+'dependence.xlsx') as writer:
-    dipole.to_excel(writer, sheet_name='Dipole', index=None, index_label=None)
+# with pd.ExcelWriter(dirPath+'/'+'dependence.xlsx') as writer:
+#     dipole.to_excel(writer, sheet_name='Dipole', index=None, index_label=None)
 
 # Make plot
 plt.gcf().clear()
@@ -92,9 +92,22 @@ plt.grid()
 plt.savefig(dirPath+"/"+'dipoleMoment_ABS.png')
 print('Dip ABS picture saved...')
 
+
 plt.gcf().clear()
-plt.plot(np.array(frames), np.array(dip_abs))
-plt.ylabel('Time (ps))')
-plt.xlabel('Frequency ($cm^{-1}$)')
+plt.plot(np.array(frames), np.array(dip_x), color='crimson', linewidth=1)
+plt.plot(np.array(frames), np.array(dip_y), color='darkmagenta', linewidth=1)
+plt.plot(np.array(frames), np.array(dip_z), color='green', linewidth=1)
+plt.plot(np.array(frames), np.array(dip_abs), color='darkblue', linewidth=1)
+plt.ylabel('Spectral Density (a.u.)')
+plt.xlabel('Time (ps)')
 plt.grid()
+plt.legend(['dip_x', 'dip_y', 'dip_z', '|dip|' ])
+plt.savefig(dirPath+"/"+'dipoleMoment_all.png')
+print('Dip ABS picture saved...')
+
+# plt.gcf().clear()
+# plt.plot(np.array(frames), np.array(dip_abs))
+# plt.ylabel('Time (ps))')
+# plt.xlabel('Frequency ($cm^{-1}$)')
+# plt.grid()
 # plt.show()
