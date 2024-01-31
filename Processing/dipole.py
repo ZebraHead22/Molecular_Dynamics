@@ -50,7 +50,7 @@ for i in dip_z_1:
         dip_z.append(j)
 
 for i in range(len(dip_x)):
-    frames.append(int(i)/200)
+    frames.append(int(i)/20)
 
 dipole = pd.DataFrame(list(zip(frames, dip_x, dip_y, dip_z, dip_abs)),
                       columns=['Time (ps)', 'dip_x', 'dip_y', 'dip_z', '|dip|'])
@@ -74,7 +74,7 @@ plt.ylabel('Spectral Density (a.u.)')
 plt.xlabel('Time (ps)')
 plt.grid()
 plt.savefig(dirPath+"/"+'dipoleMoment_Y.png')
-print('Dip X picture saved...')
+print('Dip Y picture saved...')
 
 plt.gcf().clear()
 plt.plot(np.array(frames), np.array(dip_z), color='indigo', linewidth=2)
@@ -82,7 +82,7 @@ plt.ylabel('Spectral Density (a.u.)')
 plt.xlabel('Time (ps)')
 plt.grid()
 plt.savefig(dirPath+"/"+'dipoleMoment_Z.png')
-print('Dip X picture saved...')
+print('Dip Z picture saved...')
 
 plt.gcf().clear()
 plt.plot(np.array(frames), np.array(dip_abs), color='darkblue', linewidth=2)
@@ -99,11 +99,11 @@ plt.plot(np.array(frames), np.array(dip_y), color='darkmagenta', linewidth=1)
 plt.plot(np.array(frames), np.array(dip_z), color='green', linewidth=1)
 plt.plot(np.array(frames), np.array(dip_abs), color='darkblue', linewidth=1)
 plt.ylabel('Spectral Density (a.u.)')
-plt.xlabel('Time (ps)')
+plt.xlabel('Time (ns)')
 plt.grid()
 plt.legend(['dip_x', 'dip_y', 'dip_z', '|dip|' ])
 plt.savefig(dirPath+"/"+'dipoleMoment_all.png')
-print('Dip ABS picture saved...')
+print('Dip ALL picture saved...')
 
 # plt.gcf().clear()
 # plt.plot(np.array(frames), np.array(dip_abs))
