@@ -67,7 +67,6 @@ class MainApplication(QtWidgets.QMainWindow, ui.Ui_MainWindow):
         else:
             raise TypeError ("Неверные данные")
 
-
         self.X = fft(self.s)
         N = len(self.X)
         n = np.arange(N)
