@@ -40,8 +40,8 @@ def make_spectres():
             # plt.ylim(0, 2)
             plt.grid()
             # plt.title(str(os.path.basename(filename)))
-            plt.savefig(filename+'.png')
-            # plt.show()
+            # plt.savefig(filename+'.png')
+            plt.show()
     # file.close()
 
 # Функция строит один спектр

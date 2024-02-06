@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/max/Documents/MD/phazeMod/ui.ui'
+# Form implementation generated from reading ui file '/Users/max/Documents/PythonProjects/MD/phazeMod/ui.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -179,7 +179,7 @@ class Ui_MainWindow(object):
         self.coeff_dial.setMinimumSize(QtCore.QSize(100, 0))
         self.coeff_dial.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
         self.coeff_dial.setMinimum(0)
-        self.coeff_dial.setMaximum(100)
+        self.coeff_dial.setMaximum(1000)
         self.coeff_dial.setPageStep(1)
         self.coeff_dial.setProperty("value", 0)
         self.coeff_dial.setObjectName("coeff_dial")
