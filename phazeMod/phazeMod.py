@@ -26,14 +26,14 @@ class MainApplication(QtWidgets.QMainWindow, ui.Ui_MainWindow):
         self.c2 = self.c2_dsb.value()
         self.freq = self.freq_dsb.value()*(10**12)
         self.freq2 = self.freq2_dsb.value()*(10**12)
-        self.fff = self.fff_dsb.value()*(10**12)
+        self.freq3_dsb = self.freq3_dsb_dsb.value()*(10**12)
         self.add_fun = self.coeff_dial.value()
     
         SR = 10**18        # No. of samples per second, 
         Ts = 1./SR          # Sampling interval 
         self.t = np.arange(0, 0.5*10**(-12), Ts)
         
-        f = self.add_fun*np.sin(2*np.pi*self.fff*self.t) #Функция для флуктуации
+        f = self.add_fun*np.sin(2*np.pi*self.freq3_dsb*self.t) #Функция для флуктуации
         signal = self.c1*np.sin(2*np.pi*self.freq*self.t+f)
         signal2 = self.c2*np.cos(2*np.pi*self.freq2*self.t+f)
         if self.c2 == 0:
@@ -64,14 +64,14 @@ class MainApplication(QtWidgets.QMainWindow, ui.Ui_MainWindow):
         self.c2 = self.c2_dsb.value()
         self.freq = self.freq_dsb.value()*(10**12)
         self.freq2 = self.freq2_dsb.value()*(10**12)
-        self.fff = self.fff_dsb.value()*(10**12)
+        self.freq3_dsb = self.freq3_dsb_dsb.value()*(10**12)
         self.add_fun = self.coeff_dial.value()/10
     
         SR = 10**18        # No. of samples per second, 
         Ts = 1./SR          # Sampling interval 
         self.t = np.arange(0, 10**(-12), Ts)
         
-        f = self.add_fun*np.cos(2*np.pi*self.fff*self.t) #Функция для флуктуации
+        f = self.add_fun*np.cos(2*np.pi*self.freq3_dsb*self.t) #Функция для флуктуации
         signal = self.c1*np.sin(2*np.pi*self.freq*self.t+f)
         signal2 = self.c2*np.cos(2*np.pi*self.freq2*self.t+f)
         if self.c2 == 0:
