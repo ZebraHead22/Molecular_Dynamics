@@ -15,35 +15,44 @@ class MainApplication(QtWidgets.QMainWindow, ui.Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        #Привязываем кнопку
+        # Setup SpinBoxes
+        self.setup_spin_box(self.c1_dsb, self.label_2, self.horizontalLayout_3)
+        self.setup_spin_box(self.c2_dsb, self.label_3, self.horizontalLayout_2)
+        self.setup_spin_box(self.c3_dsb, self.label_6, self.horizontalLayout_7)
+        self.setup_spin_box(self.freq_dsb, self.label, self.horizontalLayout_5)
+        self.setup_spin_box(self.freq2_dsb, self.label_5, self.horizontalLayout_6)
+        self.setup_spin_box(self.freq3_dsb, self.label_4, self.horizontalLayout_4)
+        self.setup_spin_box(self.sum_dsb, self.label_7, self.horizontalLayout_8)
+        # Add plot button
         self.plot_btn.clicked.connect(self.plot)
 
-    def plot(self): #Строит график
-        #Определение параметров уравнения
+    def setup_spin_box(self, spin_box, label, layout):
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.addWidget(QtWidgets.QLabel(label))
+        spin_box.valueChanged.connect(self.plot)
+        hbox.addWidget(spin_box)
+        layout.addLayout(hbox)
+
+    def plot(self): # Compute and plot graphics
+        # Read parameters
         self.c1 = self.c1_dsb.value()
         self.c2 = self.c2_dsb.value()
         self.c3 = self.c3_dsb.value()
         self.sum = self.sum_dsb.value()
-
         self.freq = self.freq_dsb.value()*(10**12)
         self.freq2 = self.freq2_dsb.value()*(10**12)
         self.freq3 = self.freq3_dsb.value()*(10**12)
-    
-        SR = 10**18        # No. of samples per second, 
-        Ts = 1./SR          # Sampling interval 
+        # Compute signal
+        self.SR = 10**18 # No. of samples per second, 
+        Ts = 1./self.SR # Sampling interval 
         self.t = np.arange(0, 0.5*10**(-12), Ts)
-        
-        o = self.c3*np.sin(2*np.pi*self.freq3*self.t) #Функция для флуктуации
+        # Compute
+        o = self.c3*np.sin(2*np.pi*self.freq3*self.t) # Fluctuation function
         signal_main = self.c1*np.sin(2*np.pi*self.freq*self.t+o)
         signal_additional = self.c2*np.cos(2*np.pi*self.freq2*self.t+o)
         
         if self.sum == 1:
-            if self.c2 == 0:
-                self.s = signal_main
-            else:
-                self.s = signal_main - signal_additional
-            print(self.s)
-        
+            self.s = signal_main - signal_additional
         elif self.sum >= 2:
             variables_names = {}
             for i in range(2, int(self.sum)+1):
@@ -70,16 +79,16 @@ class MainApplication(QtWidgets.QMainWindow, ui.Ui_MainWindow):
         self.X = fft(self.s)
         N = len(self.X)
         n = np.arange(N)
-        T = N/SR
+        T = N/self.SR
         self.freq = n/T
-        #Clear windows
+        # Clear windows
         self.time_wid.clear()
         self.spec_wid.clear()
-        #Plot ATR
+        # Plot ATR
         self.time_wid.setLabel('bottom', 'time', units='s')
         self.time_wid.setLabel('left', 'Amplitude', units='a.u.')
         self.time_wid.plot(self.t, self.s, pen='r')
-        #Plot spectre
+        # Plot spectre
         self.spec_wid.setLabel('bottom', 'k', units='Hz')
         self.spec_wid.setLabel('left', 'Amplitude', units='a.u.')
         self.spec_wid.setXRange(0, 10**15, padding=0)

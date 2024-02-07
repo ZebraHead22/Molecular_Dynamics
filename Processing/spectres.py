@@ -25,7 +25,7 @@ def make_spectres():
             dfFreq = np.array(df['Frequency'].tolist())
             dfAmp = np.array(df['Amplitude'].tolist())
             dfAmp = [x*10**4 for x in dfAmp]
-
+            # print(df)
             # dfAmp = np.array([x*1000 for x in dfAmp])
 
             # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
@@ -33,15 +33,15 @@ def make_spectres():
             #            str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
             plt.gcf().clear()
             # Обычные графики спектров
-            plt.plot(dfFreq, dfAmp)
+            plt.plot(dfFreq, dfAmp, linewidth=1)
             plt.ylabel('Spectral Density (a.u. ×$10^4$)')
             plt.xlabel('Frequency ($cm^{-1}$)')
             # plt.xlim(-300, 6300)
             # plt.ylim(0, 2)
             plt.grid()
             # plt.title(str(os.path.basename(filename)))
-            # plt.savefig(filename+'.png')
-            plt.show()
+            plt.savefig(filename+'.png')
+            # plt.show()
     # file.close()
 
 # Функция строит один спектр
