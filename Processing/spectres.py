@@ -24,7 +24,7 @@ def make_spectres():
             # df = df.loc[(df['Frequency'] >=500 ) & (df['Frequency'] <=5000)]
             dfFreq = np.array(df['Frequency'].tolist())
             dfAmp = np.array(df['Amplitude'].tolist())
-            dfAmp = [x*10**4 for x in dfAmp]
+            # dfAmp = [x*10**4 for x in dfAmp]
             # print(df)
             # dfAmp = np.array([x*1000 for x in dfAmp])
 
@@ -34,7 +34,7 @@ def make_spectres():
             plt.gcf().clear()
             # Обычные графики спектров
             plt.plot(dfFreq, dfAmp, linewidth=1)
-            plt.ylabel('Spectral Density (a.u. ×$10^4$)')
+            plt.ylabel('Spectral Density (a.u.)')
             plt.xlabel('Frequency ($cm^{-1}$)')
             # plt.xlim(-300, 6300)
             # plt.ylim(0, 2)
