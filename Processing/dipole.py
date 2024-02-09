@@ -59,9 +59,11 @@ dipole = pd.DataFrame(list(zip(frames, dip_x, dip_y, dip_z, dip_abs)),
 # with pd.ExcelWriter(dirPath+'/'+'dependence.xlsx') as writer:
 #     dipole.to_excel(writer, sheet_name='Dipole', index=None, index_label=None)
 
+dipole = dipole.loc[dipole['Time (ps)'] <= 40]
+
 # Make plot
 plt.gcf().clear()
-plt.plot(np.array(frames), np.array(dip_x), color='crimson', linewidth=2)
+plt.plot(np.array(dipole["Time (ps)"].tolist()), np.array(dipole["dip_x"].tolist()), color='crimson', linewidth=2)
 plt.ylabel('Spectral Density (a.u.)')
 plt.xlabel('Time (ps)')
 plt.grid()
@@ -69,7 +71,7 @@ plt.savefig(dirPath+"/"+'dipoleMoment_X.png')
 print('Dip X picture saved...')
 
 plt.gcf().clear()
-plt.plot(np.array(frames), np.array(dip_y), color='darkmagenta', linewidth=2)
+plt.plot(np.array(dipole["Time (ps)"].tolist()), np.array(dipole["dip_y"].tolist()), color='darkmagenta', linewidth=2)
 plt.ylabel('Spectral Density (a.u.)')
 plt.xlabel('Time (ps)')
 plt.grid()
@@ -77,7 +79,7 @@ plt.savefig(dirPath+"/"+'dipoleMoment_Y.png')
 print('Dip Y picture saved...')
 
 plt.gcf().clear()
-plt.plot(np.array(frames), np.array(dip_z), color='indigo', linewidth=2)
+plt.plot(np.array(dipole["Time (ps)"].tolist()), np.array(dipole["dip_z"].tolist()), color='indigo', linewidth=2)
 plt.ylabel('Spectral Density (a.u.)')
 plt.xlabel('Time (ps)')
 plt.grid()
@@ -85,7 +87,7 @@ plt.savefig(dirPath+"/"+'dipoleMoment_Z.png')
 print('Dip Z picture saved...')
 
 plt.gcf().clear()
-plt.plot(np.array(frames), np.array(dip_abs), color='darkblue', linewidth=2)
+plt.plot(np.array(dipole["Time (ps)"].tolist()), np.array(dipole["|dip|"].tolist()), color='darkblue', linewidth=2)
 plt.ylabel('Spectral Density (a.u.)')
 plt.xlabel('Time (ps)')
 plt.grid()
@@ -94,10 +96,10 @@ print('Dip ABS picture saved...')
 
 
 plt.gcf().clear()
-plt.plot(np.array(frames), np.array(dip_x), color='crimson', linewidth=1)
-plt.plot(np.array(frames), np.array(dip_y), color='darkmagenta', linewidth=1)
-plt.plot(np.array(frames), np.array(dip_z), color='green', linewidth=1)
-plt.plot(np.array(frames), np.array(dip_abs), color='darkblue', linewidth=1)
+plt.plot(np.array(dipole["Time (ps)"].tolist()), np.array(dipole["dip_x"].tolist()), color='crimson', linewidth=1)
+plt.plot(np.array(dipole["Time (ps)"].tolist()), np.array(dipole["dip_y"].tolist()), color='darkmagenta', linewidth=1)
+plt.plot(np.array(dipole["Time (ps)"].tolist()), np.array(dipole["dip_z"].tolist()), color='green', linewidth=1)
+plt.plot(np.array(dipole["Time (ps)"].tolist()), np.array(dipole["|dip|"].tolist()), color='darkblue', linewidth=1)
 plt.ylabel('Spectral Density (a.u.)')
 plt.xlabel('Time (ns)')
 plt.grid()
