@@ -38,33 +38,32 @@ for i in amino_acids:
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         out = pd.DataFrame()
-        data = pd.DataFrame()
         for f in frequencies:
+            data = pd.DataFrame()
             files = os.listdir(directory+"/"+str(f)+'/'+i)
             files = sorted(files)
             for file in files:
                 filename, file_extension = os.path.splitext(file)
                 if file_extension == ".dat":
-                    # print('File is ', directory+"/"+str(f)+'/'+i+"/"+file)
                     one_file_data = pd.read_csv(
                         directory+"/"+str(f)+'/'+i+"/"+file, delimiter=' ', index_col=None, header=[0])
-
-                    data[(str(filename)+"_"+j)] = (one_file_data[j]) * 0.0434/5400 # переводим усл.ед. в эВ
-
+                    data[(str(filename)+"_"+j)] = round((one_file_data[j])*0.0434/5400, 3) # переводим усл.ед. в эВ
             last_moment_energies = list()
             for energy_column in data.columns.values:
                 last_moment_energies.append(
                     float(data.iloc[-1, data.columns.get_loc(energy_column)]))           
             out[i+str(f)+j] = last_moment_energies
+        # print(out)
+            print('Processing of ', i+' '+str(f)+' '+j) 
 
-            print('Processing of ', i+' '+str(f)+' '+j)
-
-            ax.plot(field_amplitudes, last_moment_energies, f, zdir='y')
-        ax.set_yticks(frequencies)
+            ax.plot(field_amplitudes, last_moment_energies, f, zdir='y', marker = 'o', markersize=0.3,  linewidth = 2)
+        # ax.set_yticks(frequencies)
         ax.set_title((str(i)).upper()+' '+str(j))
         ax.set_xlabel('Field Amplitude (V/nm)')
         ax.set_ylabel('Field Frequency ($cm^{-1}$)')
         ax.set_zlabel('Amplitude (eV)')
         ax.grid()
+        plt.legend([str(x)+'$cm^{-1}$' for x in frequencies])
+        # plt.yticks(rotation=45)
         plt.show()
         # ax.figure.savefig(directory+'/'+str(i)+'_'+str(j).lower()+".png")
