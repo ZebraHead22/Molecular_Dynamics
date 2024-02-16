@@ -1,5 +1,6 @@
 import os
 import re
+import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.interpolate import make_interp_spline
@@ -55,8 +56,12 @@ for i in amino_acids:
             out[i+str(f)+j] = last_moment_energies
         # print(out)
             print('Processing of ', i+' '+str(f)+' '+j) 
-
-            ax.plot(field_amplitudes, last_moment_energies, f, zdir='y', marker = 'o', markersize=0.3,  linewidth = 2)
+            
+            X_Y_Spline = make_interp_spline(field_amplitudes, last_moment_energies)
+            X_ = np.linspace((np.array(field_amplitudes)).min(), (np.array(field_amplitudes)).max(), 500)
+            Y_ = X_Y_Spline(X_)
+            # plt.plot(X_, Y_,  linewidth=2)
+            ax.plot(X_, Y_, f, zdir='y', marker = 'o', markersize=0.3,  linewidth = 2)
         # ax.set_yticks(frequencies)
         ax.set_title((str(i)).upper()+' '+str(j))
         ax.set_xlabel('Field Amplitude (V/nm)')
