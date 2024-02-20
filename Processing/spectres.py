@@ -36,11 +36,11 @@ def make_spectres():
             plt.plot(dfFreq, dfAmp, linewidth=1)
             plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
             plt.xlabel('Frequency ($cm^{-1}$)')
-            plt.xlim(2900, 3700)
+            # plt.xlim(2900, 3700)
             # plt.ylim(0, 2)
             plt.grid()
             # plt.title(str(os.path.basename(filename)))
-            plt.savefig(filename+'_3.png')
+            plt.savefig(filename+'_full.png')
             # plt.show()
     # file.close()
 
