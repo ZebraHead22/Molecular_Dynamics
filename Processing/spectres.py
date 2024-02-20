@@ -36,12 +36,12 @@ def make_spectres():
             plt.plot(dfFreq, dfAmp, linewidth=1)
             plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
             plt.xlabel('Frequency ($cm^{-1}$)')
-            # plt.xlim(2900, 3700)
+            plt.xlim(3200, 3500)
             # plt.ylim(0, 2)
             plt.grid()
-            # plt.title(str(os.path.basename(filename)))
-            plt.savefig(filename+'_full.png')
-            # plt.show()
+            plt.title(str(os.path.basename(filename)))
+            # plt.savefig(filename+'_3200.png')
+            plt.show()
     # file.close()
 
 # Функция строит один спектр
