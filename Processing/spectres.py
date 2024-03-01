@@ -18,30 +18,33 @@ def make_spectres():
             df = pd.read_csv(os.getcwd()+'/'+i, delimiter=' ', index_col=None)
             df.rename(columns={'0.0': 'Frequency',
                       '0.0.1': 'Amplitude'}, inplace=True)
+            df.insert(2, 'Amp×104', df['Amplitude']*(10**4))
             print(df.head())
             # df.iloc[:1900] = np.nan
             # df.iloc[21000:] = np.nan
             # df = df.loc[(df['Frequency'] >=500 ) & (df['Frequency'] <=5000)]
-            dfFreq = np.array(df['Frequency'].tolist())
-            dfAmp = np.array(df['Amplitude'].tolist())
-            # dfAmp = [x*10**4 for x in dfAmp]
-            # print(df)
-            dfAmp = np.array([x*10000 for x in dfAmp])
+            # dfFreq = np.array(df['Frequency'].tolist())
+            # dfAmp = np.array(df['Amplitude'].tolist())
+            # # dfAmp = [x*10**4 for x in dfAmp]
+            # # print(df)
+            # dfAmp = np.array([x*10000 for x in dfAmp])
 
-            # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
-            # file.write(str(os.path.basename(filename)+" - " +
-            #            str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
-            plt.gcf().clear()
-            # Обычные графики спектров
-            plt.plot(dfFreq, dfAmp, linewidth=1)
-            plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
-            plt.xlabel('Frequency ($cm^{-1}$)')
-            plt.xlim(3200, 3500)
-            # plt.ylim(0, 2)
-            plt.grid()
-            plt.title(str(os.path.basename(filename)))
-            # plt.savefig(filename+'_3200.png')
-            plt.show()
+            # # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
+            # # file.write(str(os.path.basename(filename)+" - " +
+            # #            str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
+            df.to_excel(filename+'.xlsx')
+            
+            # plt.gcf().clear()
+            # # Обычные графики спектров
+            # plt.plot(dfFreq, dfAmp, linewidth=1)
+            # plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
+            # plt.xlabel('Frequency ($cm^{-1}$)')
+            # plt.xlim(3200, 3500)
+            # # plt.ylim(0, 2)
+            # plt.grid()
+            # plt.title(str(os.path.basename(filename)))
+            # # plt.savefig(filename+'_3200.png')
+            # plt.show()
     # file.close()
 
 # Функция строит один спектр
@@ -83,7 +86,7 @@ def one_spectrum():
     plt.gcf().clear()
     plt.stem(np.array(wv), np.array(y_samples))
     plt.ylabel('Spectral Density (a.u.)')
-    plt.xlabel('Wavelenght ($\mu$m)')
+    # plt.xlabel('Wavelenght ($\mu$m)')
     plt.grid()
     plt.savefig("dep.png")
 
