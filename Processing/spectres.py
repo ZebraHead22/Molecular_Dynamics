@@ -42,7 +42,7 @@ def make_spectres():
             # plt.xlim(3200, 3500)
             # plt.ylim(0, 2)
             plt.grid()
-            plt.title(str(os.path.basename(filename)))
+            # plt.title(str(os.path.basename(filename)))
             plt.savefig(filename+'.png')
             # plt.show()
     # file.close()
