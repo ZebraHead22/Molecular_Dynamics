@@ -12,6 +12,13 @@ import csv
 from PyQt5.QtWidgets import QFileDialog
 import subprocess
 from matplotlib import pyplot as plt
+'''
+This programm create graph
+Spectral density (Electric Field Amplitude).
+Need to select a directoty with folders of Electric Field Amplitudes.
+'''
+
+
 #-----------------------------------------------------------------------------------------------------------------------
 class MainApplication(QtWidgets.QMainWindow, Ui_design.Ui_PacketProcessor):
     def __init__(self):

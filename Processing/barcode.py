@@ -6,6 +6,12 @@ import pandas as pd
 from math import sqrt
 from matplotlib import pyplot as plt
 
+'''
+Тут строим график-штрих-код
+Каждый шитрих - максимальная амплитуда пика на определенной частоте по У
+По Х - аминокислота
+'''
+
 # Define constant lists
 FREQUENCIES_GLY = list()
 FREQUENCIES_FF = list()
@@ -19,7 +25,7 @@ for address, dirs, files in os.walk(am_folder):
             df = pd.read_csv(
                 os.path.join(address, name), delimiter=' ', index_col=None)
             df.rename(columns={'0.0': 'Frequency',
-                                '0.0.1': 'Amplitude'}, inplace=True)
+                               '0.0.1': 'Amplitude'}, inplace=True)
             frequency = re.search(
                 r'\d+', str(os.path.basename(filename)))
             frequency = frequency.group(0)
@@ -27,9 +33,9 @@ for address, dirs, files in os.walk(am_folder):
                 df['Frequency']-float(int(frequency)-20)).abs().argsort()[:1]].index.tolist()
             closest_value_max = df.iloc[(
                 df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
-            max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
+            max_amplitude = df.loc[closest_value_min[0]                                   : closest_value_max[0], 'Amplitude'].max()
             max_amplitude_frequency = df.loc[df['Amplitude']
-                                                == max_amplitude, 'Frequency'].values[0]
+                                             == max_amplitude, 'Frequency'].values[0]
             amino = re.search(r'^[\w]{1,2}[^\_]', str(
                 os.path.basename(filename)))
             amino = amino.group(0)
@@ -48,18 +54,21 @@ plt.gcf().clear()
 # Make subplots
 fig, ax = plt.subplots()
 
+
 def cm_to_inch(value):  # Define picture size, calc cm in inch
     return value/2.54
+
+
 fig.set_figheight(cm_to_inch(26))  # 26 cm in height
 fig.set_figwidth(cm_to_inch(16))  # 16 cm in width
 # Second plot for second y-axis
 ax_e = ax.twinx()
 ax.eventplot(FREQUENCIES_GLY, orientation="vertical",
-                lineoffsets=-1.5, linewidth=0.75, color="black")
+             lineoffsets=-1.5, linewidth=0.75, color="black")
 ax.eventplot(FREQUENCIES_TRP, orientation="vertical",
-                lineoffsets=0, linewidth=0.75, color='black')
+             lineoffsets=0, linewidth=0.75, color='black')
 ax.eventplot(FREQUENCIES_FF, orientation="vertical",
-                lineoffsets=1.5, linewidth=0.75, color="black")
+             lineoffsets=1.5, linewidth=0.75, color="black")
 # Set other graph parameters: labels, grid, limits;
 # For collective fluctuations use 0-200 cm-1 (0-6 THz) range;
 # For local fluctuations use 200-1000 cm-1 (6-30 THz)  range.
@@ -72,4 +81,4 @@ ax.set_xticks([])
 figure_name = os.getcwd() + '/' + "evenplot_all.png"
 fig.savefig(figure_name)
 print("Figure save in " + str(os.path.dirname(figure_name)) +
-        " as " + str(os.path.basename(figure_name)))
+      " as " + str(os.path.basename(figure_name)))

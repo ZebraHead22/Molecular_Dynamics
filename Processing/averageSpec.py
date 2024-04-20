@@ -3,7 +3,9 @@ import re
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
-
+'''
+Здесь считаем усредненный спектр и большинства реализаций
+'''
 folders = os.listdir(os.getcwd())
 for folder in folders:
     if os.path.isdir(folder) == True:

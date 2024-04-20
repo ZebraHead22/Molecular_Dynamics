@@ -1,9 +1,11 @@
-# Здесь считаем зависимость амплитуды пика от амплитуды поля для одного эксперимента
 import os
 import re
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
+'''
+Здесь считаем зависимость амплитуды пика от амплитуды поля для одного эксперимента
+'''
 
 
 def one_experiment():
@@ -11,7 +13,6 @@ def one_experiment():
     field_amplutide = []
     amplitude = []
     list_files = []
-
     folders = os.listdir(os.getcwd())
     for folder in folders:
         if os.path.isdir(folder) == True:

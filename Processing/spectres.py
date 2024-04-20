@@ -48,8 +48,6 @@ def make_spectres():
     # file.close()
 
 # Функция строит один спектр
-
-
 def one_spectrum():
     strings = []
     x_samples = []

@@ -5,7 +5,9 @@ from pandas import Series
 from scipy import fftpack
 from matplotlib import pyplot as plt
 from scipy.fft import rfft, rfftfreq
-
+'''
+Тестим реализации различных внешних ПЛОСКИХ полей
+'''
 impuls_time = list()
 impuls_list = list()
 amplitudes =list()
