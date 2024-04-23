@@ -44,8 +44,10 @@ def family():
     main_df = main_df.drop([17])
     print(main_df.head())
 
-    max_values = [1.62, 1.95, 4.14, 5.36, 6.12, 10.74, 14.44]
-    captions = ['I', 'II', 'III', 'IV', 'V', 'X', 'XV']
+    # max_values = [1.62, 1.95, 4.14, 5.36, 6.12, 10.74, 14.44]
+    max_values = [1.62, 1.95, 4.14, 5.36, 6.12]
+    # captions = ['I', 'II', 'III', 'IV', 'V', 'X', 'XV']
+    captions = ['I', 'II', 'III', 'IV', 'V']
 
     for max_value in max_values:
         plt.plot(18, max_value, '*', c='red')
@@ -67,7 +69,7 @@ def family():
     plt.grid()
     plt.xticks(np.arange(0, 22, 2))
     plt.xlabel('N')
-    plt.ylabel('Max Spectral Density (a.u. ×$10^{2}$)')
+    plt.ylabel('Max Apmlitude (a.u. ×$10^{2}$)')
     # plt.show()
     plt.savefig(os.getcwd()+'/family.png', dpi=300)
 
@@ -91,9 +93,9 @@ def maxSpecDen():
                     data_df.rename(
                         columns={'0.0': 'Freq', '0.0.1': 'Amp'}, inplace=True)
                     closest_value_min = data_df.iloc[(
-                        data_df['Freq']-float(int(folder)-20)).abs().argsort()[:1]].index.tolist()
+                        data_df['Freq']-float(int(folder)-1000)).abs().argsort()[:1]].index.tolist()
                     closest_value_max = data_df.iloc[(
-                        data_df['Freq']-float(int(folder)+20)).abs().argsort()[:1]].index.tolist()
+                        data_df['Freq']-float(int(folder)+1000)).abs().argsort()[:1]].index.tolist()
                     max_amplitude = data_df.loc[closest_value_min[0]: closest_value_max[0], 'Amp'].max()
                     # max_amplitude_frequency = data_df.loc[data_df['Amplitude']
                     #                                     == max_amplitude, 'Frequency'].values[0]
@@ -106,25 +108,21 @@ def maxSpecDen():
             print(folder, sorted_dict)
 
             plt.scatter(np.array(list(sorted_dict.keys())), np.array(list(sorted_dict.values())), s=25, c='black', marker=next(markers)) # Scatter Plot
+            # plt.plot(np.array(list(sorted_dict.keys())), np.array(list(sorted_dict.values()))) # Scatter Plot
             
             a = np.polyfit(np.log(np.array(list(sorted_dict.keys()))), np.array(list(sorted_dict.values())), 1)  # Approximation coefficients
-            y = a[0] * 1.35 * np.log(np.array(list(sorted_dict.keys()))) + a[1]  # Approximation
+            y = a[0] * 0.23 * (np.array(list(sorted_dict.keys()))) + a[1]  # Approximation
             x = np.array(list(sorted_dict.keys()))
             plt.plot(x[1:], y[1:], 'k--', lw=1)  # Approximate plot
-                       
-            if folder == '4167':
-                plt.annotate(str(folder), (15.6, max(list(y))-0.7), fontsize=12)
-            elif folder == '1515':
-                plt.annotate(str(folder), (15.6, max(list(y))+0.3), fontsize=12)
-            else:
-                plt.annotate(str(folder), (15.6, max(list(y))), fontsize=12)
-
-
+            plt.annotate(str(folder), (15.6, max(list(sorted_dict.values()))), fontsize=12)   
+           
     plt.grid()
     plt.xticks(np.arange(0, 20, 2))
     plt.xlabel('p')
-    plt.ylabel('Max Spectral Density (a.u. ×$10^{2}$)')
+    plt.ylabel('Max Amplitude (a.u. ×$10^{2}$)')
+    # plt.legend(folders)
     # plt.show()
-    plt.savefig(os.getcwd()+'/maxSpecDen(p).png', dpi=300)
+    plt.savefig(os.getcwd()+'/maxSpecDen(p)_all.png', dpi=600)
 
-maxSpecDen()    
+# maxSpecDen()    
+family()    
