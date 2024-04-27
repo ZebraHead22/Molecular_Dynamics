@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 def make_spectres():
     folder = os.getcwd()
     files = os.listdir(os.getcwd())
-    # file = open("res_freq.txt", "w")
+    file = open("res_freq.txt", "w")
     for i in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
         if file_extension == ".dat":
@@ -30,10 +30,11 @@ def make_spectres():
             dfAmp = np.array([x*10000 for x in dfAmp])
 
             # # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
-            # # file.write(str(os.path.basename(filename)+" - " +
-            # #            str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
+            file.write(str(os.path.basename(filename)+" - " +
+                       str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
             # df.to_excel(filename+'.xlsx')
-            
+            max_amp_freq = df.loc[df['Amplitude'].idxmax()]
+            print(max_amp_freq)
             plt.gcf().clear()
             # # Обычные графики спектров
             plt.plot(dfFreq, dfAmp, linewidth=1)
@@ -42,9 +43,9 @@ def make_spectres():
             # plt.xlim(3200, 3500)
             # plt.ylim(0, 2)
             plt.grid()
-            # plt.title(str(os.path.basename(filename)))
+            plt.title(str(os.path.basename(filename)))
             plt.savefig(filename+'.png')
-            # plt.show()
+            plt.show()
     # file.close()
 
 # Функция строит один спектр
