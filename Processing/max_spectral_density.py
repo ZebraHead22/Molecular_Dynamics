@@ -27,8 +27,13 @@ def family():
                         os.getcwd()+'/'+folder+'/'+data_file, sep=' ', index_col=None)
                     data_df.rename(
                         columns={'0.0': 'Freq', '0.0.1': 'Amp'}, inplace=True)
-                    max_amp_value = round(
-                        (data_df['Amp'].max())*(10**2), 2)  # multiply to 100
+                    closest_value_min = data_df.iloc[(
+                        data_df['Freq']-float(3333-50)).abs().argsort()[:1]].index.tolist()
+                    closest_value_max = data_df.iloc[(
+                        data_df['Freq']-float(3333+50)).abs().argsort()[:1]].index.tolist()
+                    max_amplitude = data_df.loc[closest_value_min[0]: closest_value_max[0], 'Amp'].max()
+                    # max_amp_value = round((data_df['Amp'].max())*(10**2), 2)  # multiply to 100
+                    max_amp_value = round(max_amplitude*(10**2), 2)  # multiply to 100
                     value_dict[int(dot)] = max_amp_value
 
             sorted_list = sorted(value_dict.items())
@@ -42,36 +47,42 @@ def family():
 
     main_df['average'] = main_df[['plus_circle_wave', 'minus_circle_wave']].mean(axis=1)
     main_df = main_df.drop([17])
-    print(main_df.head())
+    print(main_df)
 
     # max_values = [1.62, 1.95, 4.14, 5.36, 6.12, 10.74, 14.44]
     max_values = [1.62, 1.95, 4.14, 5.36, 6.12]
     # captions = ['I', 'II', 'III', 'IV', 'V', 'X', 'XV']
     captions = ['I', 'II', 'III', 'IV', 'V']
 
-    for max_value in max_values:
-        plt.plot(18, max_value, '*', c='red')
-    for i, txt in enumerate(captions):
-        plt.annotate(txt, (18, max_values[i]), xytext=(18.3, max_values[i]-0.1), fontsize=10)
+    # for max_value in max_values:
+    #     plt.plot(18, max_value, '*', c='red')
+    # for i, txt in enumerate(captions):
+    #     plt.annotate(txt, (18, max_values[i]), xytext=(18.3, max_values[i]-0.1), fontsize=10)
 
-    plt.scatter(np.array(main_df['N'].tolist()), np.array(main_df['flat_wave'].tolist()), s=25, c='black', marker='s') # Scatter Plot
-    a = np.polyfit(np.log(np.array(list(main_df['N'].tolist()))), np.array(list(main_df['flat_wave'].tolist())), 1)  # Approximation coefficients
-    y = a[0] * np.log(np.array(list(main_df['N'].tolist()))) + a[1]  # Approximation
-    plt.plot(np.array(list(main_df['N'].tolist())), y, 'k--', lw=1)  # Approximate plot
-    plt.annotate('2', (0.9, 1.5), fontsize=14)
+    # plt.scatter(np.array(main_df['N'].tolist()), np.array(main_df['flat_wave'].tolist()), s=25, c='black', marker='s') # Scatter Plot
+    # a = np.polyfit(np.log(np.array(list(main_df['N'].tolist()))), np.array(list(main_df['flat_wave'].tolist())), 1)  # Approximation coefficients
+    # y = a[0] * np.log(np.array(list(main_df['N'].tolist()))) + a[1]  # Approximation
+    # plt.plot(np.array(list(main_df['N'].tolist())), y, 'k--', lw=1)  # Approximate plot
+    # plt.annotate('1', (0.9, 4.4), fontsize=14)
 
-    plt.scatter(np.array(main_df['N'].tolist()), np.array(main_df['average'].tolist()), s=25, c='black', marker='o') # Scatter Plot
-    a = np.polyfit(np.log(np.array(list(main_df['N'].tolist()))), np.array(list(main_df['average'].tolist())), 1)  # Approximation coefficients
-    y = a[0] * np.log(np.array(list(main_df['N'].tolist()))) + a[1]  # Approximation
-    plt.plot(np.array(list(main_df['N'].tolist())),y, 'k--', lw=1)  # Approximate plot
-    plt.annotate('1', (0.9, 4.4), fontsize=14)
+    # plt.scatter(np.array(main_df['N'].tolist()), np.array(main_df['average'].tolist()), s=25, c='black', marker='o') # Scatter Plot
+    # a = np.polyfit(np.log(np.array(list(main_df['N'].tolist()))), np.array(list(main_df['average'].tolist())), 1)  # Approximation coefficients
+    # y = a[0] * np.log(np.array(list(main_df['N'].tolist()))) + a[1]  # Approximation
+    # plt.plot(np.array(list(main_df['N'].tolist())),y, 'k--', lw=1)  # Approximate plot
+    # plt.annotate('2', (0.9, 1.5), fontsize=14)
+
+    plt.scatter(np.array(main_df['N'].tolist()), np.array(main_df['no_field'].tolist()), s=25, c='black', marker='o') # Scatter Plot
+    a = np.polyfit(np.log(np.array(list(main_df['N'].tolist()))), np.array(list(main_df['no_field'].tolist())), 1)  # Approximation coefficients
+    y = a[0] * 0.1* np.log(np.array(list(main_df['N'].tolist()))) + a[1]  # Approximation
+    # plt.plot(np.array(list(main_df['N'].tolist())),y, 'k--', lw=1)  # Approximate plot
+    # plt.annotate('no field', (0.9, 0.2), fontsize=14)
 
     plt.grid()
     plt.xticks(np.arange(0, 22, 2))
     plt.xlabel('N')
     plt.ylabel('Max Apmlitude (a.u. ×$10^{2}$)')
     # plt.show()
-    plt.savefig(os.getcwd()+'/family.png', dpi=300)
+    plt.savefig(os.getcwd()+'/family_nofield.png', dpi=300)
 
 
 def maxSpecDen():
