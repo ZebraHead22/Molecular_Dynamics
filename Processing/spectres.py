@@ -159,5 +159,31 @@ def ir_spectres():
     plt.savefig(folder + "/result.png")
 
 
+def ratio():
+    folder = os.getcwd()
+    files = os.listdir(os.getcwd())
+    no_field_data = pd.read_csv(os.getcwd()+'/no_field.dat', delimiter=' ', index_col=None)
+    no_field_data.rename(columns={'0.0': 'Frequency', '0.0.1': 'Amplitude'}, inplace=True)
+    for i in files:
+        filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
+        if file_extension == ".dat" and os.path.basename(filename) != "no_field":
+            df = pd.read_csv(os.getcwd()+'/'+i, delimiter=' ', index_col=None)
+            df.rename(columns={'0.0': 'Frequency',
+                      '0.0.1': 'Amplitude'}, inplace=True)
+            df.insert(2, 'Ratio', df['Amplitude']/no_field_data['Amplitude'])
+            plt.gcf().clear()
+            # # Обычные графики спектров
+            plt.plot(np.array(df['Frequency'].tolist()), np.array(df['Ratio'].tolist()), linewidth=1)
+            plt.ylabel('Ratio (a.u.)')
+            plt.xlabel('Frequency ($cm^{-1}$)')
+            # plt.xlim(3200, 3500)
+            # plt.ylim(0, 2)
+            plt.grid()
+            # plt.title(str(os.path.basename(filename)))
+            plt.savefig(filename+'_ratio.png', dpi=1200)
 
-make_spectres()
+
+
+
+# make_spectres()
+ratio()
