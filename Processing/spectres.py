@@ -19,7 +19,7 @@ def make_spectres():
             df.rename(columns={'0.0': 'Frequency',
                       '0.0.1': 'Amplitude'}, inplace=True)
             df.insert(2, 'Amp×104', df['Amplitude']*(10**4))
-            print(df.head())
+            # print(df.head())
             # df.iloc[:1900] = np.nan
             # df.iloc[21000:] = np.nan
             # df = df.loc[(df['Frequency'] >=500 ) & (df['Frequency'] <=5000)]
@@ -33,7 +33,11 @@ def make_spectres():
             file.write(str(os.path.basename(filename)+" - " +
                        str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
             # df.to_excel(filename+'.xlsx')
-            max_amp_freq = df.loc[df['Amplitude'].idxmax()]
+            # max_amp_freq = df.loc[df['Amplitude'].idxmax()]
+
+            max_amp_freq = df.loc[df['Amplitude'].where((df['Frequency'] < 1600) & (df['Frequency'] > 1530)).idxmax()]
+           
+            print(os.path.basename(filename))
             print(max_amp_freq)
             plt.gcf().clear()
             # # Обычные графики спектров
@@ -44,7 +48,7 @@ def make_spectres():
             # plt.ylim(0, 2)
             plt.grid()
             # plt.title(str(os.path.basename(filename)))
-            plt.savefig(filename+'.png', dpi=1200)
+            # plt.savefig(filename+'.png', dpi=1200)
             # plt.show()
     # file.close()
 
@@ -185,5 +189,5 @@ def ratio():
 
 
 
-# make_spectres()
-ratio()
+make_spectres()
+# ratio()
