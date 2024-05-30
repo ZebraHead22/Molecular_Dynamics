@@ -30,17 +30,12 @@ for i in os.listdir(os.getcwd()):
                 theta.append(float(3*np.pi/2))
             if df.loc[i, 'dip_x'] == 0 and df.loc[i, 'dip_y'] == 0:
                 theta.append(None)
+        
         df.insert(6, 'theta', theta)
-        del_data = df[df['frame'] > 50]
-        df = df.drop(del_data.index, axis=0)
-        print(df)
+        df = df.groupby(np.arange(len(df)) // 1000).mean()
+        print(df.head())
         plt.gcf().clear()
-        # plt.polar(np.array(df['theta'].tolist()), np.array(df['r'].tolist()), c='red')
-        # plt.grid(True)
-        # plt.show()
-
-        fig = plt.figure()
-        ax = fig.add_subplot(projection='polar')
-        p = ax.scatter(np.array(df['theta'].tolist()), np.array(df['r'].tolist()), color = 'red', s=25)
-        # plt.show()
-        plt.savefig(filename+'.png')
+        plt.polar(np.array(df['theta'].tolist()), np.array(df['r'].tolist()), c='darkblue')
+        plt.title(os.path.basename(filename))
+        plt.show()
+        # plt.savefig(filename+'.png')
