@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 def make_spectres():
     folder = os.getcwd()
     files = os.listdir(os.getcwd())
-    file = open("res_freq.txt", "w")
+    # file = open("res_freq.txt", "w")
     for i in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
         if file_extension == ".dat":
@@ -22,33 +22,36 @@ def make_spectres():
             # print(df.head())
             # df.iloc[:1900] = np.nan
             # df.iloc[21000:] = np.nan
-            # df = df.loc[(df['Frequency'] >=500 ) & (df['Frequency'] <=5000)]
+            df = df[df['Frequency'] < 1000]
+            # df = df.drop(df[df['Frequency'] > 1000].index)
+  
             dfFreq = np.array(df['Frequency'].tolist())
             dfAmp = np.array(df['Amplitude'].tolist())
             # # dfAmp = [x*10**4 for x in dfAmp]
             # # print(df)
             dfAmp = np.array([x*10000 for x in dfAmp])
+            
 
             # # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
-            file.write(str(os.path.basename(filename)+" - " +
-                       str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
+            # file.write(str(os.path.basename(filename)+" - " +
+            #            str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
             # df.to_excel(filename+'.xlsx')
             # max_amp_freq = df.loc[df['Amplitude'].idxmax()]
 
-            max_amp_freq = df.loc[df['Amplitude'].where((df['Frequency'] < 1600) & (df['Frequency'] > 1530)).idxmax()]
+            # max_amp_freq = df.loc[df['Amplitude'].where((df['Frequency'] < 1600) & (df['Frequency'] > 1530)).idxmax()]
            
             print(os.path.basename(filename))
-            print(max_amp_freq)
+            # print(max_amp_freq)
             plt.gcf().clear()
             # # Обычные графики спектров
             plt.plot(dfFreq, dfAmp, linewidth=1)
             plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
             plt.xlabel('Frequency ($cm^{-1}$)')
-            # plt.xlim(3200, 3500)
+            plt.xlim(0, 1000)
             # plt.ylim(0, 2)
             plt.grid()
             # plt.title(str(os.path.basename(filename)))
-            # plt.savefig(filename+'.png', dpi=1200)
+            plt.savefig(filename+'_under_1000.png')
             # plt.show()
     # file.close()
 
