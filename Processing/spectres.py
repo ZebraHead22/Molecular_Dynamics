@@ -6,8 +6,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # Функция создает набор графиков спектральных зависимостей
-
-
 def make_spectres():
     folder = os.getcwd()
     files = os.listdir(os.getcwd())
@@ -22,7 +20,7 @@ def make_spectres():
             # print(df.head())
             # df.iloc[:1900] = np.nan
             # df.iloc[21000:] = np.nan
-            df = df[df['Frequency'] < 1000]
+            # df = df[df['Frequency'] < 1000]
             # df = df.drop(df[df['Frequency'] > 1000].index)
   
             dfFreq = np.array(df['Frequency'].tolist())
@@ -31,7 +29,6 @@ def make_spectres():
             # # print(df)
             dfAmp = np.array([x*10000 for x in dfAmp])
             
-
             # # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
             # file.write(str(os.path.basename(filename)+" - " +
             #            str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
@@ -45,14 +42,15 @@ def make_spectres():
             plt.gcf().clear()
             # # Обычные графики спектров
             plt.plot(dfFreq, dfAmp, linewidth=1)
-            plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
+            # plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
+            plt.ylabel('Spectral Density (a.u.)')
             plt.xlabel('Frequency ($cm^{-1}$)')
-            plt.xlim(0, 1000)
+            # plt.xlim(0, 1000)
             # plt.ylim(0, 2)
             plt.grid()
             # plt.title(str(os.path.basename(filename)))
-            plt.savefig(filename+'_under_1000.png')
-            # plt.show()
+            # plt.savefig(filename+'.png')
+            plt.show()
     # file.close()
 
 # Функция строит один спектр
@@ -221,5 +219,6 @@ def diff_water():
             # plt.savefig(filename+'_under_1000.png')
             plt.show()
             
-diff_water()
+# diff_water()
+make_spectres()
 

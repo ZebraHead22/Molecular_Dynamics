@@ -110,7 +110,7 @@ def maxSpecDen():
                     max_amplitude = data_df.loc[closest_value_min[0]: closest_value_max[0], 'Amp'].max()
                     # max_amplitude_frequency = data_df.loc[data_df['Amplitude']
                     #                                     == max_amplitude, 'Frequency'].values[0]
-                    dots[int(dot)] = round(max_amplitude*100, 2)
+                    dots[int(dot)] = round(max_amplitude*10000)
                     
             sorted_list = sorted(dots.items())
             sorted_dict = {}
@@ -121,19 +121,23 @@ def maxSpecDen():
             plt.scatter(np.array(list(sorted_dict.keys())), np.array(list(sorted_dict.values())), s=25, c='black', marker=next(markers)) # Scatter Plot
             # plt.plot(np.array(list(sorted_dict.keys())), np.array(list(sorted_dict.values()))) # Scatter Plot
             
+            plt.scatter([1, 1], [95.9434, 29.668], color=('red', 'green'))
+
             a = np.polyfit(np.log(np.array(list(sorted_dict.keys()))), np.array(list(sorted_dict.values())), 1)  # Approximation coefficients
             y = a[0] * 0.23 * (np.array(list(sorted_dict.keys()))) + a[1]  # Approximation
             x = np.array(list(sorted_dict.keys()))
             plt.plot(x[1:], y[1:], 'k--', lw=1)  # Approximate plot
-            plt.annotate(str(folder), (15.6, max(list(sorted_dict.values()))), fontsize=12)   
+            plt.annotate(str(folder), (15.6, max(list(sorted_dict.values()))), fontsize=12)
+
            
     plt.grid()
     plt.xticks(np.arange(0, 20, 2))
     plt.xlabel('p')
-    plt.ylabel('Max Amplitude (a.u. ×$10^{2}$)')
+    # plt.ylabel('Max Amplitude (a.u. ×$10^{2}$)')
+    plt.ylabel('Max Amplitude (a.u.)')
     # plt.legend(folders)
     # plt.show()
     plt.savefig(os.getcwd()+'/maxSpecDen(p)_all.png', dpi=600)
 
-# maxSpecDen()    
-family()    
+maxSpecDen()    
+# family()    
