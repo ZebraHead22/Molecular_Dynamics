@@ -25,9 +25,9 @@ def make_spectres():
   
             dfFreq = np.array(df['Frequency'].tolist())
             dfAmp = np.array(df['Amplitude'].tolist())
-            # # dfAmp = [x*10**4 for x in dfAmp]
+            dfAmp = [x*10**4 for x in dfAmp]
             # # print(df)
-            # dfAmp = np.array([x*10000 for x in dfAmp])
+       
             
             # # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
             # file.write(str(os.path.basename(filename)+" - " +
@@ -45,10 +45,10 @@ def make_spectres():
             # plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
             plt.ylabel('Амплитуда, отн.ед.')
             plt.xlabel('Частота, $cm^{-1}$')
-            plt.xlim(3200, 3500)
+            # plt.xlim(3200, 3500)
             # plt.ylim(0, 2)
             plt.grid()
-            plt.title('polyAla16 p=1')
+            # plt.title('polyAla16 p=1')
             plt.savefig(filename+'.png')
             # plt.show()
     # file.close()
