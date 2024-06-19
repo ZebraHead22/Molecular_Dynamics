@@ -11,8 +11,8 @@ def one_experiment():
     Здесь считаем зависимость амплитуды пика от амплитуды поля
     '''
     markers = iter(['s', 'o'])
-    field_amplitudes = [0.0435,	0.087,	0.1305,	0.174,	0.2175,
-                    0.261,	0.3045,	0.348,	0.3915,	0.435,	0.4785,	0.522, 0.5655, 0.609]
+    field_amplitudes = [0.1305,	0.174,	0.2175,
+                    0.261,	0.3045,	0.348,	0.3915,	0.435,	0.4785,	0.522, 0.5655]
     folders = os.listdir(os.getcwd())
     
     def func(x, a, b, c):
@@ -35,7 +35,7 @@ def one_experiment():
                     field_amp  = os.path.basename(filename)[0] + '.' + os.path.basename(filename)[1]
                     d[float(field_amp)] = float(max_amp)
             d = dict(sorted(d.items()))
-
+            print(d)
             x = np.array(field_amplitudes)
             y = np.array(list(d.values()))
             plt.scatter(x, y, marker=next(markers), c='black', label=str(folder.replace('_', '=')))
@@ -50,6 +50,10 @@ def one_experiment():
             # x_model = np.linspace(min(x), max(y), 100)
             # y_model = model_f(x_model, a_opt, b_opt, c_opt) 
             # plt.plot(x_model, y_model, color='r')
+# 0.0435,	0.087,	
+
+    plt.scatter([0.0435,	0.087], [0.0009087709018414, 0.0016396899418543], marker='s', c='black')
+    plt.scatter([0.0435,	0.087], [0.000724186306351, 0.0007593006714712], marker='o', c='black')
 
     plt.legend()
     plt.grid()
