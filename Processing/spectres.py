@@ -46,7 +46,8 @@ def make_spectres():
             plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
             # plt.xlabel('Частота, $cm^{-1}$')
             # plt.ylabel('Амплитуда, отн.ед. ×$10^{4}$')
-            
+                 
+            plt.savefig(filename+'_main.png')
             plt.xlim(800, 1200)                  
             plt.savefig(filename+'_1.png')
             plt.xlim(1200, 1800)
