@@ -26,9 +26,7 @@ def make_spectres():
             dfFreq = np.array(df['Frequency'].tolist())
             dfAmp = np.array(df['Amplitude'].tolist())
             dfAmp = [x*10**4 for x in dfAmp]
-            # # print(df)
-       
-            
+      
             # # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
             # file.write(str(os.path.basename(filename)+" - " +
             #            str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
@@ -42,14 +40,19 @@ def make_spectres():
             plt.gcf().clear()
             # # Обычные графики спектров
             plt.plot(dfFreq, dfAmp, linewidth=1)
-            # plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
-            plt.ylabel('Амплитуда, отн.ед.')
-            plt.xlabel('Частота, $cm^{-1}$')
-            # plt.xlim(3200, 3500)
-            # plt.ylim(0, 2)
             plt.grid()
-            # plt.title('polyAla16 p=1')
-            plt.savefig(filename+'.png')
+            
+            plt.xlabel('Frequency, $cm^{-1}$')
+            plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
+            # plt.xlabel('Частота, $cm^{-1}$')
+            # plt.ylabel('Амплитуда, отн.ед. ×$10^{4}$')
+            
+            plt.xlim(800, 1200)                  
+            plt.savefig(filename+'_1.png')
+            plt.xlim(1200, 1800)
+            plt.savefig(filename+'_2.png')
+            plt.xlim(3200, 3500)
+            plt.savefig(filename+'_3.png')
             # plt.show()
     # file.close()
 
