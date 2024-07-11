@@ -28,6 +28,9 @@ def make_spectres():
             dfAmp = [x*10**4 for x in dfAmp]
       
             # # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
+            mess = str(os.path.basename(filename)+" - " +
+                       str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n')
+            print(mess)
             # file.write(str(os.path.basename(filename)+" - " +
             #            str(df.loc[df['Amplitude'].idxmax(), 'Frequency'])+'\n'))
             # df.to_excel(filename+'.xlsx')
@@ -46,14 +49,18 @@ def make_spectres():
             plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
             # plt.xlabel('Частота, $cm^{-1}$')
             # plt.ylabel('Амплитуда, отн.ед. ×$10^{4}$')
+
+            plt.xlim(975, 985)
+            plt.savefig(filename+'_window.png')
+             
                  
-            plt.savefig(filename+'_main.png')
-            plt.xlim(800, 1200)                  
-            plt.savefig(filename+'_1.png')
-            plt.xlim(1200, 1800)
-            plt.savefig(filename+'_2.png')
-            plt.xlim(3200, 3500)
-            plt.savefig(filename+'_3.png')
+            # plt.savefig(filename+'_main.png')
+            # plt.xlim(800, 1200)                  
+            # plt.savefig(filename+'_1.png')
+            # plt.xlim(1200, 1800)
+            # plt.savefig(filename+'_2.png')
+            # plt.xlim(3200, 3500)
+            # plt.savefig(filename+'_3.png')
             # plt.show()
     # file.close()
 
