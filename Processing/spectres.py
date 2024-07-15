@@ -35,14 +35,15 @@ def make_spectres():
             # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
 
             # Ищем точку максимума на резонансной частоте
-            max_amp_freq = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
-                field_freq) + 200)) & (df['Frequency'] > (int(field_freq) - 200))).idxmax(), 'Frequency']
-            max_amp = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
-                field_freq) + 200)) & (df['Frequency'] > (int(field_freq) - 200))).idxmax(), 'Amp×104']
+            # G = 20
+            # max_amp_freq = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
+            #     field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Frequency']
+            # max_amp = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
+            #     field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Amp×104']
 
             # Ищем точку максимума без учета частоты поля
-            # max_amp_freq = df.loc[df['Amplitude'].idxmax(), 'Frequency']
-            # max_amp = df.loc[df['Amplitude'].idxmax(), 'Amp×104']
+            max_amp_freq = df.loc[df['Amplitude'].idxmax(), 'Frequency']
+            max_amp = df.loc[df['Amplitude'].idxmax(), 'Amp×104']
 
             mess = 'Field ' + \
                 str(field_freq) + " : " + str(max_amp_freq) + \
@@ -61,7 +62,7 @@ def make_spectres():
             plt.savefig(filename+'_main.png')
 
             # Оконные автоматические графики
-            D = 3  # Смещение для окон и подписей
+            D = 10  # Смещение для окон и подписей
             plt.xlim(float(max_amp_freq) - D, float(max_amp_freq) + D)
             plt.ylim(-max_amp*0.03, max_amp + max_amp*0.5)
             plt.annotate(str(round(max_amp_freq, 2)), xy=(float(max_amp_freq), float(max_amp)), xytext=(float(
