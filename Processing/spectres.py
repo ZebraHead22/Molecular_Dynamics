@@ -14,6 +14,10 @@ def make_spectres():
     for i in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
         if file_extension == ".dat":
+
+            field_freq = re.search(r'\d{3,}', str(os.path.basename(filename)))
+            field_freq = field_freq.group(0)
+
             df = pd.read_csv(os.getcwd()+'/'+i, delimiter=' ', index_col=None)
             df.rename(columns={'0.0': 'Frequency',
                       '0.0.1': 'Amplitude'}, inplace=True)
@@ -29,10 +33,19 @@ def make_spectres():
             dfAmp = [x*10**4 for x in dfAmp]
 
             # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
-            max_amp_freq = df.loc[df['Amplitude'].idxmax(), 'Frequency']
-            max_amp = df.loc[df['Amplitude'].idxmax(), 'Amp×104']
+
+            # Ищем точку максимума на резонансной частоте
+            max_amp_freq = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
+                field_freq) + 200)) & (df['Frequency'] > (int(field_freq) - 200))).idxmax(), 'Frequency']
+            max_amp = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
+                field_freq) + 200)) & (df['Frequency'] > (int(field_freq) - 200))).idxmax(), 'Amp×104']
+
+            # Ищем точку максимума без учета частоты поля
+            # max_amp_freq = df.loc[df['Amplitude'].idxmax(), 'Frequency']
+            # max_amp = df.loc[df['Amplitude'].idxmax(), 'Amp×104']
+
             mess = 'Field ' + \
-                os.path.basename(filename) + " : " + str(max_amp_freq) + \
+                str(field_freq) + " : " + str(max_amp_freq) + \
                 ' - ' + str(max_amp) + '\n'
             print(mess)
             # Пишем пики в файл
@@ -46,12 +59,13 @@ def make_spectres():
             # plt.xlabel('Частота, $cm^{-1}$')
             # plt.ylabel('Амплитуда, отн.ед. ×$10^{4}$')
             plt.savefig(filename+'_main.png')
-            
+
             # Оконные автоматические графики
-            D = 5  # Смещение для окон и подписей
+            D = 3  # Смещение для окон и подписей
             plt.xlim(float(max_amp_freq) - D, float(max_amp_freq) + D)
+            plt.ylim(-max_amp*0.03, max_amp + max_amp*0.5)
             plt.annotate(str(round(max_amp_freq, 2)), xy=(float(max_amp_freq), float(max_amp)), xytext=(float(
-                max_amp_freq) + 0.5*D, float(max_amp) - 0.24*D), arrowprops=dict(facecolor='red', shrink=0.05), fontsize=14)
+                max_amp_freq) + 0.5*D, float(max_amp) + float(max_amp)*0.05), arrowprops=dict(facecolor='red', shrink=0.05), fontsize=14)
             plt.savefig(filename+'_window.png')
     file.close()
 
@@ -80,7 +94,8 @@ def one_spectrum():
                 df['Frequency']-float(int(frequency)-20)).abs().argsort()[:1]].index.tolist()
             closest_value_max = df.iloc[(
                 df['Frequency']-float(int(frequency)+20)).abs().argsort()[:1]].index.tolist()
-            max_amplitude = df.loc[closest_value_min[0]: closest_value_max[0], 'Amplitude'].max()
+            max_amplitude = df.loc[closest_value_min[0]
+                : closest_value_max[0], 'Amplitude'].max()
             max_amplitude_frequency = df.loc[df['Amplitude']
                                              == max_amplitude, 'Frequency']
             x_samples.append(max_amplitude_frequency)
