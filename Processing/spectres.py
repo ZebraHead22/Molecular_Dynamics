@@ -27,7 +27,7 @@ def make_spectres():
             df.insert(2, 'Amp×104', df['Amplitude']*(10**4))
 
             # df.iloc[:1050] = np.nan
-            df.iloc[45000:] = np.nan
+            # df.iloc[45000:] = np.nan
             # df = df[df['Frequency'] > 10]
             # df = df.drop(df[df['Frequency'] > 1000].index)
 
@@ -38,15 +38,15 @@ def make_spectres():
             # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
 
             # Ищем точку максимума на резонансной частоте
-            # G = 20
-            # max_amp_freq = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
-            #     field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Frequency']
-            # max_amp = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
-            #     field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Amp×104']
+            G = 100
+            max_amp_freq = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
+                field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Frequency']
+            max_amp = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
+                field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Amp×104']
 
             # Ищем точку максимума без учета частоты поля
-            max_amp_freq = df.loc[df['Amplitude'].idxmax(), 'Frequency']
-            max_amp = df.loc[df['Amplitude'].idxmax(), 'Amp×104']
+            # max_amp_freq = df.loc[df['Amplitude'].idxmax(), 'Frequency']
+            # max_amp = df.loc[df['Amplitude'].idxmax(), 'Amp×104']
 
             mess = 'Field ' + \
                 str(field_freq) + " : " + str(max_amp_freq) + \
@@ -65,7 +65,7 @@ def make_spectres():
             # plt.savefig(filename+'_main.png')
             plt.xlim(-50, 1050)
             plt.ylim(-max_amp*0.05, max_amp + max_amp*0.1)
-            plt.savefig(filename+'_u1k.png')
+            # plt.savefig(filename+'_u1k.png')
 
             # Оконные автоматические графики
             D = 10  # Смещение для окон и подписей
@@ -73,7 +73,7 @@ def make_spectres():
             plt.ylim(-max_amp*0.03, max_amp + max_amp*0.5)
             plt.annotate(str(round(max_amp_freq, 2)), xy=(float(max_amp_freq), float(max_amp)), xytext=(float(
                 max_amp_freq) + 0.5*D, float(max_amp) + float(max_amp)*0.05), arrowprops=dict(facecolor='red', shrink=0.05), fontsize=14)
-            # plt.savefig(filename+'_window.png')
+            plt.savefig(filename+'_window.png')
     # file.close()
 
 # Функция строит один спектр
