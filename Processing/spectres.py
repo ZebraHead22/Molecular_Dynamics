@@ -27,7 +27,7 @@ def make_spectres():
             df.insert(2, 'Amp×104', df['Amplitude']*(10**4))
 
             # df.iloc[:1050] = np.nan
-            # df.iloc[15000:] = np.nan
+            df.iloc[45000:] = np.nan
             # df = df[df['Frequency'] > 10]
             # df = df.drop(df[df['Frequency'] > 1000].index)
 
@@ -62,10 +62,10 @@ def make_spectres():
             plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
             # plt.xlabel('Частота, $cm^{-1}$')
             # plt.ylabel('Амплитуда, отн.ед. ×$10^{4}$')
-            plt.savefig(filename+'_main.png')
+            # plt.savefig(filename+'_main.png')
             plt.xlim(-50, 1050)
             plt.ylim(-max_amp*0.05, max_amp + max_amp*0.1)
-            # plt.savefig(filename+'_u1k.png')
+            plt.savefig(filename+'_u1k.png')
 
             # Оконные автоматические графики
             D = 10  # Смещение для окон и подписей
