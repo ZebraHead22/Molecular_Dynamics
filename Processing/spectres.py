@@ -10,22 +10,25 @@ from matplotlib import pyplot as plt
 
 def make_spectres():
     files = os.listdir(os.getcwd())
-    file = open("frequencies.txt", "w")
+    # file = open("frequencies.txt", "w")
     for i in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
         if file_extension == ".dat":
 
             field_freq = re.search(r'\d{3,}', str(os.path.basename(filename)))
-            field_freq = field_freq.group(0)
+            if field_freq:
+                field_freq = field_freq.group(0)
+            else:
+                field_freq = 'no_field'
 
             df = pd.read_csv(os.getcwd()+'/'+i, delimiter=' ', index_col=None)
             df.rename(columns={'0.0': 'Frequency',
                       '0.0.1': 'Amplitude'}, inplace=True)
             df.insert(2, 'Amp×104', df['Amplitude']*(10**4))
 
-            # df.iloc[:1900] = np.nan
-            # df.iloc[21000:] = np.nan
-            # df = df[df['Frequency'] < 1000]
+            # df.iloc[:1050] = np.nan
+            # df.iloc[15000:] = np.nan
+            # df = df[df['Frequency'] > 10]
             # df = df.drop(df[df['Frequency'] > 1000].index)
 
             dfFreq = np.array(df['Frequency'].tolist())
@@ -50,7 +53,7 @@ def make_spectres():
                 ' - ' + str(max_amp) + '\n'
             print(mess)
             # Пишем пики в файл
-            file.write(mess)
+            # file.write(mess)
             # Строим графики
             plt.gcf().clear()
             plt.plot(dfFreq, dfAmp, linewidth=1, c='black')  # Обычный графики
@@ -60,6 +63,9 @@ def make_spectres():
             # plt.xlabel('Частота, $cm^{-1}$')
             # plt.ylabel('Амплитуда, отн.ед. ×$10^{4}$')
             plt.savefig(filename+'_main.png')
+            plt.xlim(-50, 1050)
+            plt.ylim(-max_amp*0.05, max_amp + max_amp*0.1)
+            # plt.savefig(filename+'_u1k.png')
 
             # Оконные автоматические графики
             D = 10  # Смещение для окон и подписей
@@ -67,8 +73,8 @@ def make_spectres():
             plt.ylim(-max_amp*0.03, max_amp + max_amp*0.5)
             plt.annotate(str(round(max_amp_freq, 2)), xy=(float(max_amp_freq), float(max_amp)), xytext=(float(
                 max_amp_freq) + 0.5*D, float(max_amp) + float(max_amp)*0.05), arrowprops=dict(facecolor='red', shrink=0.05), fontsize=14)
-            plt.savefig(filename+'_window.png')
-    file.close()
+            # plt.savefig(filename+'_window.png')
+    # file.close()
 
 # Функция строит один спектр
 
