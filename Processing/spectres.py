@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 
 def make_spectres():
-    zero_data = pd.read_csv('/Users/max/Yandex.Disk.localized/NAMD/basic_ak_no_field/trp.dat', delimiter=' ', index_col=None)
+    zero_data = pd.read_csv("./base/ala.dat", delimiter=' ', index_col=None)
     zero_data.rename(columns={'0.0': 'Frequency', '0.0.1': 'Amplitude'}, inplace=True)
     zero_data.insert(2, 'Amp×104', zero_data['Amplitude']*(10**4))
 
@@ -46,7 +46,11 @@ def make_spectres():
                 field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Frequency']
             max_amp = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
                 field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Amp×104']
-            max_amp_no_field = zero_data.loc[zero_data['Amplitude'].where((zero_data['Frequency'] < (int(field_freq) + G)) & (zero_data['Frequency'] > (int(field_freq) - G))).idxmax(), 'Amp×104']
+            print(max_amp_freq)
+            max_amp_no_field = zero_data.loc[zero_data['Amplitude'].where((df['Frequency'] < (float(max_amp_freq) + 2)) & (df['Frequency'] > (float(max_amp_freq) - 2))).idxmax(), 'Amp×104']
+            max_amp_freq_no_field = zero_data.loc[zero_data['Amplitude'].where((df['Frequency'] < (float(max_amp_freq) + 1)) & (df['Frequency'] > (float(max_amp_freq) - 1))).idxmax(), 'Frequency']
+            
+            print(max_amp_freq_no_field)
 
             # Ищем точку максимума без учета частоты поля
             # max_amp_freq = df.loc[df['Amplitude'].idxmax(), 'Frequency']
@@ -59,7 +63,7 @@ def make_spectres():
             ratio = max_amp / max_amp_no_field
             ratio = round(ratio, 2)
             mess = str(field_freq) + " : " + str(ratio) + '\n'
-            print(mess)
+            # print(mess)
             # Пишем пики в файл
             file.write(mess)
             # Строим графики
