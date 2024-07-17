@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 
 def make_spectres():
-    zero_data = pd.read_csv('/Users/max/Yandex.Disk.localized/NAMD/basic_ak_no_field/ala.dat', delimiter=' ', index_col=None)
+    zero_data = pd.read_csv('/Users/max/Yandex.Disk.localized/NAMD/basic_ak_no_field/trp.dat', delimiter=' ', index_col=None)
     zero_data.rename(columns={'0.0': 'Frequency', '0.0.1': 'Amplitude'}, inplace=True)
     zero_data.insert(2, 'Amp×104', zero_data['Amplitude']*(10**4))
 
@@ -58,7 +58,7 @@ def make_spectres():
 
             ratio = max_amp / max_amp_no_field
             ratio = round(ratio, 2)
-            mess = str(field_freq) + " : " + str(ratio)
+            mess = str(field_freq) + " : " + str(ratio) + '\n'
             print(mess)
             # Пишем пики в файл
             file.write(mess)
