@@ -9,8 +9,13 @@ from matplotlib import pyplot as plt
 
 
 def make_spectres():
+    zero_data = pd.read_csv('/Users/max/Yandex.Disk.localized/NAMD/basic_ak_no_field/ala.dat', delimiter=' ', index_col=None)
+    zero_data.rename(columns={'0.0': 'Frequency', '0.0.1': 'Amplitude'}, inplace=True)
+    zero_data.insert(2, 'Amp×104', zero_data['Amplitude']*(10**4))
+
     files = os.listdir(os.getcwd())
     # file = open("frequencies.txt", "w")
+    file = open("ratio.txt", "w")
     for i in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
         if file_extension == ".dat":
@@ -32,28 +37,31 @@ def make_spectres():
             # df = df.drop(df[df['Frequency'] > 1000].index)
 
             dfFreq = np.array(df['Frequency'].tolist())
-            dfAmp = np.array(df['Amplitude'].tolist())
-            dfAmp = [x*10**4 for x in dfAmp]
-
+            dfAmp = np.array(df['Amp×104'].tolist())
             # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
 
             # Ищем точку максимума на резонансной частоте
-            G = 100
+            G = 50
             max_amp_freq = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
                 field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Frequency']
             max_amp = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
                 field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Amp×104']
+            max_amp_no_field = zero_data.loc[zero_data['Amplitude'].where((zero_data['Frequency'] < (int(field_freq) + G)) & (zero_data['Frequency'] > (int(field_freq) - G))).idxmax(), 'Amp×104']
 
             # Ищем точку максимума без учета частоты поля
             # max_amp_freq = df.loc[df['Amplitude'].idxmax(), 'Frequency']
             # max_amp = df.loc[df['Amplitude'].idxmax(), 'Amp×104']
 
-            mess = 'Field ' + \
-                str(field_freq) + " : " + str(max_amp_freq) + \
-                ' - ' + str(max_amp) + '\n'
+            # mess = 'Field ' + \
+            #     str(field_freq) + " : " + str(max_amp_freq) + \
+            #     ' - ' + str(max_amp) + '\n'
+
+            ratio = max_amp / max_amp_no_field
+            ratio = round(ratio, 2)
+            mess = str(field_freq) + " : " + str(ratio)
             print(mess)
             # Пишем пики в файл
-            # file.write(mess)
+            file.write(mess)
             # Строим графики
             plt.gcf().clear()
             plt.plot(dfFreq, dfAmp, linewidth=1, c='black')  # Обычный графики
@@ -73,12 +81,10 @@ def make_spectres():
             plt.ylim(-max_amp*0.03, max_amp + max_amp*0.5)
             plt.annotate(str(round(max_amp_freq, 2)), xy=(float(max_amp_freq), float(max_amp)), xytext=(float(
                 max_amp_freq) + 0.5*D, float(max_amp) + float(max_amp)*0.05), arrowprops=dict(facecolor='red', shrink=0.05), fontsize=14)
-            plt.savefig(filename+'_window.png')
-    # file.close()
+            # plt.savefig(filename+'_window.png')
+    file.close()
 
 # Функция строит один спектр
-
-
 def one_spectrum():
     strings = []
     x_samples = []
@@ -202,34 +208,6 @@ def ir_spectres():
     plt.xlabel("Frequency ($cm^{-1}$)")
     plt.ylabel("Energy (a.u.)")
     plt.savefig(folder + "/result.png")
-
-
-def ratio():
-    folder = os.getcwd()
-    files = os.listdir(os.getcwd())
-    no_field_data = pd.read_csv(
-        os.getcwd()+'/no_field.dat', delimiter=' ', index_col=None)
-    no_field_data.rename(
-        columns={'0.0': 'Frequency', '0.0.1': 'Amplitude'}, inplace=True)
-    for i in files:
-        filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
-        if file_extension == ".dat" and os.path.basename(filename) != "no_field":
-            df = pd.read_csv(os.getcwd()+'/'+i, delimiter=' ', index_col=None)
-            df.rename(columns={'0.0': 'Frequency',
-                      '0.0.1': 'Amplitude'}, inplace=True)
-            df.insert(2, 'Ratio', df['Amplitude']/no_field_data['Amplitude'])
-            plt.gcf().clear()
-            # # Обычные графики спектров
-            plt.plot(np.array(df['Frequency'].tolist()),
-                     np.array(df['Ratio'].tolist()), linewidth=1)
-            plt.ylabel('Ratio (a.u.)')
-            plt.xlabel('Frequency ($cm^{-1}$)')
-            # plt.xlim(3200, 3500)
-            # plt.ylim(0, 2)
-            plt.grid()
-            # plt.title(str(os.path.basename(filename)))
-            plt.savefig(filename+'_ratio.png', dpi=1200)
-
 
 def diff_water():
     files = os.listdir(os.getcwd())
