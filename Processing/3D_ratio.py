@@ -4,6 +4,7 @@ import csv
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import make_interp_spline
 
 def ratio():
@@ -73,6 +74,35 @@ def ratio_graph():
             case = case.group(0)
             all_data[str(case)] = df['Ratio']
     print(all_data)
+    all_data.to_csv("ala_ratio.csv", index=False)
+
+    # Строим график
+    # Set the figure and 3D axes
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Number of bars
+    colors = plt.cm.viridis(np.linspace(0, 1, len(all_data.columns)-1))
+
+    # Iterate through the columns (molecules) to plot
+    for i, col in enumerate(all_data.columns[1:]):  # skip 'Frequency' column
+        xs = all_data['Frequency']
+        ys = np.full_like(all_data[col], i)  # Create y positions for each molecule
+        zs = np.zeros_like(all_data[col])
+        dz = all_data[col]
+        ax.bar3d(xs, ys, zs, 1, 1, dz, color=colors[i], shade=True)
+
+    # Setting axis labels and ticks
+    ax.set_xlabel('Frequency (cm^-1)')
+    ax.set_ylabel('Molecule')
+    ax.set_zlabel('Ratio (a.u.)')
+
+    # Set tick labels for y-axis
+    ax.set_yticks(np.arange(len(all_data.columns)-1))
+    ax.set_yticklabels(all_data.columns[1:])  # Exclude 'Frequency' from labels
+
+    plt.title('3D Colorful Bar Plot')
+    # plt.show()
     
 
 
