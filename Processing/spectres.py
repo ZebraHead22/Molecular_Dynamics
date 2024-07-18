@@ -6,20 +6,12 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # Функция создает набор графиков спектральных зависимостей
-
-
 def make_spectres():
-    zero_data = pd.read_csv("./base/ala.dat", delimiter=' ', index_col=None)
-    zero_data.rename(columns={'0.0': 'Frequency', '0.0.1': 'Amplitude'}, inplace=True)
-    zero_data.insert(2, 'Amp×104', zero_data['Amplitude']*(10**4))
-
     files = os.listdir(os.getcwd())
-    # file = open("frequencies.txt", "w")
-    file = open("ratio.txt", "w")
+    file = open("frequencies.txt", "w")
     for i in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+i)
         if file_extension == ".dat":
-
             field_freq = re.search(r'\d{3,}', str(os.path.basename(filename)))
             if field_freq:
                 field_freq = field_freq.group(0)
@@ -46,24 +38,16 @@ def make_spectres():
                 field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Frequency']
             max_amp = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
                 field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Amp×104']
-            print(max_amp_freq)
-            max_amp_no_field = zero_data.loc[zero_data['Amplitude'].where((df['Frequency'] < (float(max_amp_freq) + 2)) & (df['Frequency'] > (float(max_amp_freq) - 2))).idxmax(), 'Amp×104']
-            max_amp_freq_no_field = zero_data.loc[zero_data['Amplitude'].where((df['Frequency'] < (float(max_amp_freq) + 1)) & (df['Frequency'] > (float(max_amp_freq) - 1))).idxmax(), 'Frequency']
             
-            print(max_amp_freq_no_field)
-
             # Ищем точку максимума без учета частоты поля
             # max_amp_freq = df.loc[df['Amplitude'].idxmax(), 'Frequency']
             # max_amp = df.loc[df['Amplitude'].idxmax(), 'Amp×104']
 
-            # mess = 'Field ' + \
-            #     str(field_freq) + " : " + str(max_amp_freq) + \
-            #     ' - ' + str(max_amp) + '\n'
+            mess = 'Field ' + \
+                str(field_freq) + " : " + str(max_amp_freq) + \
+                ' - ' + str(max_amp) + '\n'
 
-            ratio = max_amp / max_amp_no_field
-            ratio = round(ratio, 2)
-            mess = str(field_freq) + " : " + str(ratio) + '\n'
-            # print(mess)
+            print(mess)
             # Пишем пики в файл
             file.write(mess)
             # Строим графики
