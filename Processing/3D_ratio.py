@@ -10,7 +10,7 @@ from scipy.interpolate import make_interp_spline
 def ratio():
     # Готовим файл амплитуд в знаменатель
     zero_data = pd.read_csv(
-        '/Users/max/Yandex.Disk.localized/NAMD/basic_ak_no_field/ala.dat', delimiter=' ', index_col=None)
+        '/Users/max/Yandex.Disk.localized/NAMD/basic_ak_no_field/trp.dat', delimiter=' ', index_col=None)
     zero_data.rename(columns={'0.0': 'Frequency',
                      '0.0.1': 'Amplitude'}, inplace=True)
     zero_data.insert(2, 'Amp×104', zero_data['Amplitude']*(10**4))
@@ -74,7 +74,7 @@ def ratio_graph():
             case = case.group(0)
             all_data[str(case)] = df['Ratio']
     print(all_data)
-    all_data.to_csv("ala_ratio.csv", index=False)
+    # all_data.to_csv("trp_ratio.csv", index=False)
 
     # Строим график
     # Set the figure and 3D axes
