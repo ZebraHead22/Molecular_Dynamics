@@ -74,7 +74,7 @@ def ratio_graph():
             case = case.group(0)
             all_data[str(case)] = df['Ratio']
     print(all_data)
-    # all_data.to_csv("trp_ratio.csv", index=False)
+    all_data.to_csv("ala_ratio.csv", index=False)
 
     # Строим график
     # Set the figure and 3D axes
