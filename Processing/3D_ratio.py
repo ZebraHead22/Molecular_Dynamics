@@ -10,10 +10,11 @@ from scipy.interpolate import make_interp_spline
 def ratio():
     # Готовим файл амплитуд в знаменатель
     zero_data = pd.read_csv(
-        '/Users/max/Yandex.Disk.localized/NAMD/basic_ak_no_field/trp.dat', delimiter=' ', index_col=None)
-    zero_data.rename(columns={'0.0': 'Frequency',
-                     '0.0.1': 'Amplitude'}, inplace=True)
+        '/Users/max/Yandex.Disk.localized/NAMD/long/ala_1_vacuum_spectre.dat', delimiter=' ', index_col=None)
+    # zero_data.rename(columns={0: 'Frequency',
+    #                  1: 'Amplitude'}, inplace=True)
     zero_data.insert(2, 'Amp×104', zero_data['Amplitude']*(10**4))
+    print(zero_data.head())
     
     # Формируем отсортированный по частотам список dat файлов
     files = os.listdir(os.getcwd())
@@ -50,7 +51,7 @@ def ratio():
         mydict.append(mess)
 
     # Пишем файл
-    filename = "../trp_ratio/" + os.path.basename(os.getcwd()) + "_ratio.csv"
+    filename = "../ala_ratio/" + os.path.basename(os.getcwd()) + "_ratio.csv"
     with open(filename, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields)
         writer.writeheader()
@@ -58,51 +59,6 @@ def ratio():
 # ratio()
 
 def ratio_graph():
-    # # Ищем все файлы
-    # folder = os.getcwd()
-    # files = os.listdir(folder)
-    # # Формируем столбец частот в общем ДФ
-    # all_data = pd.DataFrame()
-    # df = pd.read_csv(folder + "/" +files[0], delimiter=',')
-    # all_data['Frequency'] = df['Frequency']
-    # # Читаем файлы отношений и пишем амплитуды в общий
-    # for file in files:
-    #     filename, file_extension = os.path.splitext(file)
-    #     if file_extension == ".csv":
-    #         df = pd.read_csv(folder + "/" +file, delimiter=',')
-    #         case = re.search(r'\w+\d+\w+[^_ratio]', filename)
-    #         case = case.group(0)
-    #         all_data[str(case)] = df['Ratio']
-    # print(all_data)
-    # all_data.to_csv("ala_ratio.csv", index=False)
-
-    # # Строим график
-    # # Set the figure and 3D axes
-    # fig = plt.figure(figsize=(10, 8))
-    # ax = fig.add_subplot(111, projection='3d')
-
-    # # Number of bars
-    # colors = plt.cm.viridis(np.linspace(0, 1, len(all_data.columns)-1))
-
-    # # Iterate through the columns (molecules) to plot
-    # for i, col in enumerate(all_data.columns[1:]):  # skip 'Frequency' column
-    #     xs = all_data['Frequency']
-    #     ys = np.full_like(all_data[col], i)  # Create y positions for each molecule
-    #     zs = np.zeros_like(all_data[col])
-    #     dz = all_data[col]
-    #     ax.bar3d(xs, ys, zs, 1, 1, dz, color=colors[i], shade=True)
-
-    # # Setting axis labels and ticks
-    # ax.set_xlabel('Frequency (cm^-1)')
-    # ax.set_ylabel('Molecule')
-    # ax.set_zlabel('Ratio (a.u.)')
-
-    # # Set tick labels for y-axis
-    # ax.set_yticks(np.arange(len(all_data.columns)-1))
-    # ax.set_yticklabels(all_data.columns[1:])  # Exclude 'Frequency' from labels
-
-    # plt.title('3D Colorful Bar Plot')
-    # # plt.show()
     import pandas as pd
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
@@ -110,8 +66,8 @@ def ratio_graph():
 
     # Load the CSV file
     file_path = 'trp_ratio.csv'
-    data = pd.read_csv(file_path)
-
+    data = pd.read_csv(file_path, delimiter=';')
+    print(data.head())
     # Extract the necessary data
     frequencies = data['Frequency']
     columns = data.columns[1:]  # Exclude the 'Frequency' column
