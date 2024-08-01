@@ -33,42 +33,43 @@ def make_spectres():
             # dfAmpRev = list(1 - i for i in dfAmp) #Вычитаем из единицы
 
             # Ищем точку максимума на резонансной частоте
-            G = 50
-            max_amp_freq = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
-                field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Frequency']
-            max_amp = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
-                field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Amp×104']
+            # G = 50
+            # max_amp_freq = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
+            #     field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Frequency']
+            # max_amp = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
+            #     field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Amp×104']
             
             # Ищем точку максимума без учета частоты поля
             # max_amp_freq = df.loc[df['Amplitude'].idxmax(), 'Frequency']
             # max_amp = df.loc[df['Amplitude'].idxmax(), 'Amp×104']
 
-            mess = 'Field ' + \
-                str(field_freq) + " : " + str(max_amp_freq) + \
-                ' - ' + str(max_amp) + '\n'
+            # mess = 'Field ' + \
+            #     str(field_freq) + " : " + str(max_amp_freq) + \
+            #     ' - ' + str(max_amp) + '\n'
 
-            print(mess)
+            # print(mess)
             # Пишем пики в файл
-            file.write(mess)
+            # file.write(mess)
             # Строим графики
             plt.gcf().clear()
             plt.plot(dfFreq, dfAmp, linewidth=1, c='black')  # Обычный графики
             plt.grid()
             plt.xlabel('Frequency, $cm^{-1}$')
-            plt.ylabel('Spectral Density (a.u. ×$10^{4}$)')
+            plt.ylabel('Spectral Amplitude (a.u. ×$10^{4}$)')
             # plt.xlabel('Частота, $cm^{-1}$')
             # plt.ylabel('Амплитуда, отн.ед. ×$10^{4}$')
-            # plt.savefig(filename+'_main.png')
-            plt.xlim(-50, 1050)
-            plt.ylim(-max_amp*0.05, max_amp + max_amp*0.1)
+            plt.xlim(3000, 4000)
+            plt.savefig(filename+'_4000_main.png')
+            # plt.xlim(-50, 1050)
+            # plt.ylim(-max_amp*0.05, max_amp + max_amp*0.1)
             # plt.savefig(filename+'_u1k.png')
 
             # Оконные автоматические графики
-            D = 10  # Смещение для окон и подписей
-            plt.xlim(float(max_amp_freq) - D, float(max_amp_freq) + D)
-            plt.ylim(-max_amp*0.03, max_amp + max_amp*0.5)
-            plt.annotate(str(round(max_amp_freq, 2)), xy=(float(max_amp_freq), float(max_amp)), xytext=(float(
-                max_amp_freq) + 0.5*D, float(max_amp) + float(max_amp)*0.05), arrowprops=dict(facecolor='red', shrink=0.05), fontsize=14)
+            # D = 10  # Смещение для окон и подписей
+            # plt.xlim(float(max_amp_freq) - D, float(max_amp_freq) + D)
+            # plt.ylim(-max_amp*0.03, max_amp + max_amp*0.5)
+            # plt.annotate(str(round(max_amp_freq, 2)), xy=(float(max_amp_freq), float(max_amp)), xytext=(float(
+            #     max_amp_freq) + 0.5*D, float(max_amp) + float(max_amp)*0.05), arrowprops=dict(facecolor='red', shrink=0.05), fontsize=14)
             # plt.savefig(filename+'_window.png')
     file.close()
 

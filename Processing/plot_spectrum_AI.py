@@ -32,6 +32,7 @@ for address, dirs, names in os.walk(directory):
 
             yf1 = np.abs(yf[:N//2])
             yf1[:2000] = 0
+            yf1 = [x * 10000 for x in yf1]
 
             # Конвертация частоты из Гц в ТГц
             xf_thz = xf * 1e-12
@@ -45,16 +46,24 @@ for address, dirs, names in os.walk(directory):
             spectral_density_filtered = 2.0/N * np.abs(yf[:N//2])[mask]
 
             # Сохранение данных в файл
-            output_data = np.column_stack((xf_cm_inv_filtered, spectral_density_filtered))
-            output_file_path = filename + '_spectre.dat'
-            np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
+            # output_data = np.column_stack((xf_cm_inv_filtered, spectral_density_filtered))
+            # output_file_path = filename + '_spectre.dat'
+            # np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
 
             # Построение графика до 6000 см^-1
+            plt.gcf().clear()
             plt.plot(xf_cm_inv, 2.0/N * np.abs(yf1), c='black')
-            plt.xlim(0, 6000)
+            # plt.xlim(0, 6000)
             plt.xlabel('Frequency ($cm^{-1}$)')
-            plt.ylabel('Spectral Density (a.u.)')
+            plt.ylabel('Spectral Amplitude (a.u. ×$10^{4}$)')
             # plt.title(name)
             plt.grid()
             # plt.show()
-            plt.savefig(filename + '.png')
+            plt.xlim(0, 1000)
+            plt.savefig(filename + '_1000.png')
+            plt.xlim(1000, 2000)
+            plt.savefig(filename + '_2000.png')
+            plt.xlim(2000, 3000)
+            plt.savefig(filename + '_3000.png')
+            plt.xlim(3000, 4000)
+            plt.savefig(filename + '_4000.png')

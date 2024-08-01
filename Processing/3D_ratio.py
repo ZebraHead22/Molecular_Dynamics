@@ -10,11 +10,11 @@ from scipy.interpolate import make_interp_spline
 def ratio():
     # Готовим файл амплитуд в знаменатель
     zero_data = pd.read_csv(
-        '/Users/max/Yandex.Disk.localized/NAMD/long/ala_1_vacuum_spectre.dat', delimiter=' ', index_col=None)
+        '/Users/max/Yandex.Disk.localized/NAMD/long/trp_1_water_spectre.dat', delimiter=' ', index_col=None)
     # zero_data.rename(columns={0: 'Frequency',
     #                  1: 'Amplitude'}, inplace=True)
     zero_data.insert(2, 'Amp×104', zero_data['Amplitude']*(10**4))
-    print(zero_data.head())
+    # print(zero_data.head())
     
     # Формируем отсортированный по частотам список dat файлов
     files = os.listdir(os.getcwd())
@@ -43,7 +43,12 @@ def ratio():
         max_amp = df.loc[df['Amplitude'].where((df['Frequency'] < (int(
             field_freq) + G)) & (df['Frequency'] > (int(field_freq) - G))).idxmax(), 'Amp×104']
         max_amp_no_field = zero_data.loc[zero_data['Amplitude'].where((zero_data['Frequency'] < (float(
-            max_amp_freq) + 1)) & (zero_data['Frequency'] > (float(max_amp_freq) - 1))).idxmax(), 'Amp×104']
+            max_amp_freq) + G)) & (zero_data['Frequency'] > (float(max_amp_freq) - G))).idxmax(), 'Amp×104']
+        max_amp_freq_no_field = zero_data.loc[zero_data['Amplitude'].where((zero_data['Frequency'] < (float(
+            max_amp_freq) + G)) & (zero_data['Frequency'] > (float(max_amp_freq) - G))).idxmax(), 'Frequency']
+        print(max_amp_freq)
+        print(max_amp_freq_no_field)
+        # Считаем отношение
         ratio = max_amp / max_amp_no_field
         ratio = round(ratio, 2)
         mess = {str(fields[0]) : int(field_freq), str(fields[1]) : ratio}
@@ -51,7 +56,7 @@ def ratio():
         mydict.append(mess)
 
     # Пишем файл
-    filename = "../ala_ratio/" + os.path.basename(os.getcwd()) + "_ratio.csv"
+    filename = "../trp_ratio/" + os.path.basename(os.getcwd()) + "_ratio.csv"
     with open(filename, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields)
         writer.writeheader()
@@ -107,13 +112,13 @@ def ratio_graph():
     # Set axis labels
     ax.set_xlabel('Frequency ($cm^{-1}$)', labelpad=18, fontsize=14)
     ax.set_ylabel('Molecules', labelpad=20, fontsize=14)
-    ax.set_zlabel('Amplitude (a.u.)', labelpad=20, fontsize=14)
+    ax.set_zlabel('Ratio (a.u.)', labelpad=20, fontsize=14)
 
     # Set x-ticks to frequency values
     ax.set_xticks(range(len(frequencies)))
     ax.set_xticklabels(frequencies, rotation=45, ha='right', fontsize=12)
 
-    # Set y-ticks to column names
+    # Set y-ticks to column names 
     ax.set_yticks(range(len(columns)))
     ax.set_yticklabels(columns, fontsize=12)
 
@@ -122,7 +127,5 @@ def ratio_graph():
 
     # Show the plot
     plt.show()
-
-   
 
 ratio_graph()
