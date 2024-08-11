@@ -22,6 +22,7 @@ def make_spectres():
             df.rename(columns={'0.0': 'Frequency',
                       '0.0.1': 'Amplitude'}, inplace=True)
             df.insert(2, 'Amp×104', df['Amplitude']*(10**4))
+            print(df.head())
 
             # df.iloc[:1050] = np.nan
             # df.iloc[45000:] = np.nan
@@ -58,8 +59,8 @@ def make_spectres():
             plt.ylabel('Spectral Amplitude (a.u. ×$10^{4}$)')
             # plt.xlabel('Частота, $cm^{-1}$')
             # plt.ylabel('Амплитуда, отн.ед. ×$10^{4}$')
-            plt.xlim(3000, 4000)
-            plt.savefig(filename+'_4000_main.png')
+            # plt.xlim(3000, 4000)
+            plt.savefig(filename+'main.png')
             # plt.xlim(-50, 1050)
             # plt.ylim(-max_amp*0.05, max_amp + max_amp*0.1)
             # plt.savefig(filename+'_u1k.png')
