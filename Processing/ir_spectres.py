@@ -78,15 +78,15 @@ def ir_spectres():
 def caf2_plot():
     folder = '/Users/max/Yandex.Disk.localized/Journals/FTIR/data/caf2'
     files = os.listdir(folder)
-    dfs = pd.read_csv(os.getcwd()+'/surface.dpt', delimiter=',', index_col=None, header=None)
+    dfs = pd.read_csv(os.getcwd()+'/caf2_surface.dpt', delimiter=',', index_col=None, header=None)
     dfs.rename(columns={0: 'Frequency', 1: 'Amplitude'}, inplace=True)
-    plt.plot(dfs["Frequency"], dfs["Amplitude"])
+    plt.plot(dfs["Frequency"], dfs["Amplitude"], c='black')
     plt.grid()
-    plt.title('KBr_surface')
+    plt.title('caf2_surface')
     # plt.show()
     # dfs = dfs.loc[(dfs['Frequency'] >= 840) & (dfs['Frequency'] <= 5000)]
     # print(len(dfs['Frequency'].to_list()))
-    plt.savefig(folder + "/KBr_surcafe.png")
+    plt.savefig(folder + "/caf2_surcafe.png")
 
     for file in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+file)
@@ -108,7 +108,7 @@ def caf2_plot():
                 np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
                 # Graphs
                 plt.gcf().clear()
-                plt.plot(df["Frequency"], df["Amplitude_wo"])
+                plt.plot(df["Frequency"], df["Amplitude_wo"], c='black')
                 # plt.legend(["Valine", "Glycine", "Alanine", "Tryptophan"])
                 plt.grid()
                 plt.ylim(min_amp - 0.1*min_amp, max_amp + 0.1*max_amp)
@@ -183,4 +183,5 @@ def kbr_plot():
                 plt.title(str(os.path.basename(filename)))
                 plt.savefig(filename + ".png")
 
-kbr_plot()
+# kbr_plot()
+caf2_plot()
