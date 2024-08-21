@@ -76,52 +76,54 @@ def ir_spectres():
     plt.savefig(folder + "/result.png")
 
 def caf2_plot():
-    folder = '/Users/max/Yandex.Disk.localized/Journals/FTIR/data/caf2'
+    folder = os.getcwd()
     files = os.listdir(folder)
-    dfs = pd.read_csv(os.getcwd()+'/caf2_surface.dpt', delimiter=',', index_col=None, header=None)
+    dfs = pd.read_csv(os.getcwd()+'/surface.dpt', delimiter=',', index_col=None, header=None)
     dfs.rename(columns={0: 'Frequency', 1: 'Amplitude'}, inplace=True)
+    # dfs = dfs.loc[(dfs['Frequency'] <= 5000)]
     plt.plot(dfs["Frequency"], dfs["Amplitude"], c='black')
     plt.grid()
-    plt.title('caf2_surface')
-    # plt.show()
-    # dfs = dfs.loc[(dfs['Frequency'] >= 840) & (dfs['Frequency'] <= 5000)]
-    # print(len(dfs['Frequency'].to_list()))
-    plt.savefig(folder + "/caf2_surcafe.png")
+    plt.title('CaF2 surface')
+    plt.savefig(folder + "/caf2_surface.png")
+    plt.gcf().clear()
 
+    legend = list()
     for file in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+file)
         if file_extension == ".dpt":
-            if os.path.basename(filename) != 'surface':
+            if 'surface' not in os.path.basename(filename):
+                legend.append(os.path.basename(filename).upper())
                 df = pd.read_csv(os.getcwd()+'/'+file, delimiter=',', index_col=None, header=None)
                 df.rename(columns={0: 'Frequency', 1: 'Amplitude'}, inplace=True)
                 print(df.head())
-                # df = df.loc[(df['Frequency'] >= 840) & (df['Frequency'] <= 5000)]
+                
                 df.insert(2, 'Amplitude_wo', 1 - (np.array(df['Amplitude'].to_list())/np.array(dfs['Amplitude'].to_list())))
                 df = df.loc[(df['Frequency'] >= 1000) & (df['Frequency'] <= 5000)]
                 
                 max_amp = df.loc[df['Amplitude_wo'].idxmax(), 'Amplitude_wo']
                 min_amp = df.loc[df['Amplitude_wo'].idxmin(), 'Amplitude_wo']
-
-
-                output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
-                output_file_path = filename + '_spectre.dat'
-                np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
+                
+                df['Amplitude_wo'] = df['Amplitude_wo'] - min_amp
+                
+                #Save .dat files
+                # output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
+                # output_file_path = filename + '_spectre.dat'
+                # np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
+                
                 # Graphs
                 plt.gcf().clear()
                 plt.plot(df["Frequency"], df["Amplitude_wo"], c='black')
-                # plt.legend(["Valine", "Glycine", "Alanine", "Tryptophan"])
+    # plt.legend(legend)  
                 plt.grid()
-                plt.ylim(min_amp - 0.1*min_amp, max_amp + 0.1*max_amp)
                 plt.xlabel("Frequency ($cm^{-1}$)")
                 plt.ylabel("Energy (a.u.)")
-                # plt.show()
-                plt.title(str(os.path.basename(filename)))
+                plt.title(str(os.path.basename(filename)).upper())
                 plt.savefig(filename + ".png")
 
 def kbr_plot():
     from pathlib import Path
     surface_data = pd.DataFrame()
-    folder = '/Users/max/Yandex.Disk.localized/Journals/FTIR/data/kbr'
+    folder = os.getcwd()
     files = os.listdir(folder)
     path = Path(folder)
     count = 1
@@ -134,6 +136,7 @@ def kbr_plot():
         count += 1
 
     surface_data['Mean Amplitude'] = surface_data.iloc[:, 1:4].mean(axis=1)
+    # surface_data = surface_data.loc[(surface_data['Frequency'] <= 5000)]
 
     vacuum_file = folder + '/vacuum.dpt'
     vacuum_data = pd.read_csv(vacuum_file, delimiter=',', index_col=None, header=None)
@@ -151,37 +154,89 @@ def kbr_plot():
     plt.grid()
     plt.title('Vacuum')
     plt.xlim([0, 6000])
-    plt.savefig(folder + "/Vacuum.png")
+    plt.savefig(folder + "/vacuum.png")
+    plt.gcf().clear()
+
+    legend = list()
 
     for file in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+file)
         if file_extension == ".dpt":
-            if os.path.basename(filename) != r'surface*' and os.path.basename(filename) != 'vacuum':
+            if 'surface' not in os.path.basename(filename) and 'vacuum' not in os.path.basename(filename):
+                legend.append(os.path.basename(filename).upper())
                 df = pd.read_csv(os.getcwd()+'/'+file, delimiter=',', index_col=None, header=None)
                 df.rename(columns={0: 'Frequency', 1: 'Amplitude'}, inplace=True)
 
-                # df = df.loc[(df['Frequency'] >= 840) & (df['Frequency'] <= 5000)]
                 df.insert(2, 'Amplitude_wo', 1 - (np.array(df['Amplitude'].to_list())/np.array(surface_data['Mean Amplitude'].to_list())))
                 df = df.loc[(df['Frequency'] >= 1000) & (df['Frequency'] <= 5000)]
                 
                 max_amp = df.loc[df['Amplitude_wo'].idxmax(), 'Amplitude_wo']
                 min_amp = df.loc[df['Amplitude_wo'].idxmin(), 'Amplitude_wo']
 
+                df['Amplitude_wo'] = df['Amplitude_wo'] - min_amp
 
-                output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
-                output_file_path = filename + '_spectre.dat'
+                #Save .dat files
+                # output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
+                # output_file_path = filename + '_spectre.dat'
                 # np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
+                
                 # Graphs
-                plt.gcf().clear()
-                plt.plot(df["Frequency"], df["Amplitude_wo"], c='black')
-                # plt.legend(["Valine", "Glycine", "Alanine", "Tryptophan"])
-                plt.grid()
-                plt.ylim(min_amp - 0.1*min_amp, max_amp + 0.1*max_amp)
-                plt.xlabel("Frequency ($cm^{-1}$)")
-                plt.ylabel("Energy (a.u.)")
-                # plt.show()
-                plt.title(str(os.path.basename(filename)))
-                plt.savefig(filename + ".png")
+                # plt.gcf().clear()
+                plt.plot(df["Frequency"], df["Amplitude_wo"])
+    plt.legend(legend)
+    plt.grid()
+    plt.xlabel("Frequency ($cm^{-1}$)")
+    plt.ylabel("Energy (a.u.)")
+                # plt.title(str(os.path.basename(filename)).upper())
+    plt.savefig(filename + "1.png")
+    print(legend)
+
+def si_plot():
+    folder = os.getcwd()
+    files = os.listdir(folder)
+    dfs = pd.read_csv(os.getcwd()+'/surface.dpt', delimiter=',', index_col=None, header=None)
+    dfs.rename(columns={0: 'Frequency', 1: 'Amplitude'}, inplace=True)
+    dfs = dfs.loc[(dfs['Frequency'] <= 5000)]
+    plt.plot(dfs["Frequency"], dfs["Amplitude"], c='black')
+    plt.grid()
+    plt.title('Si surface')
+    plt.savefig(folder + "/Si_surface.png")
+    plt.gcf().clear()
+
+    legend = list()
+    for file in files:
+        filename, file_extension = os.path.splitext(os.getcwd()+'/'+file)
+        if file_extension == ".dpt":
+            if 'surface' not in os.path.basename(filename):
+                legend.append(os.path.basename(filename).upper())
+                df = pd.read_csv(os.getcwd()+'/'+file, delimiter=',', index_col=None, header=None)
+                df.rename(columns={0: 'Frequency', 1: 'Amplitude'}, inplace=True)
+                print(df.head())
+                
+                df.insert(2, 'Amplitude_wo', 1 - (np.array(df['Amplitude'].to_list())))
+                df = df.loc[(df['Frequency'] >= 1000) & (df['Frequency'] <= 5000)]
+                
+                max_amp = df.loc[df['Amplitude_wo'].idxmax(), 'Amplitude_wo']
+                min_amp = df.loc[df['Amplitude_wo'].idxmin(), 'Amplitude_wo']
+                
+                df['Amplitude_wo'] = df['Amplitude_wo'] - min_amp
+                
+                #Save .dat files
+                # output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
+                # output_file_path = filename + '_spectre.dat'
+                # np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
+                
+                # Graphs
+                # plt.gcf().clear()
+                plt.plot(df["Frequency"], df["Amplitude_wo"])
+    # plt.legend(legend)  
+    plt.grid()
+    plt.xlabel("Frequency ($cm^{-1}$)")
+    plt.ylabel("Energy (a.u.)")
+    plt.legend(legend)
+    # plt.title(str(os.path.basename(filename)).upper())
+    plt.savefig(filename + "1.png")
 
 # kbr_plot()
-caf2_plot()
+# caf2_plot()
+si_plot()
