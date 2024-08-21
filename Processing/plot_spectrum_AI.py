@@ -1,4 +1,5 @@
 import os
+import re
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -10,6 +11,8 @@ for address, dirs, names in os.walk(directory):
     for name in names:
         filename, file_extension = os.path.splitext(name)
         if file_extension == ".dat":
+            title = re.search(r'\d+\w+', os.path.basename(filename))
+            title = title.group(0)
             df = pd.read_csv(
                     directory+ "/" +name, delimiter=' ', index_col=None, header=[0])
             df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y',
@@ -19,11 +22,11 @@ for address, dirs, names in os.walk(directory):
             dip_magnitude = dip_magnitude - np.mean(dip_magnitude)
 
             # Применение окна Хэмминга
-            window = hamming(len(dip_magnitude))
+            window = blackman(len(dip_magnitude))
             dip_magnitude_windowed = dip_magnitude * window
 
             # Временное расстояние между точками (в секундах)
-            time_step = 2e-15
+            time_step = 5e-15
 
             # Преобразование Фурье
             N = len(dip_magnitude_windowed)
@@ -52,19 +55,19 @@ for address, dirs, names in os.walk(directory):
 
             # Построение графика до 6000 см^-1
             plt.gcf().clear()
-            plt.plot(xf_cm_inv, 2.0/N * np.abs(yf1), c='black')
+            plt.plot(xf_cm_inv_filtered, spectral_density_filtered, c='black')
             plt.xlim(0, 6000)
             plt.xlabel('Frequency ($cm^{-1}$)')
             plt.ylabel('Spectral Amplitude (a.u. ×$10^{4}$)')
-            # plt.title(name)
+            plt.title(title)
             plt.grid()
-            # plt.show()
+            plt.show()
             plt.savefig(filename + '.png')
-            plt.xlim(0, 1000)
-            plt.savefig(filename + '_1000.png')
-            plt.xlim(1000, 2000)
-            plt.savefig(filename + '_2000.png')
-            plt.xlim(2000, 3000)
-            plt.savefig(filename + '_3000.png')
-            plt.xlim(3000, 4000)
-            plt.savefig(filename + '_4000.png')
+            # plt.xlim(0, 1000)
+            # plt.savefig(filename + '_1000.png')
+            # plt.xlim(1000, 2000)
+            # plt.savefig(filename + '_2000.png')
+            # plt.xlim(2000, 3000)
+            # plt.savefig(filename + '_3000.png')
+            # plt.xlim(3000, 4000)
+            # plt.savefig(filename + '_4000.png')
