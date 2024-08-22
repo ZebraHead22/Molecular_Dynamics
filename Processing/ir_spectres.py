@@ -106,9 +106,9 @@ def caf2_plot():
                 df['Amplitude_wo'] = df['Amplitude_wo'] - min_amp
                 
                 #Save .dat files
-                # output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
-                # output_file_path = filename + '_spectre.dat'
-                # np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
+                output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
+                output_file_path = filename + '_spectre.dat'
+                np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
                 
                 # Graphs
                 # plt.gcf().clear()
@@ -140,9 +140,10 @@ def kbr_plot():
     # surface_data = surface_data.loc[(surface_data['Frequency'] <= 5000)]
 
     #Save .dat files
-    # output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude'].to_list()))
-    # output_file_path = os.getcwd() + '/KBr.dpt'
+    # output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
+    # output_file_path = filename + '_spectre.dat'
     # np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
+
     vacuum_file = folder + '/vacuum.dpt'
     vacuum_data = pd.read_csv(vacuum_file, delimiter=',', index_col=None, header=None)
     vacuum_data.rename(columns={0: 'Frequency', 1: 'Amplitude'}, inplace=True)
@@ -181,9 +182,9 @@ def kbr_plot():
                 df['Amplitude_wo'] = df['Amplitude_wo'] - min_amp
 
                 #Save .dat files
-                # output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
-                # output_file_path = filename + '_spectre.dat'
-                # np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
+                output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
+                output_file_path = filename + '_spectre.dat'
+                np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
                 
                 # Graphs
                 # plt.gcf().clear()
@@ -202,12 +203,13 @@ def si_plot():
     files = os.listdir(folder)
     dfs = pd.read_csv(os.getcwd()+'/surface.dpt', delimiter=',', index_col=None, header=None)
     dfs.rename(columns={0: 'Frequency', 1: 'Amplitude'}, inplace=True)
-    dfs = dfs.loc[(dfs['Frequency'] <= 5000)]
-    plt.plot(dfs["Frequency"], dfs["Amplitude"], c='black')
-    plt.grid()
-    plt.title('Si surface')
-    plt.savefig(folder + "/Si_surface.png")
-    plt.gcf().clear()
+    # print(len(dfs['Amplitude'].to_list()))
+    # dfs = dfs.loc[(dfs['Frequency'] <= 5000)]
+    # plt.plot(dfs["Frequency"], dfs["Amplitude"], c='black')
+    # plt.grid()
+    # plt.title('Si surface')
+    # plt.savefig(folder + "/Si_surface.png")
+    # plt.gcf().clear()
 
     legend = list()
     for file in files:
@@ -217,8 +219,7 @@ def si_plot():
                 legend.append(os.path.basename(filename).upper())
                 df = pd.read_csv(os.getcwd()+'/'+file, delimiter=',', index_col=None, header=None)
                 df.rename(columns={0: 'Frequency', 1: 'Amplitude'}, inplace=True)
-                print(df.head())
-                
+                print(len(df['Amplitude'].to_list()))
                 df.insert(2, 'Amplitude_wo', 1 - (np.array(df['Amplitude'].to_list())))
                 df = df.loc[(df['Frequency'] >= 1000) & (df['Frequency'] <= 5000)]
                 
@@ -228,20 +229,19 @@ def si_plot():
                 df['Amplitude_wo'] = df['Amplitude_wo'] - min_amp
                 
                 #Save .dat files
-                # output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
-                # output_file_path = filename + '_spectre.dat'
-                # np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
+                output_data = np.column_stack((df['Frequency'].to_list(), df['Amplitude_wo'].to_list()))
+                output_file_path = filename + '_spectre.dat'
+                np.savetxt(output_file_path, output_data, fmt='%.6e', delimiter=' ', header='Frequency Amplitude', comments='')
                 
                 # Graphs
                 # plt.gcf().clear()
                 plt.plot(df["Frequency"], df["Amplitude_wo"])
-    # plt.legend(legend)  
     plt.grid()
     plt.xlabel("Frequency ($cm^{-1}$)")
     plt.ylabel("Energy (a.u.)")
     plt.legend(legend)
-    # plt.title(str(os.path.basename(filename)).upper())
-    plt.savefig(filename + "1.png")
+                # plt.title(str(os.path.basename(filename)).upper())
+    plt.savefig(filename + "family.png")
 
 
 def surface():
@@ -250,19 +250,21 @@ def surface():
     legend = list()
     for file in files:
         filename, file_extension = os.path.splitext(os.getcwd()+'/'+file)
-        if file_extension == ".dpt":
+        if file_extension == ".dat":
             legend.append(os.path.basename(filename))
-            df = pd.read_csv(os.getcwd()+'/'+file, delimiter=',', index_col=None, header=None)
-            df.rename(columns={0: 'Frequency', 1: 'Amplitude'}, inplace=True)
-            df = df.loc[(df['Frequency'] <= 5000)]
+            df = pd.read_csv(os.getcwd()+'/'+file, delimiter=' ', index_col=None)
+            # df.rename(columns={0: 'Frequency', 1: 'Amplitude'}, inplace=True)
+            # df = df.loc[(df['Frequency'] <= 5000)]
+            df = df.loc[(df['Frequency'] <= 5000) & (df['Frequency'] >= 1000)]
             plt.plot(df["Frequency"], df["Amplitude"])
     plt.grid()
     plt.legend(legend)
     plt.xlabel("Frequency ($cm^{-1}$)")
+    plt.title('ALA')
     plt.ylabel("Energy (a.u.)")
-    plt.savefig(folder + "/surfaces.png")
+    plt.savefig(folder + "/ala.png")
 
 # kbr_plot()
-caf2_plot()
+# caf2_plot()
 # si_plot()
-# surface()
+surface()
