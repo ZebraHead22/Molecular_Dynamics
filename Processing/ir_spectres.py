@@ -118,7 +118,8 @@ def caf2_plot():
     plt.xlabel("Frequency ($cm^{-1}$)")
     plt.ylabel("Energy (a.u.)")
                 # plt.title(str(os.path.basename(filename)).upper())      
-    plt.savefig(filename + "1.png")
+    # plt.savefig(filename + "1.png")
+    plt.show()
 
 def kbr_plot():
     from pathlib import Path
@@ -192,7 +193,8 @@ def kbr_plot():
     plt.xlabel("Frequency ($cm^{-1}$)")
     plt.ylabel("Energy (a.u.)")
                 # plt.title(str(os.path.basename(filename)).upper())
-    plt.savefig(filename + "1.png")
+    # plt.savefig(filename + "1.png")
+    plt.show()
     print(legend)
 
 def si_plot():
@@ -260,7 +262,7 @@ def surface():
     plt.ylabel("Energy (a.u.)")
     plt.savefig(folder + "/surfaces.png")
 
-kbr_plot()
-# caf2_plot()
+# kbr_plot()
+caf2_plot()
 # si_plot()
 # surface()
