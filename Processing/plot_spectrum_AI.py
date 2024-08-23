@@ -20,23 +20,34 @@ for address, dirs, names in os.walk(directory):
             df.dropna(how='all', axis=1, inplace=True)
             dip_magnitude = np.array(df['|dip|'].to_list())
             dip_magnitude = dip_magnitude - np.mean(dip_magnitude)
+            
+            # Рассчет автокорреляционной функции
+            dip_magnitude_corr = np.correlate(dip_magnitude, dip_magnitude, mode='full')
+            dip_magnitude_corr = dip_magnitude_corr[len(dip_magnitude_corr)//2:]  # Взять только правую половину
+            # plt.gcf().clear()
+            # plt.plot(df['frame'], dip_magnitude_corr, c='black')
+            # plt.show()
 
             # Применение окна Хэмминга
-            window = blackman(len(dip_magnitude))
-            dip_magnitude_windowed = dip_magnitude * window
+            window = hann(len(dip_magnitude))
+            dip_magnitude_windowed = dip_magnitude_corr * window
+            # plt.gcf().clear()
+            # plt.plot(df['frame'], dip_magnitude_windowed, c='black')
+            # plt.show()
 
             # Временное расстояние между точками (в секундах)
-            time_step = 5e-15
+            time_step = 2e-15
 
             # Преобразование Фурье
             N = len(dip_magnitude_windowed)
             yf = fft(dip_magnitude_windowed)
             xf = fftfreq(N, time_step)[:N//2]
 
-            yf1 = np.abs(yf[:N//2])
-            yf1[:2000] = 0
-            yf1 = [x * 10000 for x in yf1]
-
+            # Применение фильтра высоких частот
+            cutoff_frequency = 1e12  # Пороговая частота в Гц (например, 1 ТГц)
+            cutoff_index = np.where(xf < cutoff_frequency)[0][-1] + 1  # Индекс последней частоты ниже порога
+            yf[:cutoff_index] = 0  # Зануление низкочастотных компонентов
+            
             # Конвертация частоты из Гц в ТГц
             xf_thz = xf * 1e-12
 
@@ -58,11 +69,13 @@ for address, dirs, names in os.walk(directory):
             plt.plot(xf_cm_inv_filtered, spectral_density_filtered, c='black')
             plt.xlim(0, 6000)
             plt.xlabel('Frequency ($cm^{-1}$)')
-            plt.ylabel('Spectral Amplitude (a.u. ×$10^{4}$)')
+            # plt.ylabel('Spectral Amplitude (a.u. ×$10^{4}$)')
+            plt.ylabel('Spectral Amplitude (a.u.)')
             plt.title(title)
             plt.grid()
-            plt.show()
-            plt.savefig(filename + '.png')
+            # plt.show()
+            plt.savefig(filename + '.png', dpi = 600)
+            
             # plt.xlim(0, 1000)
             # plt.savefig(filename + '_1000.png')
             # plt.xlim(1000, 2000)
