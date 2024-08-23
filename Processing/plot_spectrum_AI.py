@@ -22,15 +22,15 @@ for address, dirs, names in os.walk(directory):
             dip_magnitude = dip_magnitude - np.mean(dip_magnitude)
             
             # Рассчет автокорреляционной функции
-            dip_magnitude_corr = np.correlate(dip_magnitude, dip_magnitude, mode='full')
-            dip_magnitude_corr = dip_magnitude_corr[len(dip_magnitude_corr)//2:]  # Взять только правую половину
+            # dip_magnitude_corr = np.correlate(dip_magnitude, dip_magnitude, mode='full')
+            # dip_magnitude_corr = dip_magnitude_corr[len(dip_magnitude_corr)//2:]  # Взять только правую половину
             # plt.gcf().clear()
             # plt.plot(df['frame'], dip_magnitude_corr, c='black')
             # plt.show()
 
             # Применение окна Хэмминга
             window = hann(len(dip_magnitude))
-            dip_magnitude_windowed = dip_magnitude_corr * window
+            dip_magnitude_windowed = dip_magnitude * window
             # plt.gcf().clear()
             # plt.plot(df['frame'], dip_magnitude_windowed, c='black')
             # plt.show()
