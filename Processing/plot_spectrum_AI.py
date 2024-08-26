@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.fft import fft, fftfreq
 from scipy.signal.windows import hann
 from multiprocessing import Pool, cpu_count
-
+import time
 
 def autocorrelation_chunk(args):
     dip_magnitude, start, end = args
@@ -41,6 +41,9 @@ if __name__ == '__main__':
             filename, file_extension = os.path.splitext(name)
             if file_extension == ".dat":
                 print(f"-- File {os.path.basename(filename)}")
+                
+                start_time = time.time()  # Start timing
+                
                 title = re.search(r'\d+\w+', os.path.basename(filename))
                 title = title.group(0)
                 df = pd.read_csv(
@@ -50,7 +53,7 @@ if __name__ == '__main__':
                 df.dropna(how='all', axis=1, inplace=True)
                 dip_magnitude = np.array(df['|dip|'].to_list())
                 dip_magnitude = dip_magnitude - np.mean(dip_magnitude)
-                print(f"-- Len of transent {len(df['|dip|'].to_list())}")
+                print(f"-- Len of transient {len(df['|dip|'].to_list())}")
                 
                 num_cores_to_use = 4  # Specify the number of cores to use
                 total_cores = cpu_count()
@@ -97,3 +100,7 @@ if __name__ == '__main__':
                 plt.title(os.path.basename(filename))
                 plt.grid()
                 plt.savefig(filename + '_ac.png', dpi=600)
+                
+                end_time = time.time()  # End timing
+                elapsed_time = end_time - start_time
+                print(f"-- Processing time for {os.path.basename(filename)}: {elapsed_time:.2f} seconds")
