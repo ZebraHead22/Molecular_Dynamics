@@ -50,7 +50,7 @@ if __name__ == '__main__':
                 df.dropna(how='all', axis=1, inplace=True)
                 dip_magnitude = np.array(df['|dip|'].to_list())
                 dip_magnitude = dip_magnitude - np.mean(dip_magnitude)
-                print(f"Len of transent {len(df['|dip|'].to_list())}")
+                print(f"-- Len of transent {len(df['|dip|'].to_list())}")
                 
                 num_cores_to_use = 4  # Specify the number of cores to use
                 total_cores = cpu_count()
