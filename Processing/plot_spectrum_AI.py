@@ -103,4 +103,7 @@ if __name__ == '__main__':
                 
                 end_time = time.time()  # End timing
                 elapsed_time = end_time - start_time
-                print(f"-- Processing time for {os.path.basename(filename)}: {elapsed_time:.2f} seconds")
+                
+                # Convert elapsed time to H:MM:SS format
+                formatted_time = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
+                print(f"-- Processing time for {os.path.basename(filename)}: {formatted_time}")
