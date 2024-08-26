@@ -1,14 +1,11 @@
 import os
 import re
-import time
-import threading
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.fft import fft, fftfreq
 from multiprocessing import Pool, cpu_count
 from scipy.signal.windows import hamming, hann, blackman, bartlett
-
 
 def autocorrelation_chunk(args):
     dip_magnitude, start, end = args
@@ -36,23 +33,13 @@ def calculate_autocorrelation(dip_magnitude, num_cores=None):
 
     return autocorr
 
-def spinner():
-    while True:
-        for cursor in '|/-\\':
-            yield cursor
-
-def spinning_cursor(spinner_generator):
-    while True:
-        print(f'\r--Processing... {next(spinner_generator)}', end='', flush=True)
-        time.sleep(0.1)
-
 if __name__ == '__main__':
     directory = os.getcwd()
     for address, dirs, names in os.walk(directory):
         for name in names:
             filename, file_extension = os.path.splitext(name)
             if file_extension == ".dat":
-                print(f"--File: {os.path.basename(filename)}")
+                print(f"-- File {os.path.basename(filename)}")
                 title = re.search(r'\d+\w+', os.path.basename(filename))
                 title = title.group(0)
                 df = pd.read_csv(
@@ -62,55 +49,43 @@ if __name__ == '__main__':
                 df.dropna(how='all', axis=1, inplace=True)
                 dip_magnitude = np.array(df['|dip|'].to_list())
                 dip_magnitude = dip_magnitude - np.mean(dip_magnitude)
-                print(f"--Len of transent: {len(df['|dip|'].to_list())}")
+                print(f"Len of transent {df['|dip|'].to_list()}")
                 
                 num_cores_to_use = 4  # Specify the number of cores to use
                 total_cores = cpu_count()
-                print(f"--Available CPU cores: {total_cores}")
-                print(f"--Number of cores used for the task: {num_cores_to_use}")
+                print(f"-- Available CPU cores: {total_cores}")
+                print(f"-- Number of cores used for the task: {num_cores_to_use}")
 
-                spinner_gen = spinner()
-                spinner_thread = threading.Thread(target=spinning_cursor, args=(spinner_gen,))
-                spinner_thread.start()
+                # Calculating the autocorrelation function
+                dip_magnitude_corr = calculate_autocorrelation(dip_magnitude, num_cores=num_cores_to_use)
 
-                try:
-                    # Calculating the autocorrelation function
-                    dip_magnitude_corr = calculate_autocorrelation(dip_magnitude, num_cores=num_cores_to_use)
+                # Applying the Hamming window
+                window = hann(len(dip_magnitude_corr))
+                dip_magnitude_windowed = dip_magnitude_corr * window
 
-                    # Applying the Hamming window
-                    window = hann(len(dip_magnitude_corr))
-                    dip_magnitude_windowed = dip_magnitude_corr * window
+                # Time step between points (in seconds)
+                time_step = 2e-15
 
-                    # Time step between points (in seconds)
-                    time_step = 2e-15
+                # Fourier Transform
+                N = len(dip_magnitude_windowed)
+                yf = fft(dip_magnitude_windowed)
+                xf = fftfreq(N, time_step)[:N//2]
 
-                    # Fourier Transform
-                    N = len(dip_magnitude_windowed)
-                    yf = fft(dip_magnitude_windowed)
-                    xf = fftfreq(N, time_step)[:N//2]
+                # Applying high-pass filter
+                cutoff_frequency = 1e12  # Cutoff frequency in Hz (e.g., 1 THz)
+                cutoff_index = np.where(xf < cutoff_frequency)[0][-1] + 1  # Index of the last frequency below cutoff
+                yf[:cutoff_index] = 0  # Zeroing out low-frequency components
+                
+                # Converting frequency from Hz to THz
+                xf_thz = xf * 1e-12
 
-                    # Applying high-pass filter
-                    cutoff_frequency = 1e12  # Cutoff frequency in Hz (e.g., 1 THz)
-                    cutoff_index = np.where(xf < cutoff_frequency)[0][-1] + 1  # Index of the last frequency below cutoff
-                    yf[:cutoff_index] = 0  # Zeroing out low-frequency components
-                    
-                    # Converting frequency from Hz to THz
-                    xf_thz = xf * 1e-12
+                # Converting frequency from THz to cm^-1
+                xf_cm_inv = xf_thz / 0.03
 
-                    # Converting frequency from THz to cm^-1
-                    xf_cm_inv = xf_thz / 0.03
-
-                    # Selecting data up to 6000 cm^-1
-                    mask = xf_cm_inv <= 6000
-                    xf_cm_inv_filtered = xf_cm_inv[mask]
-                    spectral_density_filtered = 2.0/N * np.abs(yf[:N//2])[mask]
-
-                finally:
-                    # Stop the spinner once processing is done
-                    spinner_thread.do_run = False
-                    spinner_thread.join()
-
-                print("\nProcessing complete.")
+                # Selecting data up to 6000 cm^-1
+                mask = xf_cm_inv <= 6000
+                xf_cm_inv_filtered = xf_cm_inv[mask]
+                spectral_density_filtered = 2.0/N * np.abs(yf[:N//2])[mask]
 
                 # Plotting the graph up to 6000 cm^-1
                 plt.gcf().clear()
