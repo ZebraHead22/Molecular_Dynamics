@@ -4,8 +4,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.fft import fft, fftfreq
+from scipy.signal.windows import hann
 from multiprocessing import Pool, cpu_count
-from scipy.signal.windows import hamming, hann, blackman, bartlett
+
 
 def autocorrelation_chunk(args):
     dip_magnitude, start, end = args
