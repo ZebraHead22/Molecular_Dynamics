@@ -44,11 +44,9 @@ if __name__ == '__main__':
                 print(f"-- File {os.path.basename(filename)}")
                 
                 start_time = time.time()  # Start timing
-                
-                title = re.search(r'\d+\w+', os.path.basename(filename))
-                title = title.group(0)
+
                 df = pd.read_csv(
-                        directory + "/" + name, delimiter=' ', index_col=None, header=[0])
+                        address + "/" + name, delimiter=' ', index_col=None, header=[0])
                 df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y',
                     'Unnamed: 6': 'dip_z', 'Unnamed: 8': '|dip|'}, inplace=True)
                 df.dropna(how='all', axis=1, inplace=True)
