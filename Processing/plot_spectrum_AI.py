@@ -15,18 +15,21 @@ def autocorrelation_chunk(args):
     autocorr = np.correlate(chunk, chunk, mode='full')
     return autocorr[len(chunk)-1:]
 
+
 def calculate_autocorrelation(dip_magnitude, num_cores=None):
     N = len(dip_magnitude)
     if num_cores is None:
         num_cores = cpu_count()  # Use all available cores if not specified
 
     # Splitting into smaller chunks for better load balancing
-    chunk_size = max(1000, N // (num_cores * 10))  # Minimum 1000 elements per chunk
+    # Minimum 1000 elements per chunk
+    chunk_size = max(1000, N // (num_cores * 10))
     ranges = [(i, min(i + chunk_size, N)) for i in range(0, N, chunk_size)]
 
     with Pool(processes=num_cores) as pool:
         # Use map_async for dynamic task distribution
-        results = pool.map_async(autocorrelation_chunk, [(dip_magnitude, start, end) for start, end in ranges]).get()
+        results = pool.map_async(autocorrelation_chunk, [(
+            dip_magnitude, start, end) for start, end in ranges]).get()
 
     # Summing up the autocorrelation results
     autocorr = np.zeros(len(dip_magnitude))
@@ -35,6 +38,7 @@ def calculate_autocorrelation(dip_magnitude, num_cores=None):
 
     return autocorr
 
+
 if __name__ == '__main__':
     directory = os.getcwd()
     for address, dirs, names in os.walk(directory):
@@ -42,27 +46,30 @@ if __name__ == '__main__':
             filename, file_extension = os.path.splitext(name)
             if file_extension == ".dat":
                 print(f"-- File {os.path.basename(filename)}")
-                
+
                 start_time = time.time()  # Start timing
 
                 df = pd.read_csv(
-                        address + "/" + name, delimiter=' ', index_col=None, header=[0])
+                    address + "/" + name, delimiter=' ', index_col=None, header=[0])
                 df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y',
-                    'Unnamed: 6': 'dip_z', 'Unnamed: 8': '|dip|'}, inplace=True)
+                                   'Unnamed: 6': 'dip_z', 'Unnamed: 8': '|dip|'}, inplace=True)
                 df.dropna(how='all', axis=1, inplace=True)
                 dip_magnitude = np.array(df['|dip|'].to_list())
                 dip_magnitude = dip_magnitude - np.mean(dip_magnitude)
                 length = dip_magnitude.size
                 formatted_length = f"{length:,}".replace(",", ".")
-                print(f"-- Len of transient {formatted_length} points or {length * 2 / 1000000} ns")
-                
+                print(
+                    f"-- Len of transient {formatted_length} points or {length * 2 / 1000000} ns")
+
                 num_cores_to_use = 4  # Specify the number of cores to use
                 total_cores = cpu_count()
                 print(f"-- Available CPU cores: {total_cores}")
-                print(f"-- Number of cores used for the task: {num_cores_to_use}")
+                print(
+                    f"-- Number of cores used for the task: {num_cores_to_use}")
 
                 # Calculating the autocorrelation function
-                dip_magnitude_corr = calculate_autocorrelation(dip_magnitude, num_cores=num_cores_to_use)
+                dip_magnitude_corr = calculate_autocorrelation(
+                    dip_magnitude, num_cores=num_cores_to_use)
 
                 # Applying the Hamming window
                 window = hann(len(dip_magnitude_corr))
@@ -78,9 +85,10 @@ if __name__ == '__main__':
 
                 # Applying high-pass filter
                 cutoff_frequency = 1e12  # Cutoff frequency in Hz (e.g., 1 THz)
-                cutoff_index = np.where(xf < cutoff_frequency)[0][-1] + 1  # Index of the last frequency below cutoff
+                # Index of the last frequency below cutoff
+                cutoff_index = np.where(xf < cutoff_frequency)[0][-1] + 1
                 yf[:cutoff_index] = 0  # Zeroing out low-frequency components
-                
+
                 # Converting frequency from Hz to THz
                 xf_thz = xf * 1e-12
 
@@ -94,18 +102,20 @@ if __name__ == '__main__':
 
                 # Plotting the graph up to 6000 cm^-1
                 plt.gcf().clear()
-                plt.plot(xf_cm_inv_filtered, spectral_density_filtered, c='black')
+                plt.plot(xf_cm_inv_filtered,
+                         spectral_density_filtered, c='black')
                 plt.xlim(0, 6000)
                 plt.xlabel('Frequency ($cm^{-1}$)')
                 plt.ylabel('Spectral Amplitude (a.u.)')
                 plt.title(os.path.basename(filename))
                 plt.grid()
                 plt.savefig(filename + '_ac.png', dpi=600)
-                
+
                 end_time = time.time()  # End timing
                 elapsed_time = end_time - start_time
-                
-                # Convert elapsed time to H:MM:SS format
-                formatted_time = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-                print(f"-- Processing time for {os.path.basename(filename)}: {formatted_time} \n")
 
+                # Convert elapsed time to H:MM:SS format
+                formatted_time = time.strftime(
+                    "%H:%M:%S", time.gmtime(elapsed_time))
+                print(
+                    f"-- Processing time for {os.path.basename(filename)}: {formatted_time} \n")
