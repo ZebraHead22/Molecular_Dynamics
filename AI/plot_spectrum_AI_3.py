@@ -58,7 +58,7 @@ if __name__ == '__main__':
                 
                 # Generate title based on filename
                 title = create_title(filename)
-                print(f"Generated title: {title}")
+                print(f"-- Generated title: {title}")
                 
                 df = pd.read_csv(
                         address + "/" + name, delimiter=' ', index_col=None, header=[0])
