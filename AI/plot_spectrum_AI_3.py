@@ -42,8 +42,12 @@ def create_title(filename):
 
         if 'water' in environment:
             return f"{prefix} WATER N={number}"
-        elif 'vac' in environment or 'vacuum' or 'linear' or 'cyclic' in environment:
+        elif 'vac' in environment or 'vacuum' in environment:
             return f"{prefix} VACUUM N={number}"
+        elif 'linear' in environment:
+            return f"{prefix} LINEAR N={number}"
+        elif 'cyclic' in environment:
+            return f"{prefix} CYCLIC N={number}"
     return filename
 
 if __name__ == '__main__':
