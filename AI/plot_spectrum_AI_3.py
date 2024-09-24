@@ -104,7 +104,7 @@ if __name__ == '__main__':
                 plt.ylabel('Spectral Amplitude (a.u.)')
                 plt.title(title + ' (With Autocorrelation)')
                 plt.grid()
-                plt.savefig(filename + '_ac.png', dpi=600)
+                plt.savefig(filename + '_autocorr.png', dpi=600)
 
                 # === Spectrum without Autocorrelation ===
                 dip_magnitude_windowed_no_ac = dip_magnitude * window
@@ -129,7 +129,7 @@ if __name__ == '__main__':
                 plt.ylabel('Spectral Amplitude (a.u.)')
                 plt.title(title + ' (Without Autocorrelation)')
                 plt.grid()
-                plt.savefig(filename + '_no_ac.png', dpi=600)
+                plt.savefig(filename + '_no_autocorr.png', dpi=600)
 
                 end_time = time.time()  # End timing
                 elapsed_time = end_time - start_time
