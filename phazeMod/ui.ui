@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>843</width>
+    <height>604</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -126,6 +126,7 @@
                  <property name="font">
                   <font>
                    <family>Monaco</family>
+                   <pointsize>12</pointsize>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -138,6 +139,11 @@
                </item>
                <item>
                 <widget class="QDoubleSpinBox" name="freq_dsb">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="cursor">
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
@@ -152,7 +158,7 @@ border:None;</string>
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="decimals">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
                  <property name="minimum">
                   <double>0.000000000000000</double>
@@ -177,6 +183,7 @@ border:None;</string>
                  <property name="font">
                   <font>
                    <family>Monaco</family>
+                   <pointsize>12</pointsize>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -189,6 +196,13 @@ border:None;</string>
                </item>
                <item>
                 <widget class="QDoubleSpinBox" name="freq2_dsb">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="cursor">
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
@@ -203,7 +217,7 @@ border:None;</string>
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="decimals">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
                  <property name="minimum">
                   <double>0.000000000000000</double>
@@ -228,6 +242,7 @@ border:None;</string>
                  <property name="font">
                   <font>
                    <family>Monaco</family>
+                   <pointsize>12</pointsize>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -240,6 +255,11 @@ border:None;</string>
                </item>
                <item>
                 <widget class="QDoubleSpinBox" name="freq3_dsb">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="cursor">
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
@@ -254,7 +274,7 @@ border:None;</string>
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="decimals">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
                  <property name="minimum">
                   <double>0.000000000000000</double>
@@ -279,6 +299,7 @@ border:None;</string>
                  <property name="font">
                   <font>
                    <family>Monaco</family>
+                   <pointsize>12</pointsize>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -291,6 +312,11 @@ border:None;</string>
                </item>
                <item>
                 <widget class="QDoubleSpinBox" name="c1_dsb">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="cursor">
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
@@ -305,13 +331,13 @@ border:None;</string>
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="decimals">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
                  <property name="minimum">
                   <double>0.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <double>2.000000000000000</double>
+                  <double>20.000000000000000</double>
                  </property>
                  <property name="singleStep">
                   <double>0.100000000000000</double>
@@ -330,6 +356,7 @@ border:None;</string>
                  <property name="font">
                   <font>
                    <family>Monaco</family>
+                   <pointsize>12</pointsize>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -342,6 +369,11 @@ border:None;</string>
                </item>
                <item>
                 <widget class="QDoubleSpinBox" name="c2_dsb">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="cursor">
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
@@ -356,13 +388,13 @@ border:None;</string>
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="decimals">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
                  <property name="minimum">
                   <double>0.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <double>2.000000000000000</double>
+                  <double>20.000000000000000</double>
                  </property>
                  <property name="singleStep">
                   <double>0.100000000000000</double>
@@ -381,6 +413,7 @@ border:None;</string>
                  <property name="font">
                   <font>
                    <family>Monaco</family>
+                   <pointsize>12</pointsize>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -393,6 +426,11 @@ border:None;</string>
                </item>
                <item>
                 <widget class="QDoubleSpinBox" name="c3_dsb">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="cursor">
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
@@ -407,16 +445,16 @@ border:None;</string>
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="decimals">
-                  <number>2</number>
+                  <number>1</number>
                  </property>
                  <property name="minimum">
                   <double>0.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <double>100.000000000000000</double>
+                  <double>20.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>1.000000000000000</double>
+                  <double>0.100000000000000</double>
                  </property>
                  <property name="value">
                   <double>0.000000000000000</double>
@@ -432,6 +470,7 @@ border:None;</string>
                  <property name="font">
                   <font>
                    <family>Monaco</family>
+                   <pointsize>12</pointsize>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -444,6 +483,11 @@ border:None;</string>
                </item>
                <item>
                 <widget class="QDoubleSpinBox" name="sum_dsb">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="cursor">
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
@@ -475,53 +519,6 @@ border:None;</string>
                 </widget>
                </item>
               </layout>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QWidget" name="widget_3" native="true">
-            <layout class="QVBoxLayout" name="verticalLayout_5">
-             <item>
-              <widget class="QPushButton" name="plot_btn">
-               <property name="minimumSize">
-                <size>
-                 <width>60</width>
-                 <height>60</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <family>Monaco</family>
-                 <pointsize>20</pointsize>
-                </font>
-               </property>
-               <property name="mouseTracking">
-                <bool>false</bool>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QPushButton {
-	color: rgb(255, 255, 255);
-border:None;
-}
-
-QPushButton:hover {
-	background-color: rgb(255, 177, 122);
-	border-radius:7px;
-	color: rgb(0, 0, 0);
-	border: 1px solid;
-}</string>
-               </property>
-               <property name="text">
-                <string>Plot</string>
-               </property>
-               <property name="autoDefault">
-                <bool>false</bool>
-               </property>
-               <property name="default">
-                <bool>false</bool>
-               </property>
-              </widget>
              </item>
             </layout>
            </widget>
