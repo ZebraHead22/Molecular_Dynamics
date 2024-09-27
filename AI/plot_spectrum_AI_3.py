@@ -127,7 +127,7 @@ if __name__ == '__main__':
                 spectral_density_filtered_no_ac = np.array([x * 10000 for x in spectral_density_filtered_no_ac])
 
                 plt.gcf().clear()
-                plt.plot(xf_cm_inv_filtered_no_ac, spectral_density_filtered_no_ac, c='red')
+                plt.plot(xf_cm_inv_filtered_no_ac, spectral_density_filtered_no_ac, c='black')
                 plt.xlim(0, 6000)
                 plt.xlabel('Frequency ($cm^{-1}$)')
                 plt.ylabel('Spectral Amplitude (a.u.)')
