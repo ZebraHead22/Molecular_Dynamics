@@ -138,7 +138,8 @@ if __name__ == '__main__':
                 plt.ylabel('Spectral Amplitude (a.u.)')
                 plt.title(title + ' (Without Autocorrelation)')
                 plt.grid()
-                plt.savefig(filename + '_no_ac.png', dpi=600)
+                # plt.savefig(filename + '_no_ac.png', dpi=600)
+                plt.savefig(filename + '_no_ac.eps', format='eps')
 
                 end_time = time.time()  # End timing
                 elapsed_time = end_time - start_time
