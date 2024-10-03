@@ -10,6 +10,10 @@ from multiprocessing import Pool, cpu_count
 import time
 
 
+'''
+Тут ищем пики, надписываем частоты
+'''
+
 def autocorrelation_chunk(args):
     dip_magnitude, start, end = args
     chunk = dip_magnitude[start:end]
@@ -37,6 +41,23 @@ def calculate_autocorrelation(dip_magnitude, num_cores=None):
 
     return autocorr
 
+def create_title(filename):
+    # Extract the number and other components from the filename
+    match = re.search(r'(\w+)_(\d+)_([a-zA-Z]+)', filename)
+    if match:
+        prefix = match.group(1).upper()
+        number = match.group(2)
+        environment = match.group(3).lower()
+
+        if 'water' in environment:
+            return f"{prefix} WATER N={number}"
+        elif 'vac' in environment or 'vacuum' in environment:
+            return f"{prefix} VACUUM N={number}"
+        elif 'linear' in environment:
+            return f"{prefix} LINEAR N={number}"
+        elif 'cyclic' in environment:
+            return f"{prefix} CYCLIC N={number}"
+    return filename
 
 def find_peak_width(x, y, peak, height_fraction=0.5):
     half_max = height_fraction * y[peak]
@@ -67,8 +88,10 @@ if __name__ == '__main__':
 
                 start_time = time.time()  # Start timing
 
-                title = re.search(r'\d+\w+', os.path.basename(filename))
-                title = title.group(0)
+                # Generate title based on filename
+                title = create_title(filename)
+                print(f"-- Generated title: {title}")
+
                 df = pd.read_csv(
                     directory + "/" + name, delimiter=' ', index_col=None, header=[0])
                 df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y',
@@ -137,7 +160,7 @@ if __name__ == '__main__':
                     plt.xlim(0, 6000)
                     plt.xlabel('Frequency ($cm^{-1}$)')
                     plt.ylabel('Spectral Amplitude (a.u.)')
-                    plt.title(f"{os.path.basename(filename)}")
+                    plt.title(title + ' (With Autocorrelation)')
 
                     # Annotating the peak with an arrow and width information
                     annotation_x = xf_cm_inv_filtered[peak] + 150  # Shift right by 150 cm^-1

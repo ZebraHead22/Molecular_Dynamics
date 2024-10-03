@@ -8,7 +8,9 @@ from scipy.fft import fft, fftfreq
 from scipy.signal.windows import hann
 from multiprocessing import Pool, cpu_count
 
-
+'''
+Тут строим простые спектры через АКФ
+'''
 def autocorrelation_chunk(args):
     dip_magnitude, start, end = args
     chunk = dip_magnitude[start:end]
@@ -35,6 +37,24 @@ def calculate_autocorrelation(dip_magnitude, num_cores=None):
 
     return autocorr
 
+def create_title(filename):
+    # Extract the number and other components from the filename
+    match = re.search(r'(\w+)_(\d+)_([a-zA-Z]+)', filename)
+    if match:
+        prefix = match.group(1).upper()
+        number = match.group(2)
+        environment = match.group(3).lower()
+
+        if 'water' in environment:
+            return f"{prefix} WATER N={number}"
+        elif 'vac' in environment or 'vacuum' in environment:
+            return f"{prefix} VACUUM N={number}"
+        elif 'linear' in environment:
+            return f"{prefix} LINEAR N={number}"
+        elif 'cyclic' in environment:
+            return f"{prefix} CYCLIC N={number}"
+    return filename
+
 if __name__ == '__main__':
     directory = os.getcwd()
     for address, dirs, names in os.walk(directory):
@@ -45,8 +65,10 @@ if __name__ == '__main__':
                 
                 start_time = time.time()  # Start timing
                 
-                title = re.search(r'\d+\w+', os.path.basename(filename))
-                title = title.group(0)
+                # Generate title based on filename
+                title = create_title(filename)
+                print(f"-- Generated title: {title}")
+
                 df = pd.read_csv(
                         address + "/" + name, delimiter=' ', index_col=None, header=[0])
                 df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y',
@@ -101,7 +123,7 @@ if __name__ == '__main__':
                 plt.xlim(0, 6000)
                 plt.xlabel('Frequency ($cm^{-1}$)')
                 plt.ylabel('Spectral Amplitude (a.u.)')
-                plt.title(os.path.basename(filename))
+                plt.title(title + ' (With Autocorrelation)')
                 plt.grid()
                 plt.savefig(filename + '_ac.png', dpi=600)
                 

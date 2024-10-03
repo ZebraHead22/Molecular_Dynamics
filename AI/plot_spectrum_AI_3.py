@@ -8,6 +8,11 @@ from scipy.fft import fft, fftfreq
 from scipy.signal.windows import hann
 from multiprocessing import Pool, cpu_count
 
+
+'''
+Тут строим пары изображений, без АКФ и с ней. В тайтле пишем, что есть что.
+'''
+
 # Function for autocorrelation
 def autocorrelation_chunk(args):
     dip_magnitude, start, end = args
