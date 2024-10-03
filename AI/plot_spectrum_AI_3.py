@@ -113,7 +113,7 @@ if __name__ == '__main__':
                 plt.ylabel('Spectral Amplitude (a.u.)')
                 plt.title(title + ' (With Autocorrelation)')
                 plt.grid()
-                plt.savefig(filename + '_ac.png', dpi=600)
+                plt.savefig(filename + '_ac.eps', format='eps')
 
                 # === Spectrum without Autocorrelation ===
                 dip_magnitude_windowed_no_ac = dip_magnitude * window
