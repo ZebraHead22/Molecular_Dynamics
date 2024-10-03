@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.fft import fft, fftfreq
+from scipy.signal import find_peaks
 from scipy.signal.windows import hann
 from multiprocessing import Pool, cpu_count
 
@@ -54,6 +55,28 @@ def create_title(filename):
         elif 'cyclic' in environment:
             return f"{prefix} CYCLIC N={number}"
     return filename
+
+def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
+    # Диапазоны частот для поиска пиков (по 1000 см^-1)
+    ranges = [(0, 1000), (1000, 2000), (2000, 3000), (3000, 4000), (4000, 5000), (5000, 6000)]
+    peak_frequencies = []
+    peak_amplitudes = []
+    
+    for lower_bound, upper_bound in ranges:
+        # Найти пики в текущем диапазоне
+        mask = (xf_cm_inv_filtered >= lower_bound) & (xf_cm_inv_filtered < upper_bound)
+        sub_xf = xf_cm_inv_filtered[mask]
+        sub_spectral_density = spectral_density_filtered[mask]
+        
+        if len(sub_xf) > 0:
+            peaks, _ = find_peaks(sub_spectral_density, height=0)
+            if len(peaks) > 0:
+                # Выбрать самый высокий пик в диапазоне
+                peak = peaks[np.argmax(sub_spectral_density[peaks])]
+                peak_frequencies.append(sub_xf[peak])
+                peak_amplitudes.append(sub_spectral_density[peak])
+    
+    return peak_frequencies, peak_amplitudes
 
 if __name__ == '__main__':
     directory = os.getcwd()
@@ -117,15 +140,31 @@ if __name__ == '__main__':
                 spectral_density_filtered = 2.0/N * np.abs(yf[:N//2])[mask]
                 spectral_density_filtered = np.array([x * 10000 for x in spectral_density_filtered])
 
+                # Finding the main peaks
+                peak_frequencies, peak_amplitudes = find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered)
+
                 # Plotting the graph up to 6000 cm^-1
                 plt.gcf().clear()
                 plt.plot(xf_cm_inv_filtered, spectral_density_filtered, c='black')
                 plt.xlim(0, 6000)
                 plt.xlabel('Frequency ($cm^{-1}$)')
                 plt.ylabel('Spectral Amplitude (a.u.)')
-                plt.title(title + ' (With Autocorrelation)')
+                plt.title(title)
                 plt.grid()
-                plt.savefig(filename + '_ac.png', dpi=600)
+
+                # Annotating the peaks
+                for freq, amp in zip(peak_frequencies, peak_amplitudes):
+                    annotation_x = freq
+                    annotation_y = amp * 1.05  # Slightly above the peak
+
+                    plt.annotate(f"{freq:.1f} cm$^{-1}$",
+                                 xy=(freq, amp),
+                                 xytext=(annotation_x, annotation_y),
+                                 textcoords='data',
+                                 fontsize=10, color='black', ha='center')
+
+                # Save the plot with dpi=300
+                plt.savefig(filename + '_ac_peaks.png', dpi=300)
                 
                 end_time = time.time()  # End timing
                 elapsed_time = end_time - start_time
@@ -133,4 +172,3 @@ if __name__ == '__main__':
                 # Convert elapsed time to H:MM:SS format
                 formatted_time = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
                 print(f"-- Processing time for {os.path.basename(filename)}: {formatted_time} \n")
-
