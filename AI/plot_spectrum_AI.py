@@ -64,7 +64,7 @@ def create_title(filename):
 
 
 def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
-    ranges = [(i, i + 200) for i in range(0, 6000, 200)]
+    ranges = [(i, i + 500) for i in range(0, 6000, 500)]
     peak_frequencies = []
     peak_amplitudes = []
 
@@ -84,35 +84,48 @@ def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
     return peak_frequencies, peak_amplitudes
 
 def annotate_peaks(ax, peak_frequencies, peak_amplitudes):
-    # Находим индексы 4 самых высоких пиков
-    top_peaks_indices = np.argsort(peak_amplitudes)[-4:]  # Индексы 4 самых больших пиков
-    top_peaks_indices = sorted(top_peaks_indices)  # Сортируем по частоте для правильного порядка
+    # Преобразуем списки в массивы NumPy, если это еще не массивы
+    peak_frequencies = np.array(peak_frequencies)
+    peak_amplitudes = np.array(peak_amplitudes)
 
-    for idx in top_peaks_indices:
+    # Фильтруем пики по частотным диапазонам и выбираем самые высокие
+    # Один пик из диапазона 0-1000
+    low_range = np.where((peak_frequencies >= 0) & (peak_frequencies <= 1000))[0]
+    top_low_peak = low_range[np.argmax(peak_amplitudes[low_range])] if len(low_range) > 0 else None
+
+    # Один пик из диапазона 1000-2000
+    mid_range = np.where((peak_frequencies > 1000) & (peak_frequencies <= 2000))[0]
+    top_mid_peak = mid_range[np.argmax(peak_amplitudes[mid_range])] if len(mid_range) > 0 else None
+
+    # Один пик из диапазона 3000-4000
+    high_range = np.where((peak_frequencies > 3000) & (peak_frequencies <= 4000))[0]
+    top_high_peak = high_range[np.argmax(peak_amplitudes[high_range])] if len(high_range) > 0 else None
+
+    # Собираем все выбранные индексы пиков
+    selected_indices = [idx for idx in [top_low_peak, top_mid_peak, top_high_peak] if idx is not None]
+
+    # Находим максимальную амплитуду для дальнейших проверок
+    max_amplitude = np.max(peak_amplitudes)
+
+    # Аннотация выбранных пиков
+    for idx in selected_indices:
         freq = peak_frequencies[idx]
         amp = peak_amplitudes[idx]
 
-        # Проверяем наличие более "правого" пика
-        is_right_overlap = any(
-            peak_frequencies[i] < freq + 1000 and i != idx for i in top_peaks_indices
-        )
-        # Проверяем наличие пика "слева"
-        is_left_overlap = any(
-            peak_frequencies[i] > freq - 1000 and peak_frequencies[i] < freq and i != idx for i in top_peaks_indices
+        # Проверяем наличие любых пиков в диапазоне ±200 от текущей частоты
+        is_any_peak_near = any(
+            abs(peak_frequencies[i] - freq) < 200 and i != idx for i in range(len(peak_frequencies))
         )
 
-        # Логика смещения аннотаций: если справа перекрытие — пытаемся сдвинуть влево,
-        # но если слева тоже есть пик, тогда оставляем подпись справа.
-        if is_right_overlap and not is_left_overlap:
-            # Сдвигаем влево, если справа есть пик, а слева нет
-            x_pos = freq - 1000
+        if freq < 1000:
+            # Если частота пика меньше 1000, переворачиваем аннотацию на 90 градусов и сдвигаем влево на 40
+            ax.text(freq - 40, amp * 0.75, f'{freq:.2f}', fontsize=12, rotation=90, ha='right')
+        elif is_any_peak_near:
+            # Если есть пики в радиусе 200, размещаем аннотацию сверху
+            ax.text(freq, amp * 1.1, f'{freq:.2f}', fontsize=12, ha='center')
         else:
-            # Оставляем справа, если перекрытие слева или нет перекрытий справа
-            x_pos = freq + 30
-
-        # Сдвигаем текст по амплитуде вниз
-        ax.text(x_pos, amp * 0.95, f'{freq:.2f}', 
-                fontsize=12, fontname='Courier New', weight='bold')
+            # Поднимаем аннотацию на amp * 0.1 для горизонтальных подписей
+            ax.text(freq + 30, amp * 1.1, f'{freq:.2f}', fontsize=12)
 
 
 if __name__ == '__main__':
@@ -221,8 +234,8 @@ if __name__ == '__main__':
 
                 plt.gcf().clear()
                 fig, ax = plt.subplots()
-                ax.plot(xf_cm_inv_filtered,
-                         spectral_density_filtered, c='black')
+                ax.plot(xf_cm_inv_filtered_no_ac,
+                         spectral_density_filtered_no_ac, c='black')
                 ax.grid()
                 ax.set_xlim(0, 6000)
                 ax.set_xlabel('Frequency ($cm^{-1}$)')
