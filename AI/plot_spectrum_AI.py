@@ -64,7 +64,7 @@ def create_title(filename):
 
 
 def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
-    ranges = [(i, i + 500) for i in range(0, 6000, 500)]
+    ranges = [(i, i + 200) for i in range(0, 6000, 200)]
     peak_frequencies = []
     peak_amplitudes = []
 
