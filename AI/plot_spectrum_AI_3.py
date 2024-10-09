@@ -179,7 +179,7 @@ if __name__ == '__main__':
                     [x * 10000 for x in spectral_density_filtered_no_ac])
 
                 peak_frequencies, peak_amplitudes = find_main_peaks(
-                    xf_cm_inv_filtered, spectral_density_filtered)
+                    xf_cm_inv_filtered_no_ac, spectral_density_filtered_no_ac)
 
                 # Запись данных в файл
                 for freq, amp in zip(peak_frequencies, peak_amplitudes):

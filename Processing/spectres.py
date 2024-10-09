@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 
 def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
-    ranges = [(i, i + 500) for i in range(0, 6000, 500)]
+    ranges = [(i, i + 200) for i in range(0, 6000, 200)]
     peak_frequencies = []
     peak_amplitudes = []
 
@@ -59,9 +59,10 @@ def make_spectres():
             plt.grid()
             plt.xlabel('Frequency, $cm^{-1}$')
             plt.ylabel('Spectral Amplitude (a.u.)')
-            # plt.savefig(filename+'.png', dpi=600)
-            # plt.savefig(filename+'.eps', format=eps)
-            plt.show()
+            plt.savefig(filename+'.png', dpi=600)
+            # plt.savefig(filename+'.eps', format='eps')
+            # plt.show()
+
 
             '''
             Это дополнение, чтобы соотносить поле и искать примерно на нем точку максимума, а потом строить автоматические оконные графики со стрелками,
