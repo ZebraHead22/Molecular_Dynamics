@@ -83,6 +83,37 @@ def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
 
     return peak_frequencies, peak_amplitudes
 
+def annotate_peaks(ax, peak_frequencies, peak_amplitudes):
+    # Находим индексы 4 самых высоких пиков
+    top_peaks_indices = np.argsort(peak_amplitudes)[-4:]  # Индексы 4 самых больших пиков
+    top_peaks_indices = sorted(top_peaks_indices)  # Сортируем по частоте для правильного порядка
+
+    for idx in top_peaks_indices:
+        freq = peak_frequencies[idx]
+        amp = peak_amplitudes[idx]
+
+        # Проверяем наличие более "правого" пика
+        is_right_overlap = any(
+            peak_frequencies[i] < freq + 1000 and i != idx for i in top_peaks_indices
+        )
+        # Проверяем наличие пика "слева"
+        is_left_overlap = any(
+            peak_frequencies[i] > freq - 1000 and peak_frequencies[i] < freq and i != idx for i in top_peaks_indices
+        )
+
+        # Логика смещения аннотаций: если справа перекрытие — пытаемся сдвинуть влево,
+        # но если слева тоже есть пик, тогда оставляем подпись справа.
+        if is_right_overlap and not is_left_overlap:
+            # Сдвигаем влево, если справа есть пик, а слева нет
+            x_pos = freq - 1000
+        else:
+            # Оставляем справа, если перекрытие слева или нет перекрытий справа
+            x_pos = freq + 30
+
+        # Сдвигаем текст по амплитуде вниз
+        ax.text(x_pos, amp * 0.95, f'{freq:.2f}', 
+                fontsize=12, fontname='Courier New', weight='bold')
+
 
 if __name__ == '__main__':
     directory = os.getcwd()
@@ -149,13 +180,15 @@ if __name__ == '__main__':
                         f"{filename} -- {freq:.2f} -- {amp:.2f}\n")
 
                 plt.gcf().clear()
-                plt.plot(xf_cm_inv_filtered,
+                fig, ax = plt.subplots()
+                ax.plot(xf_cm_inv_filtered,
                          spectral_density_filtered, c='black')
-                plt.xlim(0, 6000)
-                plt.xlabel('Frequency ($cm^{-1}$)')
-                plt.ylabel('Spectral Amplitude (a.u.)')
-                plt.title(title + ' (With Autocorrelation)')
-                plt.grid()
+                ax.grid()
+                ax.set_xlim(0, 6000)
+                ax.set_xlabel('Frequency ($cm^{-1}$)')
+                ax.set_ylabel('Spectral Amplitude (a.u.)')
+                ax.set_title(title + ' (With Autocorrelation)')
+                annotate_peaks(ax, peak_frequencies, peak_amplitudes)
                 plt.savefig(filename + '_ac.eps', format='eps')
                 plt.savefig(filename + '_ac.png', dpi=600)
 
@@ -187,16 +220,17 @@ if __name__ == '__main__':
                         f"AKF {filename} -- {freq:.2f} -- {amp:.2f}\n")
 
                 plt.gcf().clear()
-                plt.plot(xf_cm_inv_filtered_no_ac,
-                         spectral_density_filtered_no_ac, c='black')
-                plt.xlim(0, 6000)
-                plt.xlabel('Frequency ($cm^{-1}$)')
-                plt.ylabel('Spectral Amplitude (a.u.)')
-                plt.title(title + ' (Without Autocorrelation)')
-                plt.grid()
-                # plt.savefig(filename + '_no_ac.png', dpi=600)
+                fig, ax = plt.subplots()
+                ax.plot(xf_cm_inv_filtered,
+                         spectral_density_filtered, c='black')
+                ax.grid()
+                ax.set_xlim(0, 6000)
+                ax.set_xlabel('Frequency ($cm^{-1}$)')
+                ax.set_ylabel('Spectral Amplitude (a.u.)')
+                ax.set_title(title + ' (Without Autocorrelation)')
+                annotate_peaks(ax, peak_frequencies, peak_amplitudes)
                 plt.savefig(filename + '_no_ac.eps', format='eps')
-                plt.savefig(filename + '_no_ac.png', dpi = 600)
+                plt.savefig(filename + '_no_ac.png', dpi=600)
 
                 end_time = time.time()  # End timing
                 elapsed_time = end_time - start_time
