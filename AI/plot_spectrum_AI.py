@@ -83,49 +83,141 @@ def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
 
     return peak_frequencies, peak_amplitudes
 
+# def annotate_peaks(ax, peak_frequencies, peak_amplitudes, thresholds=[1000, 2000, 3000, 4000], tolerance=100):
+#     # Преобразуем списки в массивы NumPy, если это еще не массивы
+#     peak_frequencies = np.array(peak_frequencies)
+#     peak_amplitudes = np.array(peak_amplitudes)
+
+#     # Функция для аннотации и соединения стрелочкой
+#     def add_annotation_with_arrow(ax, x, y, text, x_text, y_text):
+#         ax.annotate(text, xy=(x, y), xytext=(x_text, y_text),
+#                     arrowprops=dict(facecolor='red', shrink=0.05),
+#                     fontsize=12, ha='center')
+
+#     # Функция для добавления аннотаций, включая все правила
+#     def add_annotation(ax, freq, amp, label, prev_freq=None, prev_amp=None, was_replaced=False):
+#         if freq < 200:
+#             # Если частота пика меньше 200, повернуть надпись на 90 градусов и сдвинуть вправо на 30
+#             ax.text(freq + 30, amp * 1.1, f'{freq:.2f}', fontsize=12, rotation=90, ha='left')
+#             return
+
+#         if prev_freq and was_replaced:
+#             # Если был заменен пик, аннотацию к старому пику переворачиваем
+#             ax.text(prev_freq, prev_amp * 1.2, f'{prev_freq:.2f}', fontsize=12, rotation=90, ha='center')
+
+#         if freq < 1000:
+#             # Если частота пика меньше 1000, переворачиваем аннотацию на 90 градусов и сдвигаем влево на 40
+#             ax.text(freq - 40, amp * 0.75, f'{freq:.2f}', fontsize=12, rotation=90, ha='right')
+#         else:
+#             # Основное правило аннотации для пиков больше 1000
+#             ax.text(freq + 30, amp * 1.1, f'{freq:.2f}', fontsize=12)
+
+#     for i, threshold in enumerate(thresholds):
+#         # Устанавливаем диапазон поиска для текущего порога
+#         lower_bound = 0 if i == 0 else thresholds[i - 1]
+#         upper_bound = threshold
+#         # Находим 4 пика в диапазоне
+#         current_range = np.where((peak_frequencies > lower_bound) & (peak_frequencies <= upper_bound))[0]
+#         if len(current_range) == 0:
+#             continue
+
+#         # Находим 4 самых высоких пика в текущем диапазоне
+#         top_4_peaks = np.argsort(peak_amplitudes[current_range])[-4:]
+#         selected_indices = current_range[top_4_peaks]
+
+#         # Из 4 пиков выбираем максимальный для аннотации
+#         max_peak_idx = selected_indices[np.argmax(peak_amplitudes[selected_indices])]
+#         freq = peak_frequencies[max_peak_idx]
+#         amp = peak_amplitudes[max_peak_idx]
+
+#         # Проверяем, есть ли пик с большей амплитудой в предыдущем диапазоне, если мы находимся близко к порогу
+#         if lower_bound < freq < upper_bound and (upper_bound - freq) < tolerance:
+#             prev_range = np.where((peak_frequencies > lower_bound - tolerance) & 
+#                                   (peak_frequencies < upper_bound + tolerance))[0]
+#             if len(prev_range) > 0:
+#                 max_prev_idx = prev_range[np.argmax(peak_amplitudes[prev_range])]
+#                 if peak_amplitudes[max_prev_idx] > amp:
+#                     # Заменяем на новый пик и аннотируем оба
+#                     add_annotation(ax, peak_frequencies[max_prev_idx], peak_amplitudes[max_prev_idx], 
+#                                    f'{peak_frequencies[max_prev_idx]:.2f}', prev_freq=freq, prev_amp=amp, was_replaced=True)
+#                     continue  # Пропускаем добавление основной аннотации, т.к. она уже сделана
+
+#         # Аннотация для максимального пика в текущем диапазоне
+#         add_annotation(ax, freq, amp, f'{freq:.2f}')
+
 def annotate_peaks(ax, peak_frequencies, peak_amplitudes):
     # Преобразуем списки в массивы NumPy, если это еще не массивы
     peak_frequencies = np.array(peak_frequencies)
     peak_amplitudes = np.array(peak_amplitudes)
+    
+    # Словарь с диапазонами и количеством пиков для поиска
+    ranges = {
+        (0, 500): 1,
+        (500, 1000): 1,
+        (1000, 2000): 2,
+        (2500, 3500): 3
+    }
 
-    # Фильтруем пики по частотным диапазонам и выбираем самые высокие
-    # Один пик из диапазона 0-1000
-    low_range = np.where((peak_frequencies >= 0) & (peak_frequencies <= 1000))[0]
-    top_low_peak = low_range[np.argmax(peak_amplitudes[low_range])] if len(low_range) > 0 else None
+    # Найдем максимальный пик для аннотации
+    max_peak_amplitude = np.max(peak_amplitudes)
 
-    # Один пик из диапазона 1000-2000
-    mid_range = np.where((peak_frequencies > 1000) & (peak_frequencies <= 2000))[0]
-    top_mid_peak = mid_range[np.argmax(peak_amplitudes[mid_range])] if len(mid_range) > 0 else None
+    # Функция для аннотации
+    def add_annotation(ax, freq, amp, label, offset_y, offset_x=0):
+        ax.text(freq + offset_x, amp + offset_y, label, fontsize=12, 
+                rotation=90, ha='center')
 
-    # Один пик из диапазона 3000-4000
-    high_range = np.where((peak_frequencies > 3000) & (peak_frequencies <= 4000))[0]
-    top_high_peak = high_range[np.argmax(peak_amplitudes[high_range])] if len(high_range) > 0 else None
+    annotations = []  # Хранение данных для аннотаций
+    for (low, high), num_peaks in ranges.items():
+        # Найдем пики в текущем диапазоне
+        current_range = np.where((peak_frequencies > low) & (peak_frequencies <= high))[0]
+        if len(current_range) == 0:
+            continue
 
-    # Собираем все выбранные индексы пиков
-    selected_indices = [idx for idx in [top_low_peak, top_mid_peak, top_high_peak] if idx is not None]
+        # Находим нужное количество максимальных пиков
+        top_peaks = np.argsort(peak_amplitudes[current_range])[-num_peaks:]
+        selected_indices = current_range[top_peaks]
 
-    # Находим максимальную амплитуду для дальнейших проверок
-    max_amplitude = np.max(peak_amplitudes)
+        # Добавляем данные для аннотаций
+        for idx in selected_indices:
+            freq = peak_frequencies[idx]
+            amp = peak_amplitudes[idx]
+            annotations.append((freq, amp))
 
-    # Аннотация выбранных пиков
-    for idx in selected_indices:
-        freq = peak_frequencies[idx]
-        amp = peak_amplitudes[idx]
+    # Сортируем аннотации по частоте для последовательного отображения
+    annotations = sorted(annotations, key=lambda x: x[0])
 
-        # Проверяем наличие любых пиков в диапазоне ±200 от текущей частоты
-        is_any_peak_near = any(
-            abs(peak_frequencies[i] - freq) < 200 and i != idx for i in range(len(peak_frequencies))
-        )
+    # Обрабатываем аннотации
+    for i, (freq, amp) in enumerate(annotations):
+        offset_y = max_peak_amplitude * 0.06  # Отступ для аннотации над пиком
+        offset_x = 0
 
+        # Проверка для частот пиков меньше 200
+        if freq < 200:
+            add_annotation(ax, freq, amp, f'{freq:.2f}', offset_y, offset_x=30)
+            continue
+
+        # Проверка для частот пиков меньше 1000
         if freq < 1000:
-            # Если частота пика меньше 1000, переворачиваем аннотацию на 90 градусов и сдвигаем влево на 40
-            ax.text(freq - 40, amp * 0.75, f'{freq:.2f}', fontsize=12, rotation=90, ha='right')
-        elif is_any_peak_near:
-            # Если есть пики в радиусе 200, размещаем аннотацию сверху
-            ax.text(freq, amp * 1.1, f'{freq:.2f}', fontsize=12, ha='center')
-        else:
-            # Поднимаем аннотацию на amp * 0.1 для горизонтальных подписей
-            ax.text(freq + 30, amp * 1.1, f'{freq:.2f}', fontsize=12)
+            add_annotation(ax, freq, amp, f'{freq:.2f}', offset_y, offset_x=-40)
+            continue
+
+        # Проверяем, есть ли пики, которые расположены близко друг к другу (< 350)
+        if i > 0 and (freq - annotations[i - 1][0]) < 350:
+            # Поднимаем аннотации на amp_max * 0.26
+            offset_y = max_peak_amplitude * 0.26
+            # Для пика с меньшей частотой смещаем аннотацию влево
+            if freq < annotations[i - 1][0]:
+                offset_x = -40
+            # Для пика с большей частотой смещаем аннотацию вправо
+            else:
+                offset_x = 40
+
+        # Обычная аннотация
+        add_annotation(ax, freq, amp, f'{freq:.2f}', offset_y)
+
+    return ax
+
+
 
 
 if __name__ == '__main__':
