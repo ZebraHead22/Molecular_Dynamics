@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from scipy.fft import fft, fftfreq
 from scipy.signal import find_peaks
 from scipy.signal.windows import hann
+from annotate import annotate_peaks
 from multiprocessing import Pool, cpu_count
 
 '''
@@ -82,120 +83,6 @@ def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
                 peak_amplitudes.append(sub_spectral_density[peak])
 
     return peak_frequencies, peak_amplitudes
-
-def annotate_peaks(ax, peak_frequencies, peak_amplitudes):
-    # Преобразуем списки в массивы NumPy, если это еще не массивы
-    peak_frequencies = np.array(peak_frequencies)
-    peak_amplitudes = np.array(peak_amplitudes)
-
-    # Словарь с диапазонами и количеством пиков для поиска
-    ranges = {
-        (0, 500): 1,
-        (500, 1000): 1,
-        (1000, 2000): 2,
-        (2500, 3500): 3
-    }
-
-    # Найдем максимальный пик для аннотации
-    max_peak_amplitude = np.max(peak_amplitudes)
-    two_max_peaks = np.argsort(peak_amplitudes)[-2:]  # Индексы двух максимальных пиков
-
-    # Получим границы оси Y для проверки выхода за пределы
-    ylim_lower, ylim_upper = ax.get_ylim()
-
-    # Функция для аннотации с проверкой выхода за пределы оси Y и сдвигом по X
-    def add_annotation(ax, freq, amp, label, offset_y, offset_x=0, draw_arrow=False, shorten_arrow=False):
-        # Рассчитываем позицию аннотации
-        text_y = amp + offset_y
-
-        # Убедимся, что аннотация не выходит за пределы оси Y
-        if text_y > ylim_upper:  # Если аннотация выше верхней границы, переместим ее внутрь и сдвинем в сторону
-            text_y = ylim_upper - (ylim_upper * 0.05)
-            offset_x = 40  # Сдвигаем аннотацию вправо, чтобы не перекрывала пик
-        elif text_y < ylim_lower:  # Если аннотация ниже нижней границы, поднимем ее
-            text_y = ylim_lower + (ylim_upper * 0.05)
-        
-        # Специальная проверка для пиков с низкой частотой (< 200)
-        if freq < 200:
-            offset_x = 40  # Сдвигаем аннотацию вправо, чтобы не выходила за пределы
-            text_y = max_peak_amplitude * 0.5  # Поднимаем по оси Y, но проверяем на границу
-            if text_y > ylim_upper:
-                text_y = ylim_upper - (ylim_upper * 0.1)
-
-        ax.text(freq + offset_x, text_y, label, fontsize=12, 
-                rotation=90, ha='center')
-
-        # Добавляем стрелку при необходимости
-        if draw_arrow:
-            arrow_length_factor = 0.8 if shorten_arrow else 1.0  # Укорачиваем стрелку на 20%
-            ax.annotate('', xy=(freq, amp), xytext=(freq + offset_x, text_y * arrow_length_factor),
-                        arrowprops=dict(facecolor='none', edgecolor='red', linestyle='dashed', 
-                                        lw=0.5, shrink=0.05))
-
-    annotations = []  # Хранение данных для аннотаций
-    for (low, high), num_peaks in ranges.items():
-        # Найдем пики в текущем диапазоне
-        current_range = np.where((peak_frequencies > low) & (peak_frequencies <= high))[0]
-        if len(current_range) == 0:
-            continue
-
-        # Находим нужное количество максимальных пиков
-        top_peaks = np.argsort(peak_amplitudes[current_range])[-num_peaks:]
-        selected_indices = current_range[top_peaks]
-
-        # Добавляем данные для аннотаций
-        for idx in selected_indices:
-            freq = peak_frequencies[idx]
-            amp = peak_amplitudes[idx]
-            annotations.append((freq, amp))
-
-    # Сортируем аннотации по частоте для последовательного отображения
-    annotations = sorted(annotations, key=lambda x: x[0])
-
-    # Обрабатываем аннотации
-    for i, (freq, amp) in enumerate(annotations):
-        offset_y = max_peak_amplitude * 0.06  # Отступ для аннотации над пиком
-        offset_x = 0
-        draw_arrow = False  # Флаг для рисования стрелки
-        shorten_arrow = False  # Флаг для укороченной стрелки
-
-        # Проверка для частот пиков меньше 200
-        if freq < 200:
-            offset_y = max_peak_amplitude * 0.5  # Перемещение на уровень 0.5 по оси Y
-            add_annotation(ax, freq, amp, f'{freq:.2f}', offset_y, offset_x=40)
-            continue
-
-        # Проверка для частот пиков меньше 1000
-        if freq < 1000:
-            offset_y = max_peak_amplitude * 0.06  # Меньший отступ, чтобы не выходить за пределы графика
-            add_annotation(ax, freq, amp, f'{freq:.2f}', offset_y, offset_x=-40)
-            continue
-
-        # Проверяем, есть ли пики, которые расположены близко друг к другу (< 350)
-        if i > 0 and (freq - annotations[i - 1][0]) < 350:
-            # Поднимаем аннотации на amp_max * 0.26
-            offset_y = max_peak_amplitude * 0.26
-            draw_arrow = True  # Добавляем стрелку
-            shorten_arrow = True  # Укорачиваем стрелку
-
-            # Для пика с меньшей частотой смещаем аннотацию влево
-            if freq < annotations[i - 1][0]:
-                offset_x = -40
-            # Для пика с большей частотой смещаем аннотацию вправо
-            else:
-                offset_x = 40
-
-        # Для двух максимальных пиков аннотацию делаем на уровне вершины
-        if i in two_max_peaks:
-            offset_y = 0  # Верхний край аннотации на уровне амплитуды пика
-            draw_arrow = False  # Для этих пиков стрелка не нужна
-
-        # Обычная аннотация с возможностью добавления укороченной стрелки
-        add_annotation(ax, freq, amp, f'{freq:.2f}', offset_y, offset_x, draw_arrow=draw_arrow, shorten_arrow=shorten_arrow)
-
-    return ax
-
-
 
 
 if __name__ == '__main__':
