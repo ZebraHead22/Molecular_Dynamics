@@ -46,21 +46,15 @@ def annotate_peaks(ax, peak_frequencies, peak_amplitudes, xlim_max=6000):
     peak_counter = 1  # Счётчик для нумерации пиков
 
     for (low, high), num_peaks in ranges.items():
-        # Найдем пики в текущем диапазоне с более низким порогом для поиска
+        # Найдем пики в текущем диапазоне
         current_range = np.where((peak_frequencies > low) & (peak_frequencies <= high))[0]
         if len(current_range) == 0:
             print(f"Диапазон {low}-{high} см⁻¹: нет доступных пиков")
             continue
 
-        # Установим порог для поиска менее значимых пиков, используя функцию find_peaks
-        selected_peaks, _ = find_peaks(peak_amplitudes[current_range], height=0.05 * max_peak_amplitude)
-        
-        # Если не хватает пиков, выводим предупреждение
-        if len(selected_peaks) < num_peaks:
-            print(f"В диапазоне {low}-{high} см⁻¹ недостаточно пиков. Найдено: {len(selected_peaks)}.")
-
-        # Выбираем нужное количество пиков
-        selected_indices = current_range[selected_peaks[:num_peaks]]
+        # Находим нужное количество максимальных пиков в данном диапазоне
+        top_peaks = np.argsort(peak_amplitudes[current_range])[-num_peaks:]
+        selected_indices = current_range[top_peaks]
 
         # Отладочная информация
         print(f"Диапазон {low}-{high} см⁻¹: найдено {len(selected_indices)} пиков")
@@ -75,7 +69,7 @@ def annotate_peaks(ax, peak_frequencies, peak_amplitudes, xlim_max=6000):
             legend_entries.append(f'{peak_counter}: {freq:.2f} см⁻¹')
             peak_counter += 1
 
-    # Добавляем легенду на график
+    # Добавляем легенду на график, но теперь она внутри и не пересекается с границами
     legend_text = '\n'.join(legend_entries)
     ax.text(0.95, 0.95, legend_text, transform=ax.transAxes, fontsize=12, 
             verticalalignment='top', horizontalalignment='right', bbox=dict(facecolor='white', alpha=0.6))
