@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 from scipy.fft import fft, fftfreq
 from scipy.signal import find_peaks
 from scipy.signal.windows import hann
-from annotate import annotate_peaks
 from multiprocessing import Pool, cpu_count
 
 '''
@@ -65,7 +64,8 @@ def create_title(filename):
 
 
 def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
-    ranges = [(i, i + 500) for i in range(0, 6000, 500)]
+    ranges = [(i, i + 500)
+              for i in range(0, 4000, 500)]  # изменяем диапазон до 4000
     peak_frequencies = []
     peak_amplitudes = []
 
@@ -83,6 +83,80 @@ def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
                 peak_amplitudes.append(sub_spectral_density[peak])
 
     return peak_frequencies, peak_amplitudes
+
+
+def annotate_peaks(ax, peak_frequencies, peak_amplitudes, xlim_max=4000):
+    # Преобразуем списки в массивы NumPy, если это еще не массивы
+    peak_frequencies = np.array(peak_frequencies)
+    peak_amplitudes = np.array(peak_amplitudes)
+
+    # Словарь с диапазонами и количеством пиков для поиска
+    ranges = {
+        (0, 500): 1,
+        (500, 1000): 1,
+        (1000, 2000): 2,
+        (2500, 3500): 3
+    }
+
+    # Найдем максимальный пик для аннотации
+    max_peak_amplitude = np.max(peak_amplitudes)
+
+    # Получим границы оси Y для проверки выхода за пределы
+    ylim_lower, ylim_upper = ax.get_ylim()
+
+    # Функция для аннотации
+    def add_annotation(ax, freq, amp, label, offset_y, offset_x=0, draw_arrow=False):
+        text_y = amp + offset_y
+        if text_y > ylim_upper:
+            text_y = ylim_upper - (ylim_upper * 0.05)
+        if freq + offset_x > xlim_max:
+            offset_x = xlim_max - freq  # Сдвигаем аннотацию внутрь оси X
+
+        ax.text(freq + offset_x, text_y, label,
+                fontsize=12, rotation=0, ha='center')
+
+        # Добавляем стрелку при необходимости
+        if draw_arrow:
+            ax.annotate('', xy=(freq, amp), xytext=(freq + offset_x, text_y),
+                        arrowprops=dict(facecolor='none', edgecolor='red', linestyle='dashed',
+                                        lw=0.5, shrink=0.05))
+
+    annotations = []  # Список для хранения аннотаций пиков
+    legend_entries = []  # Список для записи в легенду
+    peak_counter = 1  # Счётчик для нумерации пиков
+
+    for (low, high), num_peaks in ranges.items():
+        # Найдем пики в текущем диапазоне
+        current_range = np.where(
+            (peak_frequencies > low) & (peak_frequencies <= high))[0]
+        if len(current_range) == 0:
+            print(f"Range {low}-{high} cm⁻¹: no peaks found")
+            continue
+
+        # Находим нужное количество максимальных пиков в данном диапазоне
+        top_peaks = np.argsort(peak_amplitudes[current_range])[-num_peaks:]
+        selected_indices = current_range[top_peaks]
+
+        # Debug information
+        print(f"Range {low}-{high} cm⁻¹: found {len(selected_indices)} peaks")
+
+        # Добавляем аннотацию для каждого выбранного пика
+        for idx in selected_indices:
+            freq = peak_frequencies[idx]
+            amp = peak_amplitudes[idx]
+            add_annotation(ax, freq, amp, f'{
+                           peak_counter}', offset_y=max_peak_amplitude * 0.06)
+
+            # Добавляем запись в легенду
+            legend_entries.append(f'{peak_counter}: {freq:.2f} cm⁻¹')
+            peak_counter += 1
+
+    # Добавляем легенду на график, но теперь она внутри и не пересекается с границами
+    legend_text = '\n'.join(legend_entries)
+    ax.text(0.95, 0.95, legend_text, transform=ax.transAxes, fontsize=12,
+            verticalalignment='top', horizontalalignment='right', bbox=dict(facecolor='white', alpha=0.6))
+
+    return ax
 
 
 if __name__ == '__main__':
@@ -147,17 +221,17 @@ if __name__ == '__main__':
                 # Запись данных в файл
                 for freq, amp in zip(peak_frequencies, peak_amplitudes):
                     output_file.write(
-                        f"{filename} -- {freq:.2f} -- {amp:.2f}\n")
+                        f"AKF_{filename} -- {freq:.2f} -- {amp:.2f}\n")
 
                 plt.gcf().clear()
                 fig, ax = plt.subplots()
                 ax.plot(xf_cm_inv_filtered,
-                         spectral_density_filtered, c='black')
+                        spectral_density_filtered, c='black')
                 ax.grid()
                 ax.set_xlim(0, 6000)
                 ax.set_xlabel('Frequency ($cm^{-1}$)')
-                ax.set_ylabel('Spectral Amplitude (a.u.)')
-                ax.set_title(title + ' (With Autocorrelation)')
+                ax.set_ylabel('Spectral ACF EDM Amplitude (a.u.)')
+                ax.set_title(title)
                 annotate_peaks(ax, peak_frequencies, peak_amplitudes)
                 plt.savefig(filename + '_ac.eps', format='eps')
                 plt.savefig(filename + '_ac.png', dpi=600)
@@ -187,17 +261,17 @@ if __name__ == '__main__':
                 # Запись данных в файл
                 for freq, amp in zip(peak_frequencies, peak_amplitudes):
                     output_file.write(
-                        f"AKF {filename} -- {freq:.2f} -- {amp:.2f}\n")
+                        f"{filename} -- {freq:.2f} -- {amp:.2f}\n")
 
                 plt.gcf().clear()
                 fig, ax = plt.subplots()
                 ax.plot(xf_cm_inv_filtered_no_ac,
-                         spectral_density_filtered_no_ac, c='black')
+                        spectral_density_filtered_no_ac, c='black')
                 ax.grid()
                 ax.set_xlim(0, 6000)
                 ax.set_xlabel('Frequency ($cm^{-1}$)')
-                ax.set_ylabel('Spectral Amplitude (a.u.)')
-                ax.set_title(title + ' (Without Autocorrelation)')
+                ax.set_ylabel('Spectral EDM Amplitude (a.u.)')
+                ax.set_title(title)
                 annotate_peaks(ax, peak_frequencies, peak_amplitudes)
                 plt.savefig(filename + '_no_ac.eps', format='eps')
                 plt.savefig(filename + '_no_ac.png', dpi=600)
