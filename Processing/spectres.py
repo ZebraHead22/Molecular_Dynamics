@@ -5,8 +5,28 @@ import pandas as pd
 from scipy.signal import find_peaks
 from matplotlib import pyplot as plt
 
+def create_title(filename):
+    # Extract the number and other components from the filename
+    match = re.search(r'(\w+)_(\d+)_([a-zA-Z]+)', filename)
+    if match:
+        prefix = match.group(1).upper()
+        number = match.group(2)
+        environment = match.group(3).lower()
+
+        if 'water' in environment:
+            return f"{prefix} WATER N={number}"
+        elif 'vac' in environment or 'vacuum' in environment:
+            return f"{prefix} VACUUM N={number}"
+        elif 'linear' in environment:
+            return f"{prefix} LINEAR N={number}"
+        elif 'cyclic' in environment:
+            return f"{prefix} CYCLIC N={number}"
+    return filename
+
+
 def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
-    ranges = [(i, i + 200) for i in range(0, 6000, 200)]
+    ranges = [(i, i + 500)
+              for i in range(0, 4000, 500)]  # изменяем диапазон до 4000
     peak_frequencies = []
     peak_amplitudes = []
 
@@ -25,49 +45,51 @@ def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
 
     return peak_frequencies, peak_amplitudes
 
-def annotate_peaks(ax, peak_frequencies, peak_amplitudes):
+
+def annotate_peaks(ax, peak_frequencies, peak_amplitudes, xlim_max=6000):
     # Преобразуем списки в массивы NumPy, если это еще не массивы
     peak_frequencies = np.array(peak_frequencies)
     peak_amplitudes = np.array(peak_amplitudes)
 
-    # Фильтруем пики по частотным диапазонам и выбираем самые высокие
-    # Один пик из диапазона 0-1000
-    low_range = np.where((peak_frequencies >= 0) & (peak_frequencies <= 1000))[0]
-    top_low_peak = low_range[np.argmax(peak_amplitudes[low_range])] if len(low_range) > 0 else None
+    # Найдем максимальный пик для аннотации
+    max_peak_amplitude = np.max(peak_amplitudes)
 
-    # Один пик из диапазона 1000-2000
-    mid_range = np.where((peak_frequencies > 1000) & (peak_frequencies <= 2000))[0]
-    top_mid_peak = mid_range[np.argmax(peak_amplitudes[mid_range])] if len(mid_range) > 0 else None
+    # Получим границы оси Y для проверки выхода за пределы
+    ylim_lower, ylim_upper = ax.get_ylim()
 
-    # Один пик из диапазона 3000-4000
-    high_range = np.where((peak_frequencies > 3000) & (peak_frequencies <= 4000))[0]
-    top_high_peak = high_range[np.argmax(peak_amplitudes[high_range])] if len(high_range) > 0 else None
+    # Функция для аннотации
+    def add_annotation(ax, freq, amp, label, offset_y, offset_x=0, draw_arrow=False):
+        text_y = amp + offset_y
+        if text_y > ylim_upper:
+            text_y = ylim_upper - (ylim_upper * 0.05)
+        if freq + offset_x > xlim_max:
+            offset_x = xlim_max - freq  # Сдвигаем аннотацию внутрь оси X
 
-    # Собираем все выбранные индексы пиков
-    selected_indices = [idx for idx in [top_low_peak, top_mid_peak, top_high_peak] if idx is not None]
+        ax.text(freq + offset_x, text_y, label, fontsize=12, rotation=0, ha='center')
 
-    # Находим максимальную амплитуду для дальнейших проверок
-    max_amplitude = np.max(peak_amplitudes)
+        # Добавляем стрелку при необходимости
+        if draw_arrow:
+            ax.annotate('', xy=(freq, amp), xytext=(freq + offset_x, text_y),
+                        arrowprops=dict(facecolor='none', edgecolor='red', linestyle='dashed', 
+                                        lw=0.5, shrink=0.05))
 
-    # Аннотация выбранных пиков
-    for idx in selected_indices:
-        freq = peak_frequencies[idx]
-        amp = peak_amplitudes[idx]
+    legend_entries = []  # Список для записи в легенду
+    peak_counter = 1  # Счётчик для нумерации пиков
 
-        # Проверяем наличие любых пиков в диапазоне ±200 от текущей частоты
-        is_any_peak_near = any(
-            abs(peak_frequencies[i] - freq) < 200 and i != idx for i in range(len(peak_frequencies))
-        )
+    # Добавляем аннотацию для каждого пика
+    for freq, amp in zip(peak_frequencies, peak_amplitudes):
+        add_annotation(ax, freq, amp, f'{peak_counter}', offset_y=max_peak_amplitude * 0.06)
+        # Добавляем запись в легенду
+        legend_entries.append(f'{peak_counter}: {freq:.2f} см⁻¹')
+        peak_counter += 1
 
-        if freq < 1000:
-            # Если частота пика меньше 1000, переворачиваем аннотацию на 90 градусов и сдвигаем влево на 40
-            ax.text(freq - 40, amp * 0.75, f'{freq:.2f}', fontsize=12, rotation=90, ha='right')
-        elif is_any_peak_near:
-            # Если есть пики в радиусе 200, размещаем аннотацию сверху
-            ax.text(freq, amp * 1.1, f'{freq:.2f}', fontsize=12, ha='center')
-        else:
-            # Поднимаем аннотацию на amp * 0.1 для горизонтальных подписей
-            ax.text(freq + 30, amp * 1.1, f'{freq:.2f}', fontsize=12)
+    # Добавляем легенду на график, но теперь она внутри и не пересекается с границами
+    legend_text = '\n'.join(legend_entries)
+    ax.text(0.95, 0.95, legend_text, transform=ax.transAxes, fontsize=12, 
+            verticalalignment='top', horizontalalignment='right', bbox=dict(facecolor='white', alpha=0.6))
+
+    return ax
+
 
 def make_spectres():
     output_file = open("peak_data.txt", "w")
@@ -80,6 +102,7 @@ def make_spectres():
                 field_freq = field_freq.group(0)
             else:
                 field_freq = 'no_field'
+            title = create_title(filename)
             df = pd.read_csv(os.getcwd()+'/'+i, delimiter=' ', index_col=None)
             df.rename(columns={'0.0': 'Frequency',
                       '0.0.1': 'Amplitude'}, inplace=True)
@@ -99,12 +122,13 @@ def make_spectres():
             fig, ax = plt.subplots()
             ax.plot(dfFreq, dfAmp, linewidth=1, c='black')  # Обычный график
             ax.grid()
+            ax.set_title(title)
             ax.set_xlabel('Frequency, $cm^{-1}$')
             ax.set_ylabel('Spectral Amplitude (a.u.)')
             # Аннотируем 4 самых высоких пика
             annotate_peaks(ax, peak_frequencies, peak_amplitudes)
-            # plt.savefig(filename+'.png', dpi=600)
-            # plt.savefig(filename+'.eps', format='eps')
+            plt.savefig(filename+'.png', dpi=600)
+            plt.savefig(filename+'.eps', format='eps')
             plt.show()
 
             
