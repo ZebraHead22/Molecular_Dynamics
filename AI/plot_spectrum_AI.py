@@ -145,7 +145,7 @@ def process_file(name):
             xf_cm_inv_filtered_no_ac, spectral_density_filtered_no_ac)
 
         # Запись данных в файл для спектра без автокорреляции
-        annotate_and_save_peaks(output_file, os.path.basename(filename), filename, peak_frequencies, peak_amplitudes, peak_widths_half_max)
+        annotate_and_save_peaks(output_file, "no_AKF", os.path.basename(filename), peak_frequencies, peak_amplitudes, peak_widths_half_max)
 
 
 if __name__ == '__main__':
