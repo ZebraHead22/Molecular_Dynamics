@@ -126,7 +126,7 @@ def process_file(name):
             xf_cm_inv_filtered, spectral_density_filtered)
 
         # Запись данных в файл для спектра с автокорреляцией
-        annotate_and_save_peaks(output_file, "AKF", filename, peak_frequencies, peak_amplitudes, peak_widths_half_max)
+        annotate_and_save_peaks(output_file, "AKF", os.path.basename(filename), peak_frequencies, peak_amplitudes, peak_widths_half_max)
 
         # === Spectrum without Autocorrelation ===
         dip_magnitude_windowed_no_ac = dip_magnitude * window
@@ -145,7 +145,7 @@ def process_file(name):
             xf_cm_inv_filtered_no_ac, spectral_density_filtered_no_ac)
 
         # Запись данных в файл для спектра без автокорреляции
-        annotate_and_save_peaks(output_file, filename, filename, peak_frequencies, peak_amplitudes, peak_widths_half_max)
+        annotate_and_save_peaks(output_file, os.path.basename(filename), filename, peak_frequencies, peak_amplitudes, peak_widths_half_max)
 
 
 if __name__ == '__main__':
