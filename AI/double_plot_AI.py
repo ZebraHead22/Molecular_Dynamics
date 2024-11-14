@@ -13,7 +13,6 @@ def create_title(filename):
         prefix = match.group(1).upper()
         number = match.group(2)
         environment = match.group(3).lower()
-
         if 'water' in environment:
             return f"{prefix} WATER N={number}"
         elif 'vac' in environment or 'vacuum' in environment:
@@ -25,89 +24,112 @@ def create_title(filename):
     return filename
 
 def compute_spectrum(dipole_moment, time_step):
-    # Calculate autocorrelation
     autocorr = correlate(dipole_moment, dipole_moment, mode='full')
-    autocorr = autocorr[autocorr.size // 2:]  # take only positive lags
-
-    # Apply Hann window
+    autocorr = autocorr[autocorr.size // 2:]
     hann_window = hann(len(autocorr))
     autocorr_windowed = autocorr * hann_window
 
-    # Perform FFT on the windowed autocorrelation
     freq = fftfreq(len(autocorr_windowed), d=time_step)
-    spectrum = np.abs(fft(autocorr_windowed))  # magnitude of the spectrum
+    spectrum = np.abs(fft(autocorr_windowed))
 
-    # Return only positive frequencies and corresponding spectrum values
     positive_freqs = freq[freq >= 0]
     positive_spectrum = spectrum[freq >= 0]
 
+    cutoff_index = np.searchsorted(positive_freqs, 10)
+    positive_freqs = positive_freqs[cutoff_index:]
+    positive_spectrum = positive_spectrum[cutoff_index:]
+
     return positive_freqs, positive_spectrum
 
-def plot_spectra(positive_freqs, spectra, title, colors, labels):
-    plt.figure(figsize=(12, 8))
+def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
     freq_ranges = [(0, 1000), (1000, 2000), (2000, 3000), 
                    (3000, 4000), (4000, 5000), (5000, 6000)]
     
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
     for i, (f_min, f_max) in enumerate(freq_ranges):
-        plt.subplot(2, 3, i + 1)
-        
-        # Plot each spectrum within the given frequency range
+        plt.figure(figsize=(8, 6))
         for spectrum, color, label in zip(spectra, colors, labels):
             mask = (positive_freqs >= f_min) & (positive_freqs < f_max)
-            plt.plot(positive_freqs[mask], spectrum[mask], color=color, label=label)
+            plot_freqs = positive_freqs[mask]
+            plot_spectrum = spectrum[mask]
+            plt.plot(plot_freqs, plot_spectrum, color=color, label=label)
 
         plt.xlabel("Frequency (cm⁻¹)")
-        plt.ylabel("Amplitude")
-        plt.title(f"Frequency range {f_min}-{f_max} cm⁻¹")
+        plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
+        plt.title(f"{title} - {f_min}-{f_max} cm⁻¹")
         plt.legend()
         plt.grid()
+        
+        plt.savefig(os.path.join(output_dir, f"{f_min}-{f_max}_spectrum.png"), dpi=300)
+        plt.close()
 
-    plt.suptitle(title)
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.show()
+def generate_output_dir(file1, file2):
+    common_parts = []
+    unique_parts = []
+    
+    split1 = file1.split('_')
+    split2 = file2.split('_')
+    
+    for part1, part2 in zip(split1, split2):
+        if part1 == part2:
+            common_parts.append(part1)
+        else:
+            unique_parts.extend([part1, part2])
+    
+    output_dir_name = '_'.join(common_parts + unique_parts)
+    return output_dir_name
 
-def process_pair(file1, file2, amino_acid):
+def process_pair(args):
+    file1, file2 = args
     try:
-        # Load data from the .dat files
         df1 = pd.read_csv(file1, sep=' ')
         df2 = pd.read_csv(file2, sep=' ')
-
-        # Rename and prepare data
+        
         df1.dropna(how='all', axis=1, inplace=True)
         df1.rename(columns={'#': 'frame', 'Unnamed: 8': '|dip|'}, inplace=True)
 
         df2.dropna(how='all', axis=1, inplace=True)
         df2.rename(columns={'#': 'frame', 'Unnamed: 8': '|dip|'}, inplace=True)
 
-        time_step = 2e-6  # time in ns, assuming 2 fs per frame
+        time_step = 2e-6
 
-        # Compute spectra for both files
         freqs1, spectrum1 = compute_spectrum(np.array(df1["|dip|"]), time_step)
         freqs2, spectrum2 = compute_spectrum(np.array(df2["|dip|"]), time_step)
 
-        # Get file labels without amino acid
-        label1 = os.path.basename(file1).replace(amino_acid, '').strip('_')
-        label2 = os.path.basename(file2).replace(amino_acid, '').strip('_')
+        label1 = os.path.basename(file1).replace('.dat', '')
+        label2 = os.path.basename(file2).replace('.dat', '')
 
-        # Plot spectra with assigned colors and labels
-        plot_spectra(freqs1, [spectrum1, spectrum2], f"Spectra for {amino_acid.upper()} pairs", 
-                     colors=['black', 'red'], labels=[label1, label2])
+        output_dir = generate_output_dir(label1, label2)
+        plot_spectra(freqs1, [spectrum1, spectrum2], f"Spectra for {label1} & {label2}", 
+                     colors=['black', 'red'], labels=[label1, label2], output_dir=output_dir)
 
     except Exception as e:
         print(f"Error processing pair ({file1}, {file2}): {e}")
 
 def main():
-    # Set the amino acid type to filter files ('trp' or 'ala')
-    amino_acid = 'trp'  # Replace with 'ala' if needed
-
-    # List all .dat files containing the amino acid name
     files = [os.path.join(root, name)
              for root, _, names in os.walk(os.getcwd())
-             for name in names if name.endswith('.dat') and amino_acid in name]
+             for name in names if name.endswith('.dat')]
 
-    # Ensure pairs of files are processed together
-    for i in range(0, len(files) - 1, 2):
-        process_pair(files[i], files[i + 1], amino_acid)
+    pairs = []
+    for i, file1 in enumerate(files):
+        for j in range(i + 1, len(files)):
+            file2 = files[j]
+            amino_acid1, count1, chain_type1 = file1.split('_')[:3]
+            amino_acid2, count2, chain_type2 = file2.split('_')[:3]
+            
+            if amino_acid1 != amino_acid2:
+                continue  # Пропустить, если аминокислоты разные
+            if count1 != count2 and chain_type1 != chain_type2:
+                continue  # Пропустить, если и количество, и цепь различны одновременно
+            
+            pairs.append((file1, file2))
+
+    num_processes = min(16, cpu_count())
+    with Pool(processes=num_processes) as pool:
+        pool.map(process_pair, pairs)
 
 if __name__ == '__main__':
     main()
