@@ -57,7 +57,8 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
             mask = (positive_freqs >= f_min) & (positive_freqs < f_max)
             plot_freqs = positive_freqs[mask]
             plot_spectrum = spectrum[mask]
-            plt.plot(plot_freqs, plot_spectrum, color=color, label=label)
+            alpha = 0.4 if color == 'red' else 1.0  # Прозрачность для красного
+            plt.plot(plot_freqs, plot_spectrum, color=color, alpha=alpha, label=label)
 
         plt.xlabel("Frequency (cm⁻¹)")
         plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
@@ -65,9 +66,9 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
         plt.legend()
         plt.grid()
 
-        plt.savefig(os.path.join(output_dir, f"{
-                    f_min}-{f_max}_spectrum.png"), dpi=300)
+        plt.savefig(os.path.join(output_dir, f"{f_min}-{f_max}_spectrum.png"), dpi=300)
         plt.close()
+
 
 
 def generate_output_dir(file1, file2):
