@@ -7,6 +7,7 @@ from scipy.fft import fft, fftfreq
 from scipy.signal import hann, correlate
 from multiprocessing import Pool, cpu_count
 
+
 def create_title(filename):
     match = re.search(r'(\w+)_(\d+)_([a-zA-Z]+)', filename)
     if match:
@@ -22,6 +23,7 @@ def create_title(filename):
         elif 'cyclic' in environment:
             return f"{prefix} CYCLIC N={number}"
     return filename
+
 
 def compute_spectrum(dipole_moment, time_step):
     autocorr = correlate(dipole_moment, dipole_moment, mode='full')
@@ -41,13 +43,14 @@ def compute_spectrum(dipole_moment, time_step):
 
     return positive_freqs, positive_spectrum
 
+
 def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
-    freq_ranges = [(0, 1000), (1000, 2000), (2000, 3000), 
+    freq_ranges = [(0, 1000), (1000, 2000), (2000, 3000),
                    (3000, 4000), (4000, 5000), (5000, 6000)]
-    
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    
+
     for i, (f_min, f_max) in enumerate(freq_ranges):
         plt.figure(figsize=(8, 6))
         for spectrum, color, label in zip(spectra, colors, labels):
@@ -61,32 +64,35 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
         plt.title(f"{title} - {f_min}-{f_max} cm⁻¹")
         plt.legend()
         plt.grid()
-        
-        plt.savefig(os.path.join(output_dir, f"{f_min}-{f_max}_spectrum.png"), dpi=300)
+
+        plt.savefig(os.path.join(output_dir, f"{
+                    f_min}-{f_max}_spectrum.png"), dpi=300)
         plt.close()
+
 
 def generate_output_dir(file1, file2):
     common_parts = []
     unique_parts = []
-    
+
     split1 = file1.split('_')
     split2 = file2.split('_')
-    
+
     for part1, part2 in zip(split1, split2):
         if part1 == part2:
             common_parts.append(part1)
         else:
             unique_parts.extend([part1, part2])
-    
+
     output_dir_name = '_'.join(common_parts + unique_parts)
     return output_dir_name
+
 
 def process_pair(args):
     file1, file2 = args
     try:
         df1 = pd.read_csv(file1, sep=' ')
         df2 = pd.read_csv(file2, sep=' ')
-        
+
         df1.dropna(how='all', axis=1, inplace=True)
         df1.rename(columns={'#': 'frame', 'Unnamed: 8': '|dip|'}, inplace=True)
 
@@ -102,11 +108,12 @@ def process_pair(args):
         label2 = os.path.basename(file2).replace('.dat', '')
 
         output_dir = generate_output_dir(label1, label2)
-        plot_spectra(freqs1, [spectrum1, spectrum2], f"Spectra for {label1} & {label2}", 
+        plot_spectra(freqs1, [spectrum1, spectrum2], f"Spectra for {label1} & {label2}",
                      colors=['black', 'red'], labels=[label1, label2], output_dir=output_dir)
 
     except Exception as e:
         print(f"Error processing pair ({file1}, {file2}): {e}")
+
 
 def main():
     files = [os.path.join(root, name)
@@ -119,17 +126,18 @@ def main():
             file2 = files[j]
             amino_acid1, count1, chain_type1 = file1.split('_')[:3]
             amino_acid2, count2, chain_type2 = file2.split('_')[:3]
-            
+
             if amino_acid1 != amino_acid2:
                 continue  # Пропустить, если аминокислоты разные
             if count1 != count2 and chain_type1 != chain_type2:
                 continue  # Пропустить, если и количество, и цепь различны одновременно
-            
+
             pairs.append((file1, file2))
 
     num_processes = min(16, cpu_count())
     with Pool(processes=num_processes) as pool:
         pool.map(process_pair, pairs)
+
 
 if __name__ == '__main__':
     main()
