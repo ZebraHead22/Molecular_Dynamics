@@ -57,7 +57,8 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
             mask = (positive_freqs >= f_min) & (positive_freqs < f_max)
             plot_freqs = positive_freqs[mask]
             plot_spectrum = spectrum[mask]
-            plt.plot(plot_freqs, plot_spectrum, color=color, label=label)
+            alpha = 0.4 if color == 'red' else 1.0  # Прозрачность для красного
+            plt.plot(plot_freqs, plot_spectrum, color=color, alpha=alpha, label=label)
 
         plt.xlabel("Frequency (cm⁻¹)")
         plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
@@ -65,8 +66,7 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
         plt.legend()
         plt.grid()
 
-        plt.savefig(os.path.join(output_dir, f"{
-                    f_min}-{f_max}_spectrum.png"), dpi=300)
+        plt.savefig(os.path.join(output_dir, f"{f_min}-{f_max}_spectrum.png"), dpi=300)
         plt.close()
 
 
@@ -124,13 +124,31 @@ def main():
     for i, file1 in enumerate(files):
         for j in range(i + 1, len(files)):
             file2 = files[j]
-            amino_acid1, count1, chain_type1 = file1.split('_')[:3]
-            amino_acid2, count2, chain_type2 = file2.split('_')[:3]
 
-            if amino_acid1 != amino_acid2:
-                continue  # Пропустить, если аминокислоты разные
-            if count1 != count2 and chain_type1 != chain_type2:
-                continue  # Пропустить, если и количество, и цепь различны одновременно
+            # Разделяем части имени файла
+            parts1 = file1.split('_')
+            parts2 = file2.split('_')
+
+            amino_acids1 = [part for part in parts1 if part.isalpha()]
+            amino_acids2 = [part for part in parts2 if part.isalpha()]
+
+            counts1 = set(part for part in parts1 if part.isdigit())
+            counts2 = set(part for part in parts2 if part.isdigit())
+
+            chain_types1 = set(part for part in parts1 if part in ['linear', 'cyclic'])
+            chain_types2 = set(part for part in parts2 if part in ['linear', 'cyclic'])
+
+            # Проверяем условия
+            if amino_acids1 != amino_acids2:
+                continue  # Пропускаем, если аминокислоты разные
+
+            # Ищем пересечение между числами
+            if not counts1.intersection(counts2) or len(counts1.union(counts2)) != 2:
+                continue  # Пропускаем, если нет точного различия 6 и 16
+
+            # Проверяем цепи
+            if not chain_types1.intersection(chain_types2) or len(chain_types1.union(chain_types2)) != 2:
+                continue  # Пропускаем, если нет точного различия между linear и cyclic
 
             pairs.append((file1, file2))
 
