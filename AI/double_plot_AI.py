@@ -70,6 +70,7 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
         plt.close()
 
 
+
 def generate_output_dir(file1, file2):
     common_parts = []
     unique_parts = []
