@@ -9,19 +9,12 @@ from multiprocessing import Pool, cpu_count
 
 
 def create_title(filename):
-    match = re.search(r'(\w+)_(\d+)_([a-zA-Z]+)', filename)
+    match = re.search(r'(\w+)_(\d+)_(\w+)', filename)
     if match:
-        prefix = match.group(1).upper()
-        number = match.group(2)
-        environment = match.group(3).lower()
-        if 'water' in environment:
-            return f"{prefix} WATER N={number}"
-        elif 'vac' in environment or 'vacuum' in environment:
-            return f"{prefix} VACUUM N={number}"
-        elif 'linear' in environment:
-            return f"{prefix} LINEAR N={number}"
-        elif 'cyclic' in environment:
-            return f"{prefix} CYCLIC N={number}"
+        amino_acid = match.group(1).upper()
+        count = match.group(2)
+        chain_type = match.group(3).capitalize()
+        return f"{amino_acid} {chain_type} N={count}"
     return filename
 
 
@@ -68,7 +61,6 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
 
         plt.savefig(os.path.join(output_dir, f"{f_min}-{f_max}_spectrum.png"), dpi=300)
         plt.close()
-
 
 
 def generate_output_dir(file1, file2):
@@ -126,32 +118,24 @@ def main():
         for j in range(i + 1, len(files)):
             file2 = files[j]
 
-            # Разделяем части имени файла
-            parts1 = file1.split('_')
-            parts2 = file2.split('_')
+            # Разделяем имя файла на компоненты
+            match1 = re.match(r'(\w+)_(\d+)_(\w+)\.dat', os.path.basename(file1))
+            match2 = re.match(r'(\w+)_(\d+)_(\w+)\.dat', os.path.basename(file2))
+            if not match1 or not match2:
+                continue
 
-            amino_acids1 = [part for part in parts1 if part.isalpha()]
-            amino_acids2 = [part for part in parts2 if part.isalpha()]
+            amino_acid1, count1, chain_type1 = match1.groups()
+            amino_acid2, count2, chain_type2 = match2.groups()
 
-            counts1 = set(part for part in parts1 if part.isdigit())
-            counts2 = set(part for part in parts2 if part.isdigit())
+            # Проверяем, что аминокислоты одинаковые
+            if amino_acid1 != amino_acid2:
+                continue
 
-            chain_types1 = set(part for part in parts1 if part in ['linear', 'cyclic'])
-            chain_types2 = set(part for part in parts2 if part in ['linear', 'cyclic'])
-
-            # Проверяем условия
-            if amino_acids1 != amino_acids2:
-                continue  # Пропускаем, если аминокислоты разные
-
-            # Ищем пересечение между числами
-            if not counts1.intersection(counts2) or len(counts1.union(counts2)) != 2:
-                continue  # Пропускаем, если нет точного различия 6 и 16
-
-            # Проверяем цепи
-            if not chain_types1.intersection(chain_types2) or len(chain_types1.union(chain_types2)) != 2:
-                continue  # Пропускаем, если нет точного различия между linear и cyclic
-
-            pairs.append((file1, file2))
+            # Условия для формирования пар
+            if count1 == count2 and chain_type1 != chain_type2:
+                pairs.append((file1, file2))
+            elif chain_type1 == chain_type2 and count1 != count2:
+                pairs.append((file1, file2))
 
     num_processes = min(16, cpu_count())
     with Pool(processes=num_processes) as pool:
