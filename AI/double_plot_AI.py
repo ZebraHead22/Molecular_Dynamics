@@ -37,21 +37,83 @@ def compute_spectrum(dipole_moment, time_step):
     return positive_freqs, positive_spectrum
 
 
+def find_peaks(frequencies, spectrum, f_min, f_max, step=200):
+    """Находит 1 максимальный пик в каждом диапазоне с шагом step."""
+    peaks = []
+    for start in range(f_min, f_max, step):
+        mask = (frequencies >= start) & (frequencies < start + step)
+        if not np.any(mask):
+            continue
+
+        local_freqs = frequencies[mask]
+        local_spectrum = spectrum[mask]
+
+        if len(local_freqs) > 0:
+            max_idx = np.argmax(local_spectrum)
+            peak_freq = local_freqs[max_idx]
+            peak_value = local_spectrum[max_idx]
+
+            # Определение ширины пика
+            half_max = peak_value / 2
+            left_idx = np.where(local_spectrum[:max_idx] < half_max)[0]
+            right_idx = np.where(local_spectrum[max_idx:] < half_max)[0]
+
+            left_freq = local_freqs[left_idx[-1]] if left_idx.size > 0 else peak_freq
+            right_freq = local_freqs[max_idx + right_idx[0]] if right_idx.size > 0 else peak_freq
+
+            width = right_freq - left_freq
+            peaks.append((peak_freq, peak_value, width))
+
+    return sorted(peaks, key=lambda x: x[0])
+
+
+def save_peaks_to_file(output_dir, freq_range, peaks, label):
+    txt_file = os.path.join(output_dir, f"{label}_peaks.txt")
+    with open(txt_file, 'a') as file:
+        file.write(f"Range: {freq_range[0]}-{freq_range[1]} cm⁻¹\n")
+        for peak_freq, peak_value, width in peaks:
+            file.write(f"Frequency: {peak_freq:.3f} cm⁻¹, Width: {width:.3f}\n")
+        file.write("\n")
+
+
 def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
-    freq_ranges = [(0, 1000), (1000, 2000), (2000, 3000),
+    freq_ranges = [(10, 1000), (1000, 2000), (2000, 3000),
                    (3000, 4000), (4000, 5000), (5000, 6000)]
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    for i, (f_min, f_max) in enumerate(freq_ranges):
-        plt.figure(figsize=(8, 6))
+    # Полный (общий) график
+    plt.figure(figsize=(10, 8))
+    for spectrum, color, label in zip(spectra, colors, labels):
+        plt.plot(positive_freqs, spectrum, color=color, label=label, alpha=0.6 if color == 'red' else 1.0)
+    plt.xlabel("Frequency (cm⁻¹)")
+    plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
+    plt.title(f"{title} - Full Spectrum (10-6000 cm⁻¹)")
+    plt.legend()
+    plt.grid()
+    plt.savefig(os.path.join(output_dir, "full_spectrum.png"), dpi=300)
+    plt.close()
+
+    # Частичные графики
+    for f_min, f_max in freq_ranges:
+        plt.figure(figsize=(10, 8))
+
         for spectrum, color, label in zip(spectra, colors, labels):
             mask = (positive_freqs >= f_min) & (positive_freqs < f_max)
             plot_freqs = positive_freqs[mask]
             plot_spectrum = spectrum[mask]
-            alpha = 0.4 if color == 'red' else 1.0  # Прозрачность для красного
-            plt.plot(plot_freqs, plot_spectrum, color=color, alpha=alpha, label=label)
+
+            # Наносим график
+            plt.plot(plot_freqs, plot_spectrum, color=color, label=label, alpha=0.6 if color == 'red' else 1.0)
+
+            # Находим пики и аннотируем их
+            peaks = find_peaks(plot_freqs, plot_spectrum, f_min, f_max)
+            for peak_freq, peak_value, width in peaks:
+                plt.text(peak_freq, peak_value, f"{peak_freq:.1f}", color=color, fontsize=10)
+
+            # Сохраняем пики в файл
+            save_peaks_to_file(output_dir, (f_min, f_max), peaks, label)
 
         plt.xlabel("Frequency (cm⁻¹)")
         plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
@@ -137,10 +199,9 @@ def main():
             elif chain_type1 == chain_type2 and count1 != count2:
                 pairs.append((file1, file2))
 
-    num_processes = min(16, cpu_count())
-    with Pool(processes=num_processes) as pool:
+    with Pool(cpu_count()) as pool:
         pool.map(process_pair, pairs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
