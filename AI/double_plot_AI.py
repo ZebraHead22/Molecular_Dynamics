@@ -84,17 +84,17 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
         os.makedirs(output_dir)
 
     # Полный (общий) график
-    plt.figure(figsize=(10, 8))
-    for spectrum, color, label in zip(spectra, colors, labels):
-        plt.plot(positive_freqs, spectrum, color=color, label=label, alpha=0.6 if color == 'black' else 1.0)
-    plt.xlabel("Frequency (cm⁻¹)")
-    # plt.xlim([50, 6000])
-    plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
-    plt.title(f"{title} - Full Spectrum (10-6000 cm⁻¹)")
-    plt.legend()
-    plt.grid()
-    plt.savefig(os.path.join(output_dir, "full_spectrum.png"), dpi=300)
-    plt.close()
+    # plt.figure(figsize=(10, 8))
+    # for spectrum, color, label in zip(spectra, colors, labels):
+    #     plt.plot(positive_freqs, spectrum, color=color, label=label, alpha=0.6 if color == 'black' else 1.0)
+    # plt.xlabel("Frequency (cm⁻¹)")
+    # # plt.xlim([50, 6000])
+    # plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
+    # plt.title(f"{title} - Full Spectrum (10-6000 cm⁻¹)")
+    # plt.legend()
+    # plt.grid()
+    # plt.savefig(os.path.join(output_dir, "full_spectrum.png"), dpi=300)
+    # plt.close()
 
     # Частичные графики
     for f_min, f_max in freq_ranges:
