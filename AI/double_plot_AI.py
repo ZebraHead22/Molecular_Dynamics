@@ -86,8 +86,9 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
     # Полный (общий) график
     plt.figure(figsize=(10, 8))
     for spectrum, color, label in zip(spectra, colors, labels):
-        plt.plot(positive_freqs, spectrum, color=color, label=label, alpha=0.6 if color == 'red' else 1.0)
+        plt.plot(positive_freqs, spectrum, color=color, label=label, alpha=0.6 if color == 'black' else 1.0)
     plt.xlabel("Frequency (cm⁻¹)")
+    # plt.xlim([50, 6000])
     plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
     plt.title(f"{title} - Full Spectrum (10-6000 cm⁻¹)")
     plt.legend()
@@ -105,12 +106,12 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
             plot_spectrum = spectrum[mask]
 
             # Наносим график
-            plt.plot(plot_freqs, plot_spectrum, color=color, label=label, alpha=0.6 if color == 'red' else 1.0)
+            plt.plot(plot_freqs, plot_spectrum, color=color, label=label, alpha=0.6 if color == 'black' else 1.0)
 
             # Находим пики и аннотируем их
             peaks = find_peaks(plot_freqs, plot_spectrum, f_min, f_max)
             for peak_freq, peak_value, width in peaks:
-                plt.text(peak_freq, peak_value, f"{peak_freq:.1f}", color=color, fontsize=10)
+                plt.text(peak_freq, peak_value, f"{peak_freq:.1f}", color=color, fontsize=11, rotation=45)
 
             # Сохраняем пики в файл
             save_peaks_to_file(output_dir, (f_min, f_max), peaks, label)
@@ -126,6 +127,7 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
 
 
 def generate_output_dir(file1, file2):
+    """Генерация имени выходной папки без дубликатов."""
     common_parts = []
     unique_parts = []
 
@@ -136,7 +138,7 @@ def generate_output_dir(file1, file2):
         if part1 == part2:
             common_parts.append(part1)
         else:
-            unique_parts.extend([part1, part2])
+            unique_parts.extend(sorted([part1, part2]))
 
     output_dir_name = '_'.join(common_parts + unique_parts)
     return output_dir_name
@@ -164,7 +166,7 @@ def process_pair(args):
 
         output_dir = generate_output_dir(label1, label2)
         plot_spectra(freqs1, [spectrum1, spectrum2], f"Spectra for {label1} & {label2}",
-                     colors=['black', 'red'], labels=[label1, label2], output_dir=output_dir)
+                     colors=['red', 'black'], labels=[label1, label2], output_dir=output_dir)
 
     except Exception as e:
         print(f"Error processing pair ({file1}, {file2}): {e}")
@@ -175,7 +177,7 @@ def main():
              for root, _, names in os.walk(os.getcwd())
              for name in names if name.endswith('.dat')]
 
-    pairs = []
+    pairs = set()  # Используем множество, чтобы исключить дубликаты
     for i, file1 in enumerate(files):
         for j in range(i + 1, len(files)):
             file2 = files[j]
@@ -195,12 +197,12 @@ def main():
 
             # Условия для формирования пар
             if count1 == count2 and chain_type1 != chain_type2:
-                pairs.append((file1, file2))
+                pairs.add(tuple(sorted([file1, file2])))
             elif chain_type1 == chain_type2 and count1 != count2:
-                pairs.append((file1, file2))
+                pairs.add(tuple(sorted([file1, file2])))
 
     with Pool(cpu_count()) as pool:
-        pool.map(process_pair, pairs)
+        pool.map(process_pair, list(pairs))
 
 
 if __name__ == "__main__":
