@@ -67,36 +67,29 @@ def find_peaks(frequencies, spectrum, f_min, f_max, step=200):
     return sorted(peaks, key=lambda x: x[0])
 
 
-def save_peaks_to_file(output_dir, freq_range, peaks, label):
+def save_peaks_to_file(output_dir, freq_range, peaks, label, recorded_ranges):
+    """Сохраняет данные о пиках в файл, избегая дублирования."""
     txt_file = os.path.join(output_dir, f"{label}_peaks.txt")
+    range_key = (freq_range[0], freq_range[1], label)
+    
+    if range_key in recorded_ranges:
+        return  # Если диапазон уже записан, пропускаем
+
+    recorded_ranges.add(range_key)  # Добавляем диапазон в записанные
+
     with open(txt_file, 'a') as file:
         file.write(f"Range: {freq_range[0]}-{freq_range[1]} cm⁻¹\n")
         for peak_freq, peak_value, width in peaks:
             file.write(f"Frequency: {peak_freq:.3f} cm⁻¹, Width: {width:.3f}\n")
         file.write("\n")
 
-
-def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
+def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir, recorded_ranges):
     freq_ranges = [(10, 1000), (1000, 2000), (2000, 3000),
-                   (3000, 4000), (4000, 5000), (5000, 6000)]
+                (3000, 4000), (4000, 5000), (5000, 6000)]
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # Полный (общий) график
-    # plt.figure(figsize=(10, 8))
-    # for spectrum, color, label in zip(spectra, colors, labels):
-    #     plt.plot(positive_freqs, spectrum, color=color, label=label, alpha=0.6 if color == 'black' else 1.0)
-    # plt.xlabel("Frequency (cm⁻¹)")
-    # # plt.xlim([50, 6000])
-    # plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
-    # plt.title(f"{title} - Full Spectrum (10-6000 cm⁻¹)")
-    # plt.legend()
-    # plt.grid()
-    # plt.savefig(os.path.join(output_dir, "full_spectrum.png"), dpi=300)
-    # plt.close()
-
-    # Частичные графики
     for f_min, f_max in freq_ranges:
         plt.figure(figsize=(10, 8))
 
@@ -105,16 +98,13 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
             plot_freqs = positive_freqs[mask]
             plot_spectrum = spectrum[mask]
 
-            # Наносим график
             plt.plot(plot_freqs, plot_spectrum, color=color, label=label, alpha=0.6 if color == 'black' else 1.0)
 
-            # Находим пики и аннотируем их
             peaks = find_peaks(plot_freqs, plot_spectrum, f_min, f_max)
             for peak_freq, peak_value, width in peaks:
                 plt.text(peak_freq, peak_value, f"{peak_freq:.1f}", color=color, fontsize=11, rotation=45)
 
-            # Сохраняем пики в файл
-            save_peaks_to_file(output_dir, (f_min, f_max), peaks, label)
+            save_peaks_to_file(output_dir, (f_min, f_max), peaks, label, recorded_ranges)
 
         plt.xlabel("Frequency (cm⁻¹)")
         plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
@@ -124,6 +114,7 @@ def plot_spectra(positive_freqs, spectra, title, colors, labels, output_dir):
 
         plt.savefig(os.path.join(output_dir, f"{f_min}-{f_max}_spectrum.png"), dpi=300)
         plt.close()
+
 
 
 def generate_output_dir(file1, file2):
@@ -165,8 +156,12 @@ def process_pair(args):
         label2 = os.path.basename(file2).replace('.dat', '')
 
         output_dir = generate_output_dir(label1, label2)
+
+        recorded_ranges = set()  # Хранит уже записанные диапазоны
+
         plot_spectra(freqs1, [spectrum1, spectrum2], f"Spectra for {label1} & {label2}",
-                     colors=['red', 'black'], labels=[label1, label2], output_dir=output_dir)
+            colors=['red', 'black'], labels=[label1, label2], output_dir=output_dir, recorded_ranges=recorded_ranges)
+
 
     except Exception as e:
         print(f"Error processing pair ({file1}, {file2}): {e}")
