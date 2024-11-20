@@ -156,21 +156,77 @@ def process_pair(args):
         label2 = os.path.basename(file2).replace('.dat', '')
 
         output_dir = generate_output_dir(label1, label2)
+        individual_dir = os.path.join(output_dir, 'individual_spectra')
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
 
         recorded_ranges = set()  # Хранит уже записанные диапазоны
 
         plot_spectra(freqs1, [spectrum1, spectrum2], f"Spectra for {label1} & {label2}",
             colors=['red', 'black'], labels=[label1, label2], output_dir=output_dir, recorded_ranges=recorded_ranges)
 
+        # Построение индивидуальных спектров
+        plot_individual_spectra(freqs1, spectrum1, label1, individual_dir)
+        plot_individual_spectra(freqs2, spectrum2, label2, individual_dir)
 
     except Exception as e:
         print(f"Error processing pair ({file1}, {file2}): {e}")
+
+
+def plot_individual_spectra(frequencies, spectrum, title, output_dir):
+    """
+    Построение индивидуального спектра для файла, ограниченного диапазоном частот от 100 до 6000 см⁻¹.
+    """
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    mask = (frequencies >= 100) & (frequencies <= 6000)
+    frequencies = np.where(mask, frequencies, np.nan)
+    spectrum = np.where(mask, spectrum, np.nan)
+
+    plt.figure(figsize=(10, 8))
+    plt.plot(frequencies, spectrum, color='blue', label='Spectrum')
+    plt.xlabel("Frequency (cm⁻¹)")
+    plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
+    plt.title(title)
+    plt.grid()
+    plt.legend()
+
+    filename = title.replace(' ', '_') + ".png"
+    plt.savefig(os.path.join(output_dir, filename), dpi=300)
+    plt.close()
+
+
+def process_file(file):
+    """Обрабатывает отдельный файл и строит его спектр."""
+    try:
+        df = pd.read_csv(file, sep=' ')
+
+        df.dropna(how='all', axis=1, inplace=True)
+        df.rename(columns={'#': 'frame', 'Unnamed: 8': '|dip|'}, inplace=True)
+
+        time_step = 2e-6
+        freqs, spectrum = compute_spectrum(np.array(df["|dip|"]), time_step)
+
+        label = os.path.basename(file).replace('.dat', '')
+        output_dir = "individual_spectra"
+
+        title = f"Spectra for {label}"
+        plot_individual_spectra(freqs, spectrum, title, output_dir, label)
+
+    except Exception as e:
+        print(f"Error processing file {file}: {e}")
 
 
 def main():
     files = [os.path.join(root, name)
              for root, _, names in os.walk(os.getcwd())
              for name in names if name.endswith('.dat')]
+
+    # Построение индивидуальных спектров
+    for file in files:
+        process_file(file)
 
     pairs = set()  # Используем множество, чтобы исключить дубликаты
     for i, file1 in enumerate(files):
