@@ -1,6 +1,5 @@
 import os
 import re
-import time
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -14,7 +13,7 @@ def autocorrelation_chunk(args):
     dip_magnitude, start, end = args
     chunk = dip_magnitude[start:end]
     autocorr = np.correlate(chunk, chunk, mode='full')
-    return autocorr[len(chunk)-1:]
+    return autocorr[len(chunk) - 1:]
 
 def calculate_autocorrelation(dip_magnitude, num_cores=None):
     N = len(dip_magnitude)
@@ -77,112 +76,120 @@ def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
 
     return peak_frequencies, peak_amplitudes, peak_widths_half_max
 
-# Аннотация и сохранение данных пиков в файл
-def annotate_and_save_peaks(output_file, prefix, filename, peak_frequencies, peak_amplitudes, peak_widths_half_max):
-    for freq, amp, width in zip(peak_frequencies, peak_amplitudes, peak_widths_half_max):
-        output_file.write(f"{prefix}_{filename} -- {freq:.2f} -- {amp:.2f} -- {width:.2f}\n")
 
-# Функция для сохранения графиков по диапазонам
-def save_spectrum_graph(xf_cm_inv_filtered, spectral_density_filtered, title, prefix, filename):
-    # Разделение спектра на диапазоны с шагом 1000
-    for start in range(0, 6000, 1000):
-        end = start + 1000
-        mask = (xf_cm_inv_filtered >= start) & (xf_cm_inv_filtered < end)
-        sub_xf = xf_cm_inv_filtered[mask]
-        sub_spectral_density = spectral_density_filtered[mask]
+# Сохранение графиков: все на одной картинке для полного спектра и для каждого диапазона
+# Сохранение графиков: все на одной картинке для полного спектра и для каждого диапазона
+def save_combined_graph_with_annotations(xf_cm_inv_filtered_list, spectral_density_filtered_list, titles, peak_data_list, prefix):
+    colors = ['black', 'red']  # Черный и красный цвета
 
-        # Строим график для каждого диапазона
-        plt.figure(figsize=(8, 6))
-        plt.plot(sub_xf, sub_spectral_density)
-        plt.title(f"{title} - {prefix} - Range {start}-{end} cm^-1")
+    # Полный спектр
+    plt.figure(figsize=(12, 8))
+    for i, (xf, sd, title) in enumerate(zip(xf_cm_inv_filtered_list, spectral_density_filtered_list, titles)):
+        plt.plot(xf, sd, label=title, color=colors[i])
+    plt.title(f"Full Spectra - {prefix}")
+    plt.xlabel("Frequency (cm^-1)")
+    plt.ylabel("Spectral Density (a.u.)")
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(f"{prefix}_full_spectra.png", dpi=300)
+    plt.close()
+    print(f"Saved full spectra graph: {prefix}_full_spectra.png")
+
+    # Диапазоны
+    ranges = [(start, start + 1000) for start in range(0, 6000, 1000)]
+    for start, end in ranges:
+        plt.figure(figsize=(12, 8))
+        for i, (xf, sd, title, peaks) in enumerate(zip(xf_cm_inv_filtered_list, spectral_density_filtered_list, titles, peak_data_list)):
+            mask = (xf >= start) & (xf < end)
+            if np.any(mask):  # Проверяем, есть ли данные в диапазоне
+                plt.plot(xf[mask], sd[mask], label=title, color=colors[i])
+                # Добавляем аннотации для пиков в пределах текущего диапазона
+                for freq, amp in peaks:
+                    if start <= freq < end:  # Учитываем только пики в текущем диапазоне
+                        # Корректируем положение аннотации, чтобы не выходить за пределы области
+                        y_max = amp * 1.2
+                        text_y = min(amp * 1.1, y_max)
+                        plt.annotate(
+                            f'{freq:.2f}', xy=(freq, amp), xytext=(freq, text_y),
+                            textcoords='data', ha='center', va='bottom',
+                            rotation=45, fontsize=14, color=colors[i],
+                            arrowprops=dict(arrowstyle='->', color='green', lw=0.8)
+                        )
+        plt.title(f"Spectra Range {start}-{end} cm^-1 - {prefix}")
         plt.xlabel("Frequency (cm^-1)")
         plt.ylabel("Spectral Density (a.u.)")
+        plt.legend()
         plt.grid(True)
-
-        # Сохраняем график в файл
-        plot_filename = f"{prefix}_{filename}_range_{start}_{end}.png"
-        plt.savefig(plot_filename, dpi=300)
+        plt.savefig(f"{prefix}_range_{start}_{end}.png", dpi=300)
         plt.close()
-        print(f"Saved graph: {plot_filename}")
+        print(f"Saved range graph: {prefix}_range_{start}_{end}.png")
 
-# Главная функция для обработки каждого файла
-def process_file(name, output_file):
-    filename, file_extension = os.path.splitext(name)
-    if file_extension == ".dat":
-        print(f"-- File {os.path.basename(filename)}")
-        title = create_title(filename)
-        print(f"-- Generated title: {title}")
 
-        df = pd.read_csv(name, delimiter=' ', index_col=None, header=[0])
-        df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y',
-                           'Unnamed: 6': 'dip_z', 'Unnamed: 8': '|dip|'}, inplace=True)
-        df.dropna(how='all', axis=1, inplace=True)
-        dip_magnitude = np.array(df['|dip|'].to_list())
-        dip_magnitude -= np.mean(dip_magnitude)
-        length = dip_magnitude.size
-        print(f"-- Len of transient {length} points or {length * 2 / 1000000} ns")
+# Главная функция для обработки файлов
+def process_files_in_directory_with_annotations(directory, output_file):
+    xf_cm_inv_filtered_list = []
+    spectral_density_filtered_list = []
+    titles = []
+    peak_data_list = []
 
-        num_cores_to_use = 16
-        print(f"-- Using {num_cores_to_use} cores")
+    for address, dirs, names in os.walk(directory):
+        for name in names:
+            file_path = os.path.join(address, name)
+            filename, file_extension = os.path.splitext(name)
+            if file_extension == ".dat":
+                print(f"-- Processing file: {filename}")
 
-        # === Spectrum with Autocorrelation ===
-        dip_magnitude_corr = calculate_autocorrelation(dip_magnitude, num_cores=num_cores_to_use)
-        window = hann(len(dip_magnitude_corr))
-        dip_magnitude_windowed = dip_magnitude_corr * window
+                df = pd.read_csv(file_path, delimiter=' ', index_col=None, header=[0])
+                df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y',
+                                   'Unnamed: 6': 'dip_z', 'Unnamed: 8': '|dip|'}, inplace=True)
+                df.dropna(how='all', axis=1, inplace=True)
+                dip_magnitude = np.array(df['|dip|'].to_list())
+                dip_magnitude -= np.mean(dip_magnitude)
 
-        time_step = 2e-15
-        N = len(dip_magnitude_windowed)
-        yf = fft(dip_magnitude_windowed)
-        xf = fftfreq(N, time_step)[:N//2]
+                num_cores_to_use = 16
+                dip_magnitude_corr = calculate_autocorrelation(dip_magnitude, num_cores=num_cores_to_use)
+                window = hann(len(dip_magnitude_corr))
+                dip_magnitude_windowed = dip_magnitude_corr * window
 
-        cutoff_frequency = 3e12
-        cutoff_index = np.where(xf < cutoff_frequency)[0][-1] + 1
-        yf[:cutoff_index] = 0
+                time_step = 2e-15
+                N = len(dip_magnitude_windowed)
+                yf = fft(dip_magnitude_windowed)
+                xf = fftfreq(N, time_step)[:N // 2]
 
-        xf_thz = xf * 1e-12
-        xf_cm_inv = xf_thz / 0.03
-        mask = xf_cm_inv <= 6000
-        xf_cm_inv_filtered = xf_cm_inv[mask]
-        spectral_density_filtered = 2.0 / N * np.abs(yf[:N//2])[mask] * 10000
+                cutoff_frequency = 3e12
+                cutoff_index = np.where(xf < cutoff_frequency)[0][-1] + 1
+                yf[:cutoff_index] = 0
 
-        peak_frequencies, peak_amplitudes, peak_widths_half_max = find_main_peaks(
-            xf_cm_inv_filtered, spectral_density_filtered)
+                xf_thz = xf * 1e-12
+                xf_cm_inv = xf_thz / 0.03
+                mask = xf_cm_inv <= 6000
+                xf_cm_inv_filtered = xf_cm_inv[mask]
+                spectral_density_filtered = 2.0 / N * np.abs(yf[:N // 2])[mask] * 10000
 
-        # Запись данных в файл для спектра с автокорреляцией
-        annotate_and_save_peaks(output_file, "AKF", os.path.basename(filename), peak_frequencies, peak_amplitudes, peak_widths_half_max)
+                # Поиск пиков и запись их в файл
+                peak_frequencies, peak_amplitudes, peak_widths_half_max = find_main_peaks(
+                    xf_cm_inv_filtered, spectral_density_filtered)
+                for freq, amp, width in zip(peak_frequencies, peak_amplitudes, peak_widths_half_max):
+                    output_file.write(f"AKF_{filename} -- {freq:.2f} -- {amp:.2f} -- {width:.2f}\n")
 
-        # Сохранение графиков для спектра с автокорреляцией
-        save_spectrum_graph(xf_cm_inv_filtered, spectral_density_filtered, title, "AKF", os.path.basename(filename))
+                # Добавляем данные для графиков
+                xf_cm_inv_filtered_list.append(xf_cm_inv_filtered)
+                spectral_density_filtered_list.append(spectral_density_filtered)
+                titles.append(filename)
+                peak_data_list.append(list(zip(peak_frequencies, peak_amplitudes)))
 
-        # === Spectrum without Autocorrelation ===
-        dip_magnitude_windowed_no_ac = dip_magnitude * window
-        N_no_ac = len(dip_magnitude_windowed_no_ac)
-        yf_no_ac = fft(dip_magnitude_windowed_no_ac)
-        xf_no_ac = fftfreq(N_no_ac, time_step)[:N_no_ac//2]
-        yf_no_ac[:cutoff_index] = 0
-
-        xf_thz_no_ac = xf_no_ac * 1e-12
-        xf_cm_inv_no_ac = xf_thz_no_ac / 0.03
-        mask_no_ac = xf_cm_inv_no_ac <= 6000
-        xf_cm_inv_filtered_no_ac = xf_cm_inv_no_ac[mask_no_ac]
-        spectral_density_filtered_no_ac = 2.0 / N_no_ac * np.abs(yf_no_ac[:N_no_ac//2])[mask_no_ac] * 10000
-
-        peak_frequencies, peak_amplitudes, peak_widths_half_max = find_main_peaks(
-            xf_cm_inv_filtered_no_ac, spectral_density_filtered_no_ac)
-
-        # Запись данных в файл для спектра без автокорреляции
-        annotate_and_save_peaks(output_file, "no_AKF", os.path.basename(filename), peak_frequencies, peak_amplitudes, peak_widths_half_max)
-
-        # Сохранение графиков для спектра без автокорреляции
-        save_spectrum_graph(xf_cm_inv_filtered_no_ac, spectral_density_filtered_no_ac, title, "no_AKF", os.path.basename(filename))
+    # Построение комбинированных графиков с аннотациями
+    save_combined_graph_with_annotations(
+        xf_cm_inv_filtered_list, spectral_density_filtered_list, titles, peak_data_list, "AKF"
+    )
 
 
 if __name__ == '__main__':
     directory = os.getcwd()
-    output_file = open("peak_data.txt", "w")
-    for address, dirs, names in os.walk(directory):
-        for name in names:
-            process_file(os.path.join(address, name), output_file)
+    output_file_path = "peak_data.txt"
 
-    output_file.close()
+    with open(output_file_path, "w") as output_file:
+        process_files_in_directory_with_annotations(directory, output_file)
+
     print("-- Processing complete.")
+
