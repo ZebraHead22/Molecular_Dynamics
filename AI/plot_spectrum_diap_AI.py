@@ -51,90 +51,90 @@ def create_title(filename):
     return filename
 
 # Поиск основных пиков с учетом ширины на половине амплитуды по паре пиков на 1000 см
-# def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
-#     ranges = [(i, i + 500) for i in range(0, 4000, 500)]
-#     peak_frequencies = []
-#     peak_amplitudes = []
-#     peak_widths_half_max = []
-
-#     for lower_bound, upper_bound in ranges:
-#         mask = (xf_cm_inv_filtered >= lower_bound) & (xf_cm_inv_filtered < upper_bound)
-#         sub_xf = xf_cm_inv_filtered[mask]
-#         sub_spectral_density = spectral_density_filtered[mask]
-
-#         if len(sub_xf) > 0:
-#             peaks, _ = find_peaks(sub_spectral_density, height=0)
-#             if len(peaks) > 0:
-#                 peak = peaks[np.argmax(sub_spectral_density[peaks])]
-#                 peak_frequencies.append(sub_xf[peak])
-#                 peak_amplitudes.append(sub_spectral_density[peak])
-
-#                 # Расчет ширины на половине высоты
-#                 results_half_max = peak_widths(sub_spectral_density, [peak], rel_height=0.5)
-#                 width = results_half_max[0][0]
-#                 peak_widths_half_max.append(width * (sub_xf[1] - sub_xf[0]))
-
-#     return peak_frequencies, peak_amplitudes, peak_widths_half_max
-
-
-# Поиск основных пиков с учетом улучшений
-# Поиск основных пиков с учетом минимального расстояния между ними
-def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered, distance=200, max_peaks=5):
-    """
-    Находит пики с учетом минимального расстояния между ними:
-    - Минимальное расстояние между пиками: `distance` см⁻¹.
-    - Учитываются только `max_peaks` пиков на диапазон.
-
-    Параметры:
-    - xf_cm_inv_filtered: Массив частот.
-    - spectral_density_filtered: Массив спектральной плотности.
-    - distance: Минимальное расстояние между пиками в см⁻¹.
-    - max_peaks: Максимальное количество сохраняемых пиков.
-
-    Возвращает:
-    - peak_frequencies: Частоты пиков.
-    - peak_amplitudes: Амплитуды пиков.
-    - peak_widths_half_max: Ширины пиков на половине высоты.
-    """
+def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
     ranges = [(i, i + 500) for i in range(0, 4000, 500)]
     peak_frequencies = []
     peak_amplitudes = []
     peak_widths_half_max = []
 
     for lower_bound, upper_bound in ranges:
-        # Фильтруем данные в текущем диапазоне
         mask = (xf_cm_inv_filtered >= lower_bound) & (xf_cm_inv_filtered < upper_bound)
         sub_xf = xf_cm_inv_filtered[mask]
         sub_spectral_density = spectral_density_filtered[mask]
 
         if len(sub_xf) > 0:
-            # Определяем минимальную высоту пика (10% от максимума в диапазоне)
-            max_amp = np.max(sub_spectral_density)
-            if max_amp <= 0:  # Если спектр в диапазоне нулевой или отрицательный
-                continue
-            min_height = 0.1 * max_amp
-
-            # Ищем пики выше минимальной высоты
-            peaks, properties = find_peaks(sub_spectral_density, height=min_height, distance=distance)
+            peaks, _ = find_peaks(sub_spectral_density, height=0)
             if len(peaks) > 0:
-                # Сортируем пики по высоте и оставляем не более max_peaks
-                sorted_indices = np.argsort(properties["peak_heights"])[::-1]
-                top_peaks = sorted_indices[:max_peaks]
+                peak = peaks[np.argmax(sub_spectral_density[peaks])]
+                peak_frequencies.append(sub_xf[peak])
+                peak_amplitudes.append(sub_spectral_density[peak])
 
-                for peak_idx in top_peaks:
-                    peak = peaks[peak_idx]
-                    peak_freq = sub_xf[peak]
-                    peak_amp = sub_spectral_density[peak]
-
-                    # Расчет ширины на половине высоты
-                    results_half_max = peak_widths(sub_spectral_density, [peak], rel_height=0.5)
-                    width = results_half_max[0][0] * (sub_xf[1] - sub_xf[0])
-
-                    peak_frequencies.append(peak_freq)
-                    peak_amplitudes.append(peak_amp)
-                    peak_widths_half_max.append(width)
+                # Расчет ширины на половине высоты
+                results_half_max = peak_widths(sub_spectral_density, [peak], rel_height=0.5)
+                width = results_half_max[0][0]
+                peak_widths_half_max.append(width * (sub_xf[1] - sub_xf[0]))
 
     return peak_frequencies, peak_amplitudes, peak_widths_half_max
+
+
+
+# Поиск основных пиков с учетом минимального расстояния между ними
+# def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered, distance=200, max_peaks=5):
+#     """
+#     Находит пики с учетом минимального расстояния между ними:
+#     - Минимальное расстояние между пиками: `distance` см⁻¹.
+#     - Учитываются только `max_peaks` пиков на диапазон.
+
+#     Параметры:
+#     - xf_cm_inv_filtered: Массив частот.
+#     - spectral_density_filtered: Массив спектральной плотности.
+#     - distance: Минимальное расстояние между пиками в см⁻¹.
+#     - max_peaks: Максимальное количество сохраняемых пиков.
+
+#     Возвращает:
+#     - peak_frequencies: Частоты пиков.
+#     - peak_amplitudes: Амплитуды пиков.
+#     - peak_widths_half_max: Ширины пиков на половине высоты.
+#     """
+#     ranges = [(i, i + 500) for i in range(0, 4000, 500)]
+#     peak_frequencies = []
+#     peak_amplitudes = []
+#     peak_widths_half_max = []
+
+#     for lower_bound, upper_bound in ranges:
+#         # Фильтруем данные в текущем диапазоне
+#         mask = (xf_cm_inv_filtered >= lower_bound) & (xf_cm_inv_filtered < upper_bound)
+#         sub_xf = xf_cm_inv_filtered[mask]
+#         sub_spectral_density = spectral_density_filtered[mask]
+
+#         if len(sub_xf) > 0:
+#             # Определяем минимальную высоту пика (10% от максимума в диапазоне)
+#             max_amp = np.max(sub_spectral_density)
+#             if max_amp <= 0:  # Если спектр в диапазоне нулевой или отрицательный
+#                 continue
+#             min_height = 0.1 * max_amp
+
+#             # Ищем пики выше минимальной высоты
+#             peaks, properties = find_peaks(sub_spectral_density, height=min_height, distance=distance)
+#             if len(peaks) > 0:
+#                 # Сортируем пики по высоте и оставляем не более max_peaks
+#                 sorted_indices = np.argsort(properties["peak_heights"])[::-1]
+#                 top_peaks = sorted_indices[:max_peaks]
+
+#                 for peak_idx in top_peaks:
+#                     peak = peaks[peak_idx]
+#                     peak_freq = sub_xf[peak]
+#                     peak_amp = sub_spectral_density[peak]
+
+#                     # Расчет ширины на половине высоты
+#                     results_half_max = peak_widths(sub_spectral_density, [peak], rel_height=0.5)
+#                     width = results_half_max[0][0] * (sub_xf[1] - sub_xf[0])
+
+#                     peak_frequencies.append(peak_freq)
+#                     peak_amplitudes.append(peak_amp)
+#                     peak_widths_half_max.append(width)
+
+#     return peak_frequencies, peak_amplitudes, peak_widths_half_max
 
 
 def annotate_peaks_with_overlap_handling(ax, frequencies, amplitudes, color, offset=0.02):
