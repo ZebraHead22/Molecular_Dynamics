@@ -4,7 +4,8 @@ import random
 import numpy as np
 import scipy as sp
 from scipy import fftpack
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 from numpy.fft import fft, ifft
 from scipy.fft import rfft, rfftfreq
 
@@ -102,7 +103,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     window = MainApplication()
     window.show()
-    app.exec_()
+    app.exec()
 
 if __name__ == '__main__':
     main()
