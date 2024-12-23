@@ -6,11 +6,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.fft import fft, fftfreq
 from scipy.signal import find_peaks, peak_widths
-from scipy.signal.windows import hann
+from scipy.signal.windows import hann, hamming
 from multiprocessing import Pool, cpu_count
+import argparse
 
 # Автокорреляция с разделением на участки
 def autocorrelation_chunk(args):
+    """
+    Compute the autocorrelation of a chunk of data.
+
+    Parameters:
+        args (tuple): A tuple containing the data array (dip_magnitude) and the start and end indices of the chunk.
+
+    Returns:
+        numpy.ndarray: The autocorrelation values for the chunk.
+    """
     dip_magnitude, start, end = args
     chunk = dip_magnitude[start:end]
     autocorr = np.correlate(chunk, chunk, mode='full')
@@ -35,6 +45,15 @@ def calculate_autocorrelation(dip_magnitude, num_cores=None):
 
 # Генерация заголовка на основе имени файла
 def create_title(filename):
+    """
+    Generate a title string based on the filename.
+
+    Parameters:
+        filename (str): The name of the file.
+
+    Returns:
+        str: A formatted title based on the filename.
+    """
     match = re.search(r'(\w+)_(\d+)_([a-zA-Z]+)', filename)
     if match:
         prefix = match.group(1).upper()
@@ -79,11 +98,28 @@ def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
 
 # Аннотация и сохранение данных пиков в файл
 def annotate_and_save_peaks(output_file, prefix, filename, peak_frequencies, peak_amplitudes, peak_widths_half_max):
+    """
+    Annotate peak data and save it to a file.
+
+    Parameters:
+        output_file (file object): The file to write the peak data to.
+        prefix (str): A prefix for the annotation.
+        filename (str): The name of the file being processed.
+        peak_frequencies (list): List of peak frequencies.
+        peak_amplitudes (list): List of peak amplitudes.
+        peak_widths_half_max (list): List of peak widths at half maximum.
+
+    Returns:
+        None
+    """
     for freq, amp, width in zip(peak_frequencies, peak_amplitudes, peak_widths_half_max):
-        output_file.write(f"{prefix}_{filename} -- {freq:.2f} -- {amp:.2f} -- {width:.2f}\n")
+        try:
+            output_file.write(f"{prefix}_{filename} -- {freq:.2f} -- {amp:.2f} -- {width:.2f}\n")
+        except (ValueError, TypeError) as e:
+            print(f"Error writing data for {filename}: {e}")
 
 # Главная функция для обработки каждого файла
-def process_file(name):
+def process_file(name, output_file, num_cores):
     filename, file_extension = os.path.splitext(name)
     if file_extension == ".dat":
         print(f"-- File {os.path.basename(filename)}")
@@ -94,22 +130,59 @@ def process_file(name):
         df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y',
                            'Unnamed: 6': 'dip_z', 'Unnamed: 8': '|dip|'}, inplace=True)
         df.dropna(how='all', axis=1, inplace=True)
+
+        df.insert(1, 'Time', df['frame']*2/1000)
+
         dip_magnitude = np.array(df['|dip|'].to_list())
         dip_magnitude -= np.mean(dip_magnitude)
+
+
+        plt.figure()
+        plt.plot(df['Time'].to_list(), dip_magnitude, color='black', linewidth=0.5)
+        plt.title(title + ' Raw Data')
+        plt.xlabel("Time (ps)")
+        plt.ylabel("Amplitude (a.u.)")
+        plt.tight_layout()
+        plt.grid(True)
+        plt.savefig(f"{filename}_raw.png", dpi=300)
+
+
         length = dip_magnitude.size
         print(f"-- Len of transient {length} points or {length * 2 / 1000000} ns")
 
-        num_cores_to_use = 16
-        print(f"-- Using {num_cores_to_use} cores")
+        print(f"-- Using {num_cores} cores")
 
         # === Spectrum with Autocorrelation ===
-        dip_magnitude_corr = calculate_autocorrelation(dip_magnitude, num_cores=num_cores_to_use)
+        dip_magnitude_corr = calculate_autocorrelation(dip_magnitude, num_cores=num_cores)
+        
+        # Построение графика автокорреляции
+        plt.figure()
+        plt.plot(df['Time'].to_list(), dip_magnitude_corr, color='black', linewidth=0.5)
+        plt.title(title + " Autocorrelation")
+        plt.xlabel("Time (ps)")
+        plt.ylabel("Amplitude (a.u.)")
+        plt.tight_layout()
+        # plt.xlim([0, 100])
+        # plt.ylim([-2000, 2000])
+        plt.grid(True)
+        plt.savefig(f"{filename}_autocorrelation.png", dpi=300)
+
         window = hann(len(dip_magnitude_corr))
         dip_magnitude_windowed = dip_magnitude_corr * window
 
+        #Построение графика наложения окна Ханна
+        plt.figure()
+        plt.plot(df['Time'].to_list(), dip_magnitude_windowed, color='black', linewidth=0.5)
+        plt.title("Hann Window Applied")
+        plt.xlabel("Time (ps)")
+        plt.ylabel("Amplitude (a.u.)")
+        plt.tight_layout()
+        plt.grid(True)
+        plt.savefig(f"{filename}_hann_window.png", dpi=300)
+
         time_step = 2e-15
-        N = len(dip_magnitude_windowed)
-        yf = fft(dip_magnitude_windowed)
+        N = len(dip_magnitude_windowed) #_windowed if Hann
+        yf = fft(dip_magnitude_windowed) # too
         xf = fftfreq(N, time_step)[:N//2]
 
         cutoff_frequency = 3e12
@@ -118,42 +191,43 @@ def process_file(name):
 
         xf_thz = xf * 1e-12
         xf_cm_inv = xf_thz / 0.03
-        mask = xf_cm_inv <= 6000
+        mask = xf_cm_inv <= 4000
         xf_cm_inv_filtered = xf_cm_inv[mask]
-        spectral_density_filtered = 2.0 / N * np.abs(yf[:N//2])[mask] * 10000
+        spectral_density_filtered = 2.0 / N * np.abs(yf[:N//2])[mask]
 
         peak_frequencies, peak_amplitudes, peak_widths_half_max = find_main_peaks(
             xf_cm_inv_filtered, spectral_density_filtered)
 
+        # Построение спектра
+        plt.figure()
+        plt.plot(xf_cm_inv_filtered, spectral_density_filtered, color='black', linewidth=0.5, label="Spectral ACF EDM")
+        for freq in peak_frequencies:
+            plt.axvline(x=freq, color='red', linewidth=0.5, linestyle='--', label=f"Peak {freq:.1f} cm$^{-1}$")
+        plt.title(title)
+        plt.xlabel("Frequency (cm$^{-1}$)")
+        plt.ylabel("Spectral ACF EDM Amplitude (a.u.)")
+        plt.legend(fontsize=8)
+        plt.tight_layout()
+        plt.grid(True)
+        plt.savefig(f"{filename}_spectrum.png", dpi=300)
+
         # Запись данных в файл для спектра с автокорреляцией
         annotate_and_save_peaks(output_file, "AKF", os.path.basename(filename), peak_frequencies, peak_amplitudes, peak_widths_half_max)
 
-        # === Spectrum without Autocorrelation ===
-        dip_magnitude_windowed_no_ac = dip_magnitude * window
-        N_no_ac = len(dip_magnitude_windowed_no_ac)
-        yf_no_ac = fft(dip_magnitude_windowed_no_ac)
-        xf_no_ac = fftfreq(N_no_ac, time_step)[:N_no_ac//2]
-        yf_no_ac[:cutoff_index] = 0
-
-        xf_thz_no_ac = xf_no_ac * 1e-12
-        xf_cm_inv_no_ac = xf_thz_no_ac / 0.03
-        mask_no_ac = xf_cm_inv_no_ac <= 6000
-        xf_cm_inv_filtered_no_ac = xf_cm_inv_no_ac[mask_no_ac]
-        spectral_density_filtered_no_ac = 2.0 / N_no_ac * np.abs(yf_no_ac[:N_no_ac//2])[mask_no_ac] * 10000
-
-        peak_frequencies, peak_amplitudes, peak_widths_half_max = find_main_peaks(
-            xf_cm_inv_filtered_no_ac, spectral_density_filtered_no_ac)
-
-        # Запись данных в файл для спектра без автокорреляции
-        annotate_and_save_peaks(output_file, "no_AKF", os.path.basename(filename), peak_frequencies, peak_amplitudes, peak_widths_half_max)
-
-
 if __name__ == '__main__':
-    directory = os.getcwd()
-    output_file = open("peak_data.txt", "w")
-    for address, dirs, names in os.walk(directory):
-        for name in names:
-            process_file(os.path.join(address, name))
+    parser = argparse.ArgumentParser(description="Process dipole moment data files and generate autocorrelation and spectral density plots.")
+    parser.add_argument('-d', '--directory', type=str, default=os.getcwd(), help="Directory to process (default: current working directory)")
+    parser.add_argument('-o', '--output', type=str, default="peak_data.txt", help="Output file for peak data (default: peak_data.txt)")
+    parser.add_argument('-c', '--cores', type=int, default=cpu_count(), help="Number of CPU cores to use (default: all available cores)")
 
-    output_file.close()
+    args = parser.parse_args()
+    directory = args.directory
+    output_filename = args.output
+    num_cores = args.cores
+
+    with open(output_filename, "w") as output_file:
+        for address, dirs, names in os.walk(directory):
+            for name in names:
+                process_file(os.path.join(address, name), output_file, num_cores)
+
     print("-- Processing complete.")
