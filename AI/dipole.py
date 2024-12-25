@@ -1,56 +1,50 @@
 import os
-from multiprocessing import Pool, cpu_count
-import numpy as np
+from concurrent.futures import ProcessPoolExecutor
 import MDAnalysis as mda
 
 def calculate_dipole_for_frame(frame_info):
-    """Вычисляет дипольный момент для заданного кадра."""
-    frame, charges, positions = frame_info
-    dipole = np.sum(charges[:, None] * positions, axis=0)  # q * r
-    return frame, dipole
+    """Функция для вычисления дипольного момента для одного кадра."""
+    ts, universe, output_file = frame_info
+    universe.trajectory[ts]
+    atoms = universe.select_atoms("all")
+    positions = atoms.positions
+    charges = atoms.charges
+    dipole_moment = sum(charge * position for charge, position in zip(charges, positions))
+    
+    with open(output_file, 'a') as f:
+        f.write(f"Frame {ts}: {dipole_moment}\n")
+    return ts  # Возвращаем номер обработанного кадра
 
-def process_directory(directory):
+def process_directory(directory, num_workers=2):
     """Обрабатывает одну папку с файлами."""
     psf_file = os.path.join(directory, "trp_1.psf")
     dcd_file = os.path.join(directory, "runned.dcd")
-    velocities_file = os.path.join(directory, "velocities.dcd")  # Если потребуется
+    output_file = os.path.join(directory, "dipole_moments.dat")
     
-    # Проверяем наличие файлов
-    if not (os.path.exists(psf_file) and os.path.exists(dcd_file)):
-        print(f"Skipping {directory}: missing required files.")
+    if not os.path.exists(psf_file) or not os.path.exists(dcd_file):
+        print(f"Пропускаем папку {directory}, отсутствуют необходимые файлы.")
         return
 
-    # Загрузка файлов
-    print(f"Processing directory: {directory}")
-    u = mda.Universe(psf_file, dcd_file, velocities=velocities_file if os.path.exists(velocities_file) else None)
-    charges = u.atoms.charges  # Заряды атомов
+    print(f"Обрабатываем папку: {directory}")
     
-    # Подготовка данных для обработки
-    frames_info = [
-        (ts.frame, charges, u.atoms.positions) for ts in u.trajectory
-    ]
+    # Загрузка вселенной
+    universe = mda.Universe(psf_file, dcd_file)
     
-    # Настройка многопроцессорной обработки
-    # num_workers = cpu_count()
-    NUM_WORKERS = 16
-    results = []
-    with Pool(processes=NUM_WORKERS) as pool:
-        results = pool.imap_unordered(calculate_dipole_for_frame, frames_info)
-    
-    # Сохранение результатов
-    output_file = os.path.join(directory, "dipole_moments.dat")
-    with open(output_file, "w") as outfile:
-        outfile.write("# Frame Dx Dy Dz\n")
-        for frame, dipole in results:
-            outfile.write(f"{frame} {dipole[0]:.6f} {dipole[1]:.6f} {dipole[2]:.6f}\n")
-    print(f"Results saved to {output_file}")
+    # Формирование информации для обработки
+    frames_info = [(ts, universe, output_file) for ts in range(len(universe.trajectory))]
+
+    # Использование ProcessPoolExecutor для обработки кадров
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        for ts in executor.map(calculate_dipole_for_frame, frames_info):
+            print(f"Обработан кадр: {ts}")
 
 def main():
-    base_dir = "./data"  # Путь к основной папке, содержащей подкаталоги
-    subdirs = [os.path.join(base_dir, d) for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))]
+    """Обрабатывает все папки в текущей директории."""
+    base_directory = os.getcwd()
+    num_workers = 4  # Укажите число потоков
 
-    for subdir in subdirs:
-        process_directory(subdir)
+    for subdir in [os.path.join(base_directory, d) for d in os.listdir(base_directory) if os.path.isdir(os.path.join(base_directory, d))]:
+        process_directory(subdir, num_workers=num_workers)
 
 if __name__ == "__main__":
     main()
