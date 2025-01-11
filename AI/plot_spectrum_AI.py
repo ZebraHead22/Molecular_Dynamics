@@ -131,7 +131,7 @@ def process_file(name, output_file, num_cores):
                            'Unnamed: 6': 'dip_z', 'Unnamed: 8': '|dip|'}, inplace=True)
         df.dropna(how='all', axis=1, inplace=True)
 
-        df.insert(1, 'Time', df['frame']*2/1000)
+        df.insert(1, 'Time', df['frame']*1/1000)
 
         dip_magnitude = np.array(df['|dip|'].to_list())
         dip_magnitude -= np.mean(dip_magnitude)
@@ -148,7 +148,7 @@ def process_file(name, output_file, num_cores):
 
 
         length = dip_magnitude.size
-        print(f"-- Len of transient {length} points or {length * 2 / 1000000} ns")
+        print(f"-- Len of transient {length} points or {length * 1 / 1000000} ns")
 
         print(f"-- Using {num_cores} cores")
 
@@ -180,7 +180,7 @@ def process_file(name, output_file, num_cores):
         plt.grid(True)
         plt.savefig(f"{filename}_hann_window.png", dpi=300)
 
-        time_step = 2e-15
+        time_step = 1e-15
         N = len(dip_magnitude_windowed) #_windowed if Hann
         yf = fft(dip_magnitude_windowed) # too
         xf = fftfreq(N, time_step)[:N//2]
