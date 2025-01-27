@@ -57,10 +57,130 @@ def process_file(file_path):
         del fft_sig
         gc.collect()
 
+<<<<<<< HEAD
         # Спектральный анализ
         window = hann(n)
         yf = rfft(autocorr * window)
         xf = rfftfreq(n, d=2e-15)
+=======
+    autocorr = np.zeros(len(dip_magnitude))
+    for result in results:
+        autocorr[:len(result)] += result
+
+    return autocorr
+
+# Генерация заголовка на основе имени файла
+def create_title(filename):
+    """
+    Generate a title string based on the filename.
+
+    Parameters:
+        filename (str): The name of the file.
+
+    Returns:
+        str: A formatted title based on the filename.
+    """
+    match = re.search(r'(\w+)_(\d+)_([a-zA-Z]+)', filename)
+    if match:
+        prefix = match.group(1).upper()
+        number = match.group(2)
+        environment = match.group(3).lower()
+
+        if 'water' in environment:
+            return f"{prefix} WATER N={number}"
+        elif 'vac' in environment or 'vacuum' in environment:
+            return f"{prefix} VACUUM N={number}"
+        elif 'linear' in environment:
+            return f"{prefix} LINEAR N={number}"
+        elif 'cyclic' in environment:
+            return f"{prefix} CYCLIC N={number}"
+    return filename
+
+# Поиск основных пиков с учетом ширины на половине амплитуды
+def find_main_peaks(xf_cm_inv_filtered, spectral_density_filtered):
+    ranges = [(i, i + 500) for i in range(0, 4000, 500)]
+    peak_frequencies = []
+    peak_amplitudes = []
+    peak_widths_half_max = []
+
+    for lower_bound, upper_bound in ranges:
+        mask = (xf_cm_inv_filtered >= lower_bound) & (xf_cm_inv_filtered < upper_bound)
+        sub_xf = xf_cm_inv_filtered[mask]
+        sub_spectral_density = spectral_density_filtered[mask]
+
+        if len(sub_xf) > 0:
+            peaks, _ = find_peaks(sub_spectral_density, height=0)
+            if len(peaks) > 0:
+                peak = peaks[np.argmax(sub_spectral_density[peaks])]
+                peak_frequencies.append(sub_xf[peak])
+                peak_amplitudes.append(sub_spectral_density[peak])
+
+                # Расчет ширины на половине высоты
+                results_half_max = peak_widths(sub_spectral_density, [peak], rel_height=0.5)
+                width = results_half_max[0][0]
+                peak_widths_half_max.append(width * (sub_xf[1] - sub_xf[0]))
+
+    return peak_frequencies, peak_amplitudes, peak_widths_half_max
+
+# Аннотация и сохранение данных пиков в файл
+def annotate_and_save_peaks(output_file, prefix, filename, peak_frequencies, peak_amplitudes, peak_widths_half_max):
+    """
+    Annotate peak data and save it to a file.
+
+    Parameters:
+        output_file (file object): The file to write the peak data to.
+        prefix (str): A prefix for the annotation.
+        filename (str): The name of the file being processed.
+        peak_frequencies (list): List of peak frequencies.
+        peak_amplitudes (list): List of peak amplitudes.
+        peak_widths_half_max (list): List of peak widths at half maximum.
+
+    Returns:
+        None
+    """
+    for freq, amp, width in zip(peak_frequencies, peak_amplitudes, peak_widths_half_max):
+        try:
+            output_file.write(f"{prefix}_{filename} -- {freq:.2f} -- {amp:.2f} -- {width:.2f}\n")
+        except (ValueError, TypeError) as e:
+            print(f"Error writing data for {filename}: {e}")
+
+# Главная функция для обработки каждого файла
+def process_file(name, output_file, num_cores):
+    filename, file_extension = os.path.splitext(name)
+    if file_extension == ".dat":
+        print(f"-- File {os.path.basename(filename)}")
+        title = create_title(filename)
+        print(f"-- Generated title: {title}")
+
+        df = pd.read_csv(name, delimiter=' ', index_col=None, header=[0])
+        df.rename(columns={'#': 'frame', 'Unnamed: 2': 'dip_x', 'Unnamed: 4': 'dip_y',
+                           'Unnamed: 6': 'dip_z', 'Unnamed: 8': '|dip|'}, inplace=True)
+        df.dropna(how='all', axis=1, inplace=True)
+
+        df.insert(1, 'Time', df['frame']*1/1000)
+
+        dip_magnitude = np.array(df['|dip|'].to_list())
+        dip_magnitude -= np.mean(dip_magnitude)
+
+
+        plt.figure()
+        plt.plot(df['Time'].to_list(), dip_magnitude, color='black', linewidth=0.5)
+        plt.title(title + ' Raw Data')
+        plt.xlabel("Time (ps)")
+        plt.ylabel("Amplitude (a.u.)")
+        plt.tight_layout()
+        plt.grid(True)
+        plt.savefig(f"{filename}_raw.png", dpi=300)
+
+
+        length = dip_magnitude.size
+        print(f"-- Len of transient {length} points or {length * 1 / 1000000} ns")
+
+        print(f"-- Using {num_cores} cores")
+
+        # === Spectrum with Autocorrelation ===
+        dip_magnitude_corr = calculate_autocorrelation(dip_magnitude, num_cores=num_cores)
+>>>>>>> 9ed3d001e4ff0b817d570de9c490344f549bd844
         
         # Фильтрация
         cutoff_idx = np.searchsorted(xf, CUTOFF_FREQ)
@@ -105,7 +225,14 @@ def process_file(file_path):
         plt.savefig(f"{output_prefix}_spectrum.png", dpi=300, bbox_inches='tight')
         plt.close()
 
+<<<<<<< HEAD
         return True
+=======
+        time_step = 1e-15
+        N = len(dip_magnitude_windowed) #_windowed if Hann
+        yf = fft(dip_magnitude_windowed) # too
+        xf = fftfreq(N, time_step)[:N//2]
+>>>>>>> 9ed3d001e4ff0b817d570de9c490344f549bd844
 
     except Exception as e:
         logger.error(f"Error processing {file_path}: {str(e)}", exc_info=True)
