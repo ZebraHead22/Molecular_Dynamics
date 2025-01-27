@@ -133,3 +133,5 @@ Fourier_Program/.DS_Store
 .DS_Store
 md
 python_libs
+venv
+.venv
