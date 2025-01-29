@@ -15,34 +15,46 @@ INPUT_DIR = os.getcwd()
 OUTPUT_DIR = os.getcwd()
 JOBS = 16
 DPI = 300
-PEAK_WIDTH = 5  # Minimum peak width in cm⁻¹
 CUTOFF_FREQ = 3e12  # 3 THz
 
 def find_significant_peaks(spectrum, frequencies):
-    # 1. Find the maximum amplitude and set the threshold
-    max_amplitude = np.max(spectrum)
-    threshold = 0.05 * max_amplitude
+    # Функция для нахождения пиков в заданном диапазоне частот
+    def find_peaks_in_range(freq_range, spectrum, frequencies):
+        mask = (frequencies >= freq_range[0]) & (frequencies <= freq_range[1])
+        freq_subset = frequencies[mask]
+        spec_subset = spectrum[mask]
+        
+        # Находим пик
+        peak_indices, _ = find_peaks(spec_subset)
+        if len(peak_indices) == 0:
+            return None, None
+        
+        # Выбираем пик с наибольшей амплитудой
+        max_peak_index = peak_indices[np.argmax(spec_subset[peak_indices])]
+        max_freq = freq_subset[max_peak_index]
+        max_amp = spec_subset[max_peak_index]
+        
+        return max_freq, max_amp
+    
+    # Определяем диапазоны частот
+    freq_ranges = [
+        (0, 500), (500, 1000), (1000, 1500), (1500, 2000),
+        (2000, 2500), (2500, 3000), (3000, 3500), (3500, 4000)
+    ]
+    
+    significant_peaks = []
+    max_amp = np.max(spectrum)
+    
+    for freq_range in freq_ranges:
+        max_freq, max_amp_range = find_peaks_in_range(freq_range, spectrum, frequencies)
+        if max_amp_range is not None and max_amp_range >= 0.05 * max_amp:
+            significant_peaks.append((max_freq, max_amp_range))
+    
+    # Преобразуем список кортежей в массив индексов пиков
+    peak_indices = np.array([np.argmin(np.abs(frequencies - peak[0])) for peak in significant_peaks])
+    
+    return peak_indices
 
-    # Initialize list to store peak indices
-    peaks = []
-
-    # 2. Use a sliding window approach to find significant peaks
-    for i in range(1, len(spectrum) - 1):
-        if spectrum[i] < threshold:
-            continue
-
-        left_amp = spectrum[i - 1]
-        center_amp = spectrum[i]
-        right_amp = spectrum[i + 1]
-
-        if center_amp >= left_amp and center_amp >= right_amp:
-            if center_amp - left_amp >= 0.5 * max_amplitude or center_amp - right_amp >= 0.5 * max_amplitude:
-                peaks.append(i)
-
-    # Ensure peaks are unique and sorted
-    peaks = np.unique(peaks)
-
-    return peaks
 
 def process_file(file_path):
     """Process the .dat file"""
@@ -116,7 +128,11 @@ def process_file(file_path):
                 loc='upper right',
                 frameon=False,
                 fontsize=9,
-                title='Peak Frequencies:'
+                title='Peak Frequencies:',
+                handlelength=0,  # No line handles
+                handletextpad=0,  # No padding between text and handle
+                borderpad=0,  # No padding around the legend box
+                markerscale=0 # Hide markers in legend
             )
         plt.xlabel("Frequency (cm⁻¹)")
         plt.ylabel("Spectral ACF EDM Amplitude (a. u.)")
