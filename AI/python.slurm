@@ -1,21 +1,16 @@
 #!/bin/bash
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=8
-#SBATCH --cpus-per-task=2
-#SBATCH --mem=100G
-#SBATCH --time=80:00:00
-#SBATCH --output=processing_%j.log
+#SBATCH --job-name=prc_spectre
+#SBATCH --output=output.log
+#SBATCH --error=error.log
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=16
+#SBATCH --time=30:00:00
 
-# Автоматическое определение путей
-INPUT_DIR="/home/ipnthsapst/max_exa/source_files/scripts/python"
-OUTPUT_DIR="${SLURM_SUBMIT_DIR}/processing_results_${SLURM_JOB_ID}"
-
+# Загрузка необходимых модулей
 module load python/3.11
 
-# Создание выходной директории
-mkdir -p "${OUTPUT_DIR}"
+# Путь к вашему скрипту
+PYTHON_SCRIPT="/home/ipnthsapst/max_exa/source_files/scripts/python/plot_spectrum_AI_simple.py"
 
-srun python plot_spectrum_AI.py \
-  -i "${INPUT_DIR}" \
-  -o "${OUTPUT_DIR}" \
-  -j $((SLURM_NTASKS_PER_NODE * SLURM_JOB_NUM_NODES))
+# Запуск скрипта
+python3 $PYTHON_SCRIPT
