@@ -1,7 +1,5 @@
 #!/bin/bash
 #SBATCH --job-name=prc_spectre
-#SBATCH --output=output.log
-#SBATCH --error=error.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
 #SBATCH --time=30:00:00
