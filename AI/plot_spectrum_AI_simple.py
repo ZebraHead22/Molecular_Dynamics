@@ -1,5 +1,5 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import os
 import numpy as np
 import pandas as pd
@@ -40,6 +40,16 @@ def process_file(file_path):
         time = df['#'].values * 2e-3
         signal = df['Unnamed: 8'].values.astype('float32')
         signal -= signal.mean()
+        # Plot original data
+        plt.figure(figsize=(12, 6))
+        plt.plot(time, signal, 'b-', lw=0.8)
+        plt.xlabel("Time (ps)")
+        plt.ylabel("Dipole moment (D)")
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig("%s_original.png" % output_prefix, dpi=DPI, bbox_inches='tight')
+        plt.close()
+        
         # Autocorrelation
         n = len(signal)
         fft_sig = rfft(signal, n=2*n)
@@ -63,10 +73,6 @@ def process_file(file_path):
         
         # Scale spectrum
         spectrum *= 10000
-        
-        # Save spectrum to CSV
-        # spectrum_df = pd.DataFrame({'Frequency (cm^-1)': xf_filtered, 'Amplitude': spectrum})
-        # spectrum_df.to_csv(f"{output_prefix}_spectrum.csv", index=False, sep=',')
         
         # Plotting
         plt.figure(figsize=(12, 6))
