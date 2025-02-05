@@ -24,6 +24,16 @@ CUTOFF_FREQ = 3e12  # 3 THz
 def gaussian(x, A, mu, sigma):
     return A * np.exp(-(x - mu)**2 / (2 * sigma**2))
 
+def segment_spectra(xf_filtered, spectrum, num_segments):
+    """Segment the spectrum into multiple segments."""
+    segment_size = len(xf_filtered) // num_segments
+    segments = []
+    for i in range(num_segments):
+        start = i * segment_size
+        end = (i + 1) * segment_size if i < num_segments - 1 else None
+        segments.append((xf_filtered[start:end], spectrum[start:end]))
+    return segments
+
 def process_file(file_path):
     """Process the .dat file"""
     try:
@@ -79,41 +89,36 @@ def process_file(file_path):
         # Scale spectrum
         spectrum *= 10000
         
-        # Find peaks
-        peaks, _ = find_peaks(spectrum, height=np.percentile(spectrum, 95))  # Adjust percentile as needed
-        prominences = peak_prominences(spectrum, peaks)[0]
-        widths, width_heights, left_ips, right_ips = peak_widths(spectrum, peaks, rel_height=0.5)
+        # Segment the spectrum
+        num_segments = 10  # Adjust number of segments as needed
+        segments = segment_spectra(xf_filtered, spectrum, num_segments)
         
-        # Filter peaks by prominence and width
-        filtered_peaks = []
-        for i, peak in enumerate(peaks):
-            if prominences[i] > 50 and widths[i] > 50:  # Adjust thresholds as needed
-                filtered_peaks.append(peak)
+        # Find peaks in each segment
+        peak_frequencies = []
+        for xf_segment, spectrum_segment in segments:
+            peaks, _ = find_peaks(spectrum_segment, height=np.percentile(spectrum_segment, 95))  # Adjust percentile as needed
+            prominences = peak_prominences(spectrum_segment, peaks)[0]
+            widths, _, _, _ = peak_widths(spectrum_segment, peaks, rel_height=0.5)
+            
+            # Filter peaks by prominence and width
+            for i, peak in enumerate(peaks):
+                if prominences[i] > 50 and widths[i] > 50:  # Adjust thresholds as needed
+                    peak_frequencies.append((xf_segment[peak], spectrum_segment[peak]))
         
-        # Fit Gaussian peaks
-        peak_data = []
-        for peak_index in filtered_peaks:
-            peak_x = xf_filtered[peak_index]
-            peak_y = spectrum[peak_index]
-            guess = [peak_y, peak_x, 100]  # Initial guess for amplitude, mean, and standard deviation
-            try:
-                params, _ = curve_fit(gaussian, xf_filtered, spectrum, p0=guess, maxfev=10000)
-                peak_data.append(params)
-            except RuntimeError:
-                print(f"Failed to fit Gaussian at index {peak_index}")
+        # Sort peaks by prominence
+        peak_frequencies.sort(key=lambda x: x[1], reverse=True)
         
-        # Extract peak frequencies
-        peak_frequencies = [params[1] for params in peak_data]
+        # Select top 10 peaks
+        selected_peaks = peak_frequencies[:10]
         
         # Plotting
         plt.figure(figsize=(12, 6))
         plt.plot(xf_filtered, spectrum, 'k-', lw=0.8)
-        for params in peak_data:
-            plt.plot(xf_filtered, gaussian(xf_filtered, *params), 'r--', lw=0.8)
-            plt.scatter([params[1]], [params[0]], color='red', marker='x', s=100)
+        for freq, amp in selected_peaks:
+            plt.scatter(freq, amp, color='red', marker='x', s=100)
         
         # Legend
-        legend_labels = [f'{freq:.2f} cm⁻¹' for freq in peak_frequencies]
+        legend_labels = [f'{freq:.2f} cm⁻¹' for freq, _ in selected_peaks]
         plt.legend(legend_labels, title="Peaks", loc="upper right")
         
         plt.xlabel("Frequency (cm⁻¹)")
