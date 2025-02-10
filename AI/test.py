@@ -7,7 +7,7 @@ import gc
 from scipy.fft import rfft, rfftfreq, irfft
 from scipy.signal import find_peaks, peak_prominences, peak_widths
 from scipy.signal.windows import hann
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -18,29 +18,18 @@ INPUT_DIR = os.getcwd()
 OUTPUT_DIR = os.getcwd()
 JOBS = 16
 DPI = 300
-CUTOFF_FREQ = 3e12  # 3 THz
 
-# Gaussian peak function
-def gaussian(x, A, mu, sigma):
-    return A * np.exp(-(x - mu)**2 / (2 * sigma**2))
-
-def segment_spectra(xf_filtered, spectrum, num_segments):
-    """Segment the spectrum into multiple segments."""
-    segment_size = len(xf_filtered) // num_segments
-    segments = []
-    for i in range(num_segments):
-        start = i * segment_size
-        end = (i + 1) * segment_size if i < num_segments - 1 else None
-        segments.append((xf_filtered[start:end], spectrum[start:end]))
-    return segments
+def detect_peaks(xf_filtered, spectrum, num_segments=10, top_n=10,)
+    pass
 
 def process_file(file_path):
-    """Process the .dat file"""
+    """Обрабатывает файл .dat."""
     try:
         base_name = os.path.splitext(os.path.basename(file_path))[0]
         output_prefix = os.path.join(OUTPUT_DIR, base_name)
         print("Processing: %s" % file_path)
-        # Read data
+        
+        # Чтение данных
         df = pd.read_csv(
             file_path,
             sep=' ',
@@ -49,83 +38,74 @@ def process_file(file_path):
             engine='c'
         )
         if df.empty or len(df) < 2:
-            raise ValueError("DataFrame is empty or has less than 2 rows.")
+            raise ValueError("DataFrame is пустой или содержит менее 2 строк.")
         
-        # Prepare data
+        # Подготовка данных
         time = df['#'].values * 2e-3
         signal = df['Unnamed: 8'].values.astype('float32')
         signal -= signal.mean()
-        # Plot original data
+        
+        # Построение графика исходного сигнала
         plt.figure(figsize=(12, 6))
         plt.plot(time, signal, 'b-', lw=0.8)
         plt.xlabel("Time (ps)")
         plt.ylabel("Dipole moment (D)")
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
-        plt.savefig("%s_original.png" % output_prefix, dpi=DPI, bbox_inches='tight')
+        plt.savefig(f"{output_prefix}_original.png", dpi=DPI, bbox_inches='tight')
         plt.close()
         
-        # Autocorrelation
+        # Автокорреляция
         n = len(signal)
         fft_sig = rfft(signal, n=2*n)
         autocorr = irfft(fft_sig * np.conj(fft_sig), n=2*n)[:n].real
         autocorr /= np.max(autocorr)
         del fft_sig
         gc.collect()
-        # Spectral analysis
+        
+        # Спектральный анализ с использованием окна Ханна
         window = hann(n)
         autocorr_windowed = autocorr * window
         yf = rfft(autocorr_windowed)
         xf = rfftfreq(n, d=2e-15)
-        # Frequency filtering
+        
+        # Фильтрация по частоте
         cutoff_idx = np.searchsorted(xf, CUTOFF_FREQ)
         yf[:cutoff_idx] = 0
-        # Convert to cm⁻¹
+        
+        # Перевод частот в см⁻¹
         xf_cm = (xf * 1e-12) / 0.03
         mask = xf_cm <= 4000
         xf_filtered = xf_cm[mask]
-        spectrum = 2.0 / n * np.abs(yf[:len(mask)][mask])
+        yf_masked = yf[:len(xf_filtered)]
+        spectrum = 2.0 / n * np.abs(yf_masked)
         
-        # Scale spectrum
+        # Масштабирование спектра (при необходимости)
         spectrum *= 10000
         
-        # Segment the spectrum
-        num_segments = 10  # Adjust number of segments as needed
-        segments = segment_spectra(xf_filtered, spectrum, num_segments)
+        # Выделение пиков (напр., топ-10)
+        # Если слишком много пиков, попробуйте увеличить параметры min_prominence и/или min_width,
+        # либо повысить percentile для определения порога высоты.
+        selected_peaks = detect_peaks(xf_filtered, spectrum,
+                                      num_segments=10,
+                                      top_n=10,
+                                      height_percentile=95,   # можно снизить до 90
+                                      min_prominence=50,       # можно увеличить для уменьшения числа пиков
+                                      min_width=50)            # можно изменить в зависимости от ширины пиков
         
-        # Find peaks in each segment
-        peak_frequencies = []
-        for xf_segment, spectrum_segment in segments:
-            peaks, _ = find_peaks(spectrum_segment, height=np.percentile(spectrum_segment, 95))  # Adjust percentile as needed
-            prominences = peak_prominences(spectrum_segment, peaks)[0]
-            widths, _, _, _ = peak_widths(spectrum_segment, peaks, rel_height=0.5)
-            
-            # Filter peaks by prominence and width
-            for i, peak in enumerate(peaks):
-                if prominences[i] > 50 and widths[i] > 50:  # Adjust thresholds as needed
-                    peak_frequencies.append((xf_segment[peak], spectrum_segment[peak]))
-        
-        # Sort peaks by prominence
-        peak_frequencies.sort(key=lambda x: x[1], reverse=True)
-        
-        # Select top 10 peaks
-        selected_peaks = peak_frequencies[:10]
-        
-        # Plotting
+        # Построение графика спектра и нанесение красных крестиков для найденных пиков
         plt.figure(figsize=(12, 6))
-        plt.plot(xf_filtered, spectrum, 'k-', lw=0.8)
+        plt.plot(xf_filtered, spectrum, 'k-', lw=0.8, label="Spectrum")
         for freq, amp in selected_peaks:
             plt.scatter(freq, amp, color='red', marker='x', s=100)
-        
-        # Legend
+        # Легенда с частотами пиков
         legend_labels = [f'{freq:.2f} cm⁻¹' for freq, _ in selected_peaks]
         plt.legend(legend_labels, title="Peaks", loc="upper right")
-        
         plt.xlabel("Frequency (cm⁻¹)")
         plt.ylabel("Spectral ACF EDM Amplitude (a. u.)")
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
-        plt.savefig("%s_spectrum.png" % output_prefix, dpi=DPI, bbox_inches='tight')
+        plt.savefig(f"{output_prefix}_spectrum.png", dpi=DPI, bbox_inches='tight')
         plt.close()
         
         return True
