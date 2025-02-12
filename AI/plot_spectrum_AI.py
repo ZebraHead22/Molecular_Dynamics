@@ -20,6 +20,7 @@ OUTPUT_DIR = os.getcwd()
 JOBS = 16
 DPI = 300
 CUTOFF_FREQ = 3e12  # 3 THz
+
 def detect_peaks(xf_filtered, smoothed_spectrum, original_spectrum):
     """Detect peaks using sliding window and iterative filtering."""
     max_amp = np.max(original_spectrum)
@@ -108,11 +109,13 @@ def process_file(file_path):
         yf_masked = yf[:len(xf_filtered)]
         spectrum = 2.0 / n * np.abs(yf_masked)
         spectrum *= 10000  # Scaling factor
-        # ... (предыдущий код остается без изменений до сглаживания)
+        # Smooth spectrum
         smoothed_spectrum = savgol_filter(spectrum, window_length=11, polyorder=2)
         # Detect peaks with original spectrum for amplitude threshold
         selected_peaks = detect_peaks(xf_filtered, smoothed_spectrum, spectrum)
-        # Построение графика с пиками
+        # Extract and sort frequencies
+        freq_list = sorted([peak[0] for peak in selected_peaks])
+        # Plot spectrum with peaks
         plt.figure(figsize=(12, 6))
         plt.plot(xf_filtered, smoothed_spectrum, 'k-', lw=0.8, label='_nolegend_')
         for freq, amp in selected_peaks:
@@ -124,10 +127,10 @@ def process_file(file_path):
         plt.tight_layout()
         plt.savefig(f"{output_prefix}_spectrum.png", dpi=DPI, bbox_inches='tight')
         plt.close()
-        return True
+        return freq_list
     except Exception as e:
         print(f"Error processing {file_path}: {str(e)}")
-        return False
+        return []
 
 if __name__ == '__main__':
     dat_files = [os.path.join(INPUT_DIR, f) for f in os.listdir(INPUT_DIR) if f.endswith('.dat')]
@@ -140,8 +143,40 @@ if __name__ == '__main__':
     print(f"* Cutoff frequency: {CUTOFF_FREQ / 1e12:.1f} THz")
     with Pool(min(JOBS, len(dat_files))) as pool:
         results = pool.map(process_file, dat_files)
-        success_count = sum(results)
+        # Collect successful results
+        success_files = []
+        all_peaks = []
+        for file_path, peaks in zip(dat_files, results):
+            if isinstance(peaks, list) and len(peaks) > 0:
+                success_files.append(os.path.basename(file_path))
+                all_peaks.append(peaks)
+        success_count = len(success_files)
         print(f"Successfully processed: {success_count}/{len(dat_files)}")
-
-
-        
+        # Generate CSV report
+        if success_count > 0:
+            max_peaks = max(len(peaks) for peaks in all_peaks)
+            # Pad each peak list to max_peaks length
+            padded_peaks = [peaks + [''] * (max_peaks - len(peaks)) for peaks in all_peaks]
+            # Transpose rows and columns
+            transposed = list(zip(*padded_peaks))
+            # Format values to strings with 2 decimal places
+            formatted_transposed = []
+            for row in transposed:
+                formatted_row = []
+                for val in row:
+                    if isinstance(val, float):
+                        formatted_row.append(f"{val:.2f}")
+                    else:
+                        formatted_row.append(str(val))
+                formatted_transposed.append(formatted_row)
+            # Write CSV
+            csv_path = os.path.join(OUTPUT_DIR, "peaks_summary.csv")
+            with open(csv_path, 'w', encoding='utf-8') as f:
+                # Header with filenames
+                f.write(';'.join(success_files) + '\n')
+                # Write each transposed row
+                for row in formatted_transposed:
+                    f.write(';'.join(row) + '\n')
+            print(f"CSV report saved to: {csv_path}")
+        else:
+            print("No peaks detected in any files, CSV report skipped.")
