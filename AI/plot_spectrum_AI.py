@@ -115,6 +115,14 @@ def process_file(file_path):
         selected_peaks = detect_peaks(xf_filtered, smoothed_spectrum, spectrum)
         # Extract and sort frequencies
         freq_list = sorted([peak[0] for peak in selected_peaks])
+        
+        # Save spectrum to CSV
+        spectrum_df = pd.DataFrame({
+            'Frequency_cm-1': xf_filtered,
+            'Amplitude': spectrum
+        })
+        spectrum_df.to_csv("%s_spectrum.csv" % output_prefix, index=False)
+        
         # Plot spectrum with peaks
         plt.figure(figsize=(12, 6))
         plt.plot(xf_filtered, smoothed_spectrum, 'k-', lw=0.8, label='_nolegend_')

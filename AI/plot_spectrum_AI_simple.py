@@ -71,8 +71,17 @@ def process_file(file_path):
         xf_filtered = xf_cm[mask]
         spectrum = 2.0 / n * np.abs(yf[:len(mask)][mask])
         
+        # ... (предыдущий код остается без изменений)
+
         # Scale spectrum
         spectrum *= 10000
+        
+        # Save spectrum to CSV
+        spectrum_df = pd.DataFrame({
+            'Frequency_cm-1': xf_filtered,
+            'Amplitude': spectrum
+        })
+        spectrum_df.to_csv("%s_spectrum.csv" % output_prefix, index=False)
         
         # Plotting
         plt.figure(figsize=(12, 6))
@@ -88,6 +97,8 @@ def process_file(file_path):
     except Exception as e:
         print("Error processing %s: %s" % (file_path, str(e)))
         return False
+
+# ... (остальной код остается без изменений)
 
 if __name__ == '__main__':
     dat_files = [
