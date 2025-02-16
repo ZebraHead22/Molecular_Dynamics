@@ -2,6 +2,11 @@ import os
 import pandas as pd
 import re
 
+
+"""
+Так как мы обрабатываем большие файлы в два подхода, то этот скрипт
+нужен для того, чтобы слить 2 .csv файла воедино
+"""
 def extract_number(filename):
     match = re.search(r'\d+', filename)
     return int(match.group()) if match else float('inf')

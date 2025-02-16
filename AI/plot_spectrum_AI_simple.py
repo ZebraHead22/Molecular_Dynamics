@@ -12,6 +12,11 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+"""
+Тут мы не сохряняем картинки, не пишем суммарный .csv файл.
+Пишем для каждого файла свой .csv файл, чтобы потом посмтроить один спектр с пиками на нем
+"""
+
 # Configuration
 INPUT_DIR = os.getcwd()
 OUTPUT_DIR = os.getcwd()
@@ -41,14 +46,14 @@ def process_file(file_path):
         signal = df['Unnamed: 8'].values.astype('float32')
         signal -= signal.mean()
         # Plot original data
-        plt.figure(figsize=(12, 6))
-        plt.plot(time, signal, 'b-', lw=0.8)
-        plt.xlabel("Time (ps)")
-        plt.ylabel("Dipole moment (D)")
-        plt.grid(True, alpha=0.3)
-        plt.tight_layout()
-        plt.savefig("%s_original.png" % output_prefix, dpi=DPI, bbox_inches='tight')
-        plt.close()
+        # plt.figure(figsize=(12, 6))
+        # plt.plot(time, signal, 'b-', lw=0.8)
+        # plt.xlabel("Time (ps)")
+        # plt.ylabel("Dipole moment (D)")
+        # plt.grid(True, alpha=0.3)
+        # plt.tight_layout()
+        # plt.savefig("%s_original.png" % output_prefix, dpi=DPI, bbox_inches='tight')
+        # plt.close()
         
         # Autocorrelation
         n = len(signal)
@@ -84,21 +89,19 @@ def process_file(file_path):
         spectrum_df.to_csv("%s_spectrum.csv" % output_prefix, index=False)
         
         # Plotting
-        plt.figure(figsize=(12, 6))
-        plt.plot(xf_filtered, spectrum, 'k-', lw=0.8)
-        plt.xlabel("Frequency (cm⁻¹)")
-        plt.ylabel("Spectral ACF EDM Amplitude (a. u.)")
-        plt.grid(True, alpha=0.3)
-        plt.tight_layout()
-        plt.savefig("%s_spectrum.png" % output_prefix, dpi=DPI, bbox_inches='tight')
-        plt.close()
+        # plt.figure(figsize=(12, 6))
+        # plt.plot(xf_filtered, spectrum, 'k-', lw=0.8)
+        # plt.xlabel("Frequency (cm⁻¹)")
+        # plt.ylabel("Spectral ACF EDM Amplitude (a. u.)")
+        # plt.grid(True, alpha=0.3)
+        # plt.tight_layout()
+        # plt.savefig("%s_spectrum.png" % output_prefix, dpi=DPI, bbox_inches='tight')
+        # plt.close()
         
         return True
     except Exception as e:
         print("Error processing %s: %s" % (file_path, str(e)))
         return False
-
-# ... (остальной код остается без изменений)
 
 if __name__ == '__main__':
     dat_files = [

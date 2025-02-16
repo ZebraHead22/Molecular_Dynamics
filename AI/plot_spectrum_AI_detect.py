@@ -14,6 +14,10 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.signal import savgol_filter
 
+"""
+Тут делаем все: и суммарные файлы, и частные файлы, и графики для каждого файла.
+"""
+
 # Configuration
 INPUT_DIR = os.getcwd()
 OUTPUT_DIR = os.getcwd()
