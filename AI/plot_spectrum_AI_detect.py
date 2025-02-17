@@ -17,20 +17,18 @@ from scipy.signal import savgol_filter
 """
 Тут делаем все: и суммарные файлы, и частные файлы, и графики для каждого файла.
 """
-
 # Configuration
 INPUT_DIR = os.getcwd()
-OUTPUT_DIR = os.getcwd()
+OUTPUT_DIR = os.path.abspath(os.path.join(INPUT_DIR, "..", "result"))
 JOBS = 16
 DPI = 300
 CUTOFF_FREQ = 3e12  # 3 THz
 
 def create_output_dir():
     """Create output directory if it doesn't exist"""
-    output_dir = os.path.abspath(os.path.join(OUTPUT_DIR, "..", "result"))
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    return output_dir
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+    return OUTPUT_DIR
 
 def detect_peaks(xf_filtered, smoothed_spectrum, original_spectrum):
     """Detect peaks using sliding window and iterative filtering."""
@@ -44,7 +42,7 @@ def detect_peaks(xf_filtered, smoothed_spectrum, original_spectrum):
         return []
     # Step 2: Iteratively filter until less than 20 peaks remain
     current_peaks = peaks.copy()
-    while len(current_peaks) >= 1000:
+    while len(current_peaks) >= 500:
         new_peaks = []
         n = len(current_peaks)
         if n == 0:
@@ -66,14 +64,14 @@ def detect_peaks(xf_filtered, smoothed_spectrum, original_spectrum):
             break
         current_peaks = new_peaks
     # Filter peaks below 3% of max amplitude from original spectrum
-    current_peaks = [peak for peak in current_peaks if peak[1] >= 0.015 * max_amp]
+    current_peaks = [peak for peak in current_peaks if peak[1] >= 0.01 * max_amp]
     return current_peaks
 
 def process_file(file_path):
     """Process a .dat file to generate spectrum and peak plots."""
     try:
         base_name = os.path.splitext(os.path.basename(file_path))[0]
-        output_prefix = os.path.join(OUTPUT_DIR, base_name)
+        output_prefix = os.path.join(create_output_dir(), base_name)
         print(f"Processing: {file_path}")
         # Read data
         df = pd.read_csv(
@@ -133,7 +131,7 @@ def process_file(file_path):
             'Amplitude': spectrum
         })
         try:
-            spectrum_df.to_csv("%s_spectrum.csv" % output_prefix, index=False)
+            spectrum_df.to_csv(f"{output_prefix}_spectrum.csv", index=False)
         except Exception as e:
             print(f"Ошибка при сохранении CSV: {e}")
         
@@ -163,9 +161,7 @@ if __name__ == '__main__':
     print("Processing parameters:")
     print(f"* Number of cores: {min(JOBS, len(dat_files))}")
     print(f"* Cutoff frequency: {CUTOFF_FREQ / 1e12:.1f} THz")
-
     output_dir = create_output_dir()
-
     with Pool(min(JOBS, len(dat_files))) as pool:
         results = pool.map(process_file, dat_files)
         # Collect successful results
@@ -195,7 +191,7 @@ if __name__ == '__main__':
                         formatted_row.append(str(val))
                 formatted_transposed.append(formatted_row)
             # Write CSV
-            csv_path = os.path.join(OUTPUT_DIR, "peaks_summary.csv")
+            csv_path = os.path.join(output_dir, "peaks_summary.csv")
             with open(csv_path, 'w', encoding='utf-8') as f:
                 # Header with filenames
                 f.write(';'.join(success_files) + '\n')

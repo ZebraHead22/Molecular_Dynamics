@@ -21,17 +21,16 @@ from scipy.signal import find_peaks, peak_widths, peak_prominences
 
 # Configuration
 INPUT_DIR = os.getcwd()
-OUTPUT_DIR = os.getcwd()
+OUTPUT_DIR = os.path.abspath(os.path.join(INPUT_DIR, "..", "result"))
 JOBS = 16
 DPI = 300
 CUTOFF_FREQ = 3e12  # 3 THz
 
 def create_output_dir():
     """Create output directory if it doesn't exist"""
-    output_dir = os.path.abspath(os.path.join(OUTPUT_DIR, "..", "result"))
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    return output_dir
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+    return OUTPUT_DIR
 
 def process_file(file_path, output_dir):
     """Process the .dat file"""
