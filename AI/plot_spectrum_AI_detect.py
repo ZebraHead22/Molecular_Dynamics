@@ -102,7 +102,7 @@ def process_file(file_path):
         window = hann(n)
         autocorr_windowed = autocorr * window
         yf = rfft(autocorr_windowed)
-        xf = rfftfreq(n, d=2e-15)  # d in seconds (2 fs)
+        xf = rfftfreq(n, d=1e-15)  # d in seconds (1 fs)
         # Apply frequency cutoff
         cutoff_idx = np.searchsorted(xf, CUTOFF_FREQ)
         yf[:cutoff_idx] = 0
