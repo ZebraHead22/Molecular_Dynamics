@@ -21,7 +21,7 @@ def detect_peaks(xf_filtered, smoothed_spectrum, original_spectrum):
         return []
     # Step 2: Iteratively filter until less than 20 peaks remain
     current_peaks = peaks.copy()
-    while len(current_peaks) >= 1000:
+    while len(current_peaks) >= 500:
         new_peaks = []
         n = len(current_peaks)
         if n == 0:

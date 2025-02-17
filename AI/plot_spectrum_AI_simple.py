@@ -1,20 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+import gc
+import matplotlib
 import numpy as np
 import pandas as pd
-import gc
-from scipy.fft import rfft, rfftfreq, irfft
-from scipy.signal import find_peaks, peak_widths, peak_prominences
-from scipy.signal.windows import hann
-from multiprocessing import Pool, cpu_count
-import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from scipy.signal.windows import hann
+from multiprocessing import Pool, cpu_count
+from scipy.fft import rfft, rfftfreq, irfft
+from scipy.signal import find_peaks, peak_widths, peak_prominences
+
 
 """
-Тут мы не сохряняем картинки, не пишем суммарный .csv файл.
-Пишем для каждого файла свой .csv файл, чтобы потом посмтроить один спектр с пиками на нем
+Тут простая обработка: пишем только локальные CSV  в отдельную папку, 
+без картинок, без суммарного CSV.
+
 """
 
 # Configuration
@@ -24,11 +26,18 @@ JOBS = 16
 DPI = 300
 CUTOFF_FREQ = 3e12  # 3 THz
 
-def process_file(file_path):
+def create_output_dir():
+    """Create output directory if it doesn't exist"""
+    output_dir = os.path.abspath(os.path.join(OUTPUT_DIR, "..", "csv"))
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    return output_dir
+
+def process_file(file_path, output_dir):
     """Process the .dat file"""
     try:
         base_name = os.path.splitext(os.path.basename(file_path))[0]
-        output_prefix = os.path.join(OUTPUT_DIR, base_name)
+        output_prefix = os.path.join(output_dir, base_name)
         print("Processing: %s" % file_path)
         # Read data
         df = pd.read_csv(
@@ -40,21 +49,11 @@ def process_file(file_path):
         )
         if df.empty or len(df) < 2:
             raise ValueError("DataFrame is empty or has less than 2 rows.")
-        
+        print(df.head())
         # Prepare data
         time = df['#'].values * 2e-3
         signal = df['Unnamed: 8'].values.astype('float32')
         signal -= signal.mean()
-        # Plot original data
-        # plt.figure(figsize=(12, 6))
-        # plt.plot(time, signal, 'b-', lw=0.8)
-        # plt.xlabel("Time (ps)")
-        # plt.ylabel("Dipole moment (D)")
-        # plt.grid(True, alpha=0.3)
-        # plt.tight_layout()
-        # plt.savefig("%s_original.png" % output_prefix, dpi=DPI, bbox_inches='tight')
-        # plt.close()
-        
         # Autocorrelation
         n = len(signal)
         fft_sig = rfft(signal, n=2*n)
@@ -75,35 +74,23 @@ def process_file(file_path):
         mask = xf_cm <= 4000
         xf_filtered = xf_cm[mask]
         spectrum = 2.0 / n * np.abs(yf[:len(mask)][mask])
-        
-        # ... (предыдущий код остается без изменений)
-
         # Scale spectrum
         spectrum *= 10000
-        
         # Save spectrum to CSV
         spectrum_df = pd.DataFrame({
             'Frequency_cm-1': xf_filtered,
             'Amplitude': spectrum
         })
-        spectrum_df.to_csv("%s_spectrum.csv" % output_prefix, index=False)
-        
-        # Plotting
-        # plt.figure(figsize=(12, 6))
-        # plt.plot(xf_filtered, spectrum, 'k-', lw=0.8)
-        # plt.xlabel("Frequency (cm⁻¹)")
-        # plt.ylabel("Spectral ACF EDM Amplitude (a. u.)")
-        # plt.grid(True, alpha=0.3)
-        # plt.tight_layout()
-        # plt.savefig("%s_spectrum.png" % output_prefix, dpi=DPI, bbox_inches='tight')
-        # plt.close()
-        
+        try:
+            spectrum_df.to_csv("%s_spectrum.csv" % output_prefix, index=False)
+        except Exception as e:
+            print(f"Ошибка при сохранении CSV: {e}")
         return True
     except Exception as e:
         print("Error processing %s: %s" % (file_path, str(e)))
         return False
 
-if __name__ == '__main__':
+def main():
     dat_files = [
         os.path.join(INPUT_DIR, f)
         for f in os.listdir(INPUT_DIR)
@@ -118,7 +105,12 @@ if __name__ == '__main__':
     print("* Number of cores: %d" % min(JOBS, len(dat_files)))
     print("* Cutoff frequency: %.1f THz" % (CUTOFF_FREQ / 1e12))
     
+    output_dir = create_output_dir()
+    
     with Pool(min(JOBS, len(dat_files))) as pool:
-        results = pool.map(process_file, dat_files)
+        results = pool.starmap(process_file, [(file_path, output_dir) for file_path in dat_files])
         success_count = sum(results)
         print("Successfully processed: %d/%d" % (success_count, len(dat_files)))
+
+if __name__ == '__main__':
+    main()
