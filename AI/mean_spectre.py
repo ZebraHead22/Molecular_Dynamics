@@ -43,7 +43,7 @@ def detect_peaks(xf_filtered, smoothed_spectrum, original_spectrum):
             break
         current_peaks = new_peaks
     # Filter peaks below 1.5% of max amplitude from original spectrum
-    current_peaks = [peak for peak in current_peaks if peak[1] >= 0.015 * max_amp]
+    current_peaks = [peak for peak in current_peaks if peak[1] >= 0.01 * max_amp]
     return current_peaks
 
 def main():

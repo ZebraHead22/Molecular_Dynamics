@@ -28,7 +28,7 @@ CUTOFF_FREQ = 3e12  # 3 THz
 
 def create_output_dir():
     """Create output directory if it doesn't exist"""
-    output_dir = os.path.abspath(os.path.join(OUTPUT_DIR, "..", "csv"))
+    output_dir = os.path.abspath(os.path.join(OUTPUT_DIR, "..", "result"))
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     return output_dir

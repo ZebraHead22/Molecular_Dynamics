@@ -25,6 +25,13 @@ JOBS = 16
 DPI = 300
 CUTOFF_FREQ = 3e12  # 3 THz
 
+def create_output_dir():
+    """Create output directory if it doesn't exist"""
+    output_dir = os.path.abspath(os.path.join(OUTPUT_DIR, "..", "result"))
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    return output_dir
+
 def detect_peaks(xf_filtered, smoothed_spectrum, original_spectrum):
     """Detect peaks using sliding window and iterative filtering."""
     max_amp = np.max(original_spectrum)
@@ -125,7 +132,10 @@ def process_file(file_path):
             'Frequency_cm-1': xf_filtered,
             'Amplitude': spectrum
         })
-        spectrum_df.to_csv("%s_spectrum.csv" % output_prefix, index=False)
+        try:
+            spectrum_df.to_csv("%s_spectrum.csv" % output_prefix, index=False)
+        except Exception as e:
+            print(f"Ошибка при сохранении CSV: {e}")
         
         # Plot spectrum with peaks
         plt.figure(figsize=(12, 6))
@@ -153,6 +163,9 @@ if __name__ == '__main__':
     print("Processing parameters:")
     print(f"* Number of cores: {min(JOBS, len(dat_files))}")
     print(f"* Cutoff frequency: {CUTOFF_FREQ / 1e12:.1f} THz")
+
+    output_dir = create_output_dir()
+
     with Pool(min(JOBS, len(dat_files))) as pool:
         results = pool.map(process_file, dat_files)
         # Collect successful results
