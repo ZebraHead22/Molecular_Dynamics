@@ -191,7 +191,7 @@ if __name__ == '__main__':
                         formatted_row.append(str(val))
                 formatted_transposed.append(formatted_row)
             # Write CSV
-            csv_path = os.path.join(output_dir, "peaks_summary.csv")
+            csv_path = os.path.join(output_dir, os.path.basename(os.getcwd()) + "_peaks_summary.csv")
             with open(csv_path, 'w', encoding='utf-8') as f:
                 # Header with filenames
                 f.write(';'.join(success_files) + '\n')
