@@ -50,7 +50,7 @@ def process_file(file_path, output_dir):
             raise ValueError("DataFrame is empty or has less than 2 rows.")
         print(df.head())
         # Prepare data
-        time = df['#'].values * 2e-3
+        time = df['#'].values * 1e-3
         signal = df['Unnamed: 8'].values.astype('float32')
         signal -= signal.mean()
         # Autocorrelation
