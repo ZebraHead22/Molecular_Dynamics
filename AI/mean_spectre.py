@@ -21,7 +21,7 @@ def detect_peaks(xf_filtered, smoothed_spectrum, original_spectrum):
         return []
     # Step 2: Iteratively filter until less than 20 peaks remain
     current_peaks = peaks.copy()
-    while len(current_peaks) >= 500:
+    while len(current_peaks) >= 150:
         new_peaks = []
         n = len(current_peaks)
         if n == 0:
@@ -82,6 +82,19 @@ def main():
 
     # Detect peaks using original spectrum for both smoothed and original arguments
     detected_peaks = detect_peaks(reference_freq, mean_spectrum, mean_spectrum)
+
+    # Новая секция записи TXT файла
+    # Extract detected frequencies
+    detected_frequencies = [peak[0] for peak in detected_peaks]
+    
+    # Save frequencies to TXT file
+    output_txt = os.path.join(OUTPUT_DIR, 'detected_frequencies.txt')
+    with open(output_txt, 'w') as f:
+        f.write("Detected Frequencies (cm⁻¹):\n")
+        for freq in detected_frequencies:
+            f.write(f"{freq:.2f}\n")
+    
+    print(f"Saved detected frequencies to {output_txt}")
 
     # Save mean spectrum
     output_csv = os.path.join(OUTPUT_DIR, 'mean_spectre_AI.csv')
