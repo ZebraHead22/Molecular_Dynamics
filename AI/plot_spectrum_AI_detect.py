@@ -94,7 +94,7 @@ def process_file(file_path):
         plt.ylabel("Dipole moment (D)")
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
-        plt.savefig(f"{output_prefix}_original.png", dpi=DPI, bbox_inches='tight')
+        # plt.savefig(f"{output_prefix}_original.png", dpi=DPI, bbox_inches='tight')
         plt.close()
         # Autocorrelation with FFT
         n = len(signal)
@@ -126,14 +126,14 @@ def process_file(file_path):
         freq_list = sorted([peak[0] for peak in selected_peaks])
         
         # Save spectrum to CSV
-        spectrum_df = pd.DataFrame({
-            'Frequency_cm-1': xf_filtered,
-            'Amplitude': spectrum
-        })
-        try:
-            spectrum_df.to_csv(f"{output_prefix}_spectrum.csv", index=False)
-        except Exception as e:
-            print(f"Ошибка при сохранении CSV: {e}")
+        # spectrum_df = pd.DataFrame({
+        #     'Frequency_cm-1': xf_filtered,
+        #     'Amplitude': spectrum
+        # })
+        # try:
+        #     spectrum_df.to_csv(f"{output_prefix}_spectrum.csv", index=False)
+        # except Exception as e:
+        #     print(f"Ошибка при сохранении CSV: {e}")
         
         # Plot spectrum with peaks
         plt.figure(figsize=(12, 6))
