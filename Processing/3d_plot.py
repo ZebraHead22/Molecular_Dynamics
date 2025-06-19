@@ -1,79 +1,71 @@
 import os
-import re
-import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
-from scipy.interpolate import make_interp_spline
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
-l=list()
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')   
-amino_acids = list()
-legend = list()
-frequencies = list()
-energy_type = ['KINETIC', 'POTENTIAL']
-field_amplitudes = [0.0435,	0.087,	0.1305,	0.174,	0.2175,
-                    0.261,	0.3045,	0.348,	0.3915,	0.435,	0.4785,	0.522]
-norm_freq = [0 , 100, 200, 300, 400, 500]
+def plot_waterfall_3d(filepath):
+    df = pd.read_excel(filepath)
 
-slice_of_energy = pd.DataFrame()
-directory = os.getcwd()
+    filename = os.path.basename(filepath)
+    base_name = os.path.splitext(filename)[0]
+    aa_name = base_name.split('_')[0]
 
-for dir in os.listdir(directory):
-    if os.path.isdir(dir) == True:
-        frequencies.append(int(dir))
-frequencies = sorted(list(set(frequencies)))
-ticks = [str(x) for x in frequencies]
-ticks.insert(0, "0")
-print('Frequencies is ', frequencies)  
-print('Frequencies is ', ticks)  
+    # Первый столбец — Field Amplitudes
+    field_amplitudes = df.iloc[:, 1].values
 
-for address, dirs, names in os.walk(directory):
-    for name in names:
-        filename, file_extension = os.path.splitext(name)
-        if file_extension == ".dat":
-            amino_acid = re.search(r'^\w{,2}[^\_]', filename)
-            amino_acid = amino_acid.group(0)
-            amino_acids.append(amino_acid)
-amino_acids = sorted(list(set(amino_acids)))
-print('Amino acids is ', amino_acids)
+    # Частоты и названия столбцов POTENTIAL
+    potential_columns = [col for col in df.columns if col.endswith("POTENTIAL") and col.startswith(aa_name)]
+    freq_values = [int(col.replace(aa_name, '').replace("POTENTIAL", '')) for col in potential_columns]
 
-for i in amino_acids:
-    for j in energy_type:
-        fig = plt.figure()
-        ax = fig.add_subplot(projection='3d')
-        out = pd.DataFrame()
-        for a in range(len(frequencies)):
-            f = frequencies[a]
-            data = pd.DataFrame()
-            files = os.listdir(directory+"/"+str(f)+'/'+i)
-            files = sorted(files)
-            for file in files:
-                filename, file_extension = os.path.splitext(file)
-                if file_extension == ".dat":
-                    one_file_data = pd.read_csv(
-                        directory+"/"+str(f)+'/'+i+"/"+file, delimiter=' ', index_col=None, header=[0])
-                    data[(str(filename)+"_"+j)] = round((one_file_data[j])*0.0434/5400, 3) # переводим усл.ед. в эВ
-            last_moment_energies = list()
-            for energy_column in data.columns.values:
-                last_moment_energies.append(
-                    float(data.iloc[-1, data.columns.get_loc(energy_column)]))           
-            out[i+str(f)+j] = last_moment_energies
-        # print(out)
-            print('Processing of ', i+' '+str(f)+' '+j) 
-            
-            X_Y_Spline = make_interp_spline(field_amplitudes, last_moment_energies)
-            X_ = np.linspace((np.array(field_amplitudes)).min(), (np.array(field_amplitudes)).max(), 500)
-            Y_ = X_Y_Spline(X_)
-            # There is third arg used for equal distanse in yTicks
-            ax.plot(X_, Y_, norm_freq[a], zdir='y', marker = 'o', markersize=0.3,  linewidth = 2)
-        ax.set_title((str(i)).upper()+' '+str(j))
-        ax.set_xlabel('Field Amplitude (V/nm)')
-        ax.set_ylabel('Field Frequency ($cm^{-1}$)')
-        ax.set_zlabel('Amplitude (eV)')
-        ax.set_yticklabels(ticks) # Для нормальной дистанции
-        ax.grid()
-        plt.legend([str(x)+'$cm^{-1}$' for x in frequencies])
-        # plt.show()
-        fig.set_size_inches(10, 10)
-        ax.figure.savefig(directory+'/'+str(i)+'_'+str(j).lower()+".png", dpi=1200)
+    # Сортировка по частоте
+    freq_and_cols = sorted(zip(freq_values, potential_columns))
+    freq_values, sorted_columns = zip(*freq_and_cols)
+
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Частоты — по оси Z (в глубину), равномерно
+    z_positions = range(len(sorted_columns))
+
+    for z_index, (freq, col) in zip(z_positions, zip(freq_values, sorted_columns)):
+        energy_values = df[col].values
+        ax.plot(field_amplitudes, energy_values, zs=z_index, zdir='z', label=str(freq), linewidth=1.5)
+
+    # Подписи и оси
+    ax.set_xlabel('Field Amplitude')
+    ax.set_ylabel('Energy')
+    ax.set_zlabel('Frequency (cm⁻¹)')
+
+    # Деления оси Z — без единиц измерения
+    ax.set_zticks(z_positions)
+    ax.set_zticklabels([str(freq) for freq in freq_values])
+
+    # Легенда
+    ax.legend(title="Frequencies", loc='upper left', bbox_to_anchor=(1.05, 1), fontsize='small')
+
+    # Компактное размещение
+    fig.tight_layout(pad=2)
+
+    # Сохранение
+    output_folder = os.path.join(os.path.dirname(filepath), "graphs")
+    os.makedirs(output_folder, exist_ok=True)
+    output_filename = os.path.splitext(os.path.basename(filepath))[0] + "_waterfall.png"
+    output_path = os.path.join(output_folder, output_filename)
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+
+    print(f"✅ Saved: {output_path}")
+
+def process_folder(folder_path):
+    for filename in os.listdir(folder_path):
+        if filename.lower().endswith(".xlsx") and not filename.startswith("._"):
+            full_path = os.path.join(folder_path, filename)
+            try:
+                plot_waterfall_3d(full_path)
+            except Exception as e:
+                print(f"⚠️ Error processing {filename}: {e}")
+
+if __name__ == "__main__":
+    # Укажи путь к папке с Excel-файлами
+    folder = os.getcwd()
+    process_folder(folder)
