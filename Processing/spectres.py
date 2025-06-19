@@ -112,13 +112,17 @@ def make_spectres():
             fig, ax = plt.subplots()
             ax.plot(dfFreq, dfAmp, linewidth=1, c='black')
             ax.grid()
-            ax.set_title(title)
-            ax.set_xlabel('Frequency, $cm^{-1}$')
-            ax.set_ylabel('Spectral EDM Amplitude (a.u.)')
+            ax.set_xlim([800, 1200])
+            ax.set_title('PolyAla12 p=1')
+            # ax.set_xlabel('Frequency, $cm^{-1}$')
+            ax.set_xlabel('Частота, $cм^{-1}$')
+            # ax.set_ylabel('Spectral EDM Amplitude (a.u.)')
+            ax.set_ylabel('Амплитуда, отн. ед.')
 
-            annotate_peaks(ax, peak_frequencies, peak_amplitudes)
-            plt.savefig(filename + '.png', dpi=600)
-            plt.savefig(filename + '.eps', format='eps')
+            # annotate_peaks(ax, peak_frequencies, peak_amplitudes)
+            # plt.savefig(filename + '.png', dpi=600)
+            # plt.savefig(filename + '.eps', format='eps')
+            plt.savefig(filename+'_spec_1.png', dpi=300)
 
     output_file.close()
 
