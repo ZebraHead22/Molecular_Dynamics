@@ -26,7 +26,7 @@ def plot_waterfall_3d(filepath):
     # Увеличиваем размер фигуры для лучшего размещения подписей
     fig = plt.figure(figsize=(14, 10))  # Было (13, 9)
     ax = fig.add_subplot(111, projection='3d')
-    plt.subplots_adjust(left=0.08, right=3, bottom=0.08, top=0.92)
+    fig.subplots_adjust(left=0.1, right=0.95, bottom=0.1, top=0.92)
 
     y_positions = range(len(sorted_columns))
     
@@ -76,7 +76,19 @@ def plot_waterfall_3d(filepath):
     ax.set_xlabel('Амплитуда поля, В/нм', fontsize=12, labelpad=15)  # Увеличен labelpad
     ax.set_ylabel('Частота поля (cм⁻¹)', fontsize=12, labelpad=15)  # Увеличен labelpad
     # ax.zaxis.set_rotate_label(False)  # Отключить автоматический поворот
-    ax.set_zlabel('Энергия, эВ', fontsize=12, labelpad=0)  # Значительно увеличен labelpad для оси Z
+    # z_label = ax.set_zlabel('Энергия, эВ', fontsize=12)
+    # z_label.set_rotation(90)  # Поворачиваем подпись вертикально
+
+    ax.set_zlabel('')  # Очищаем стандартную подпись
+    fig.text(
+    x=0.86,          # Позиция по горизонтали (0.92 = 92% ширины)
+    y=0.5,           # Центр по вертикали
+    s='Энергия, эВ', # Текст подписи
+    fontsize=12,
+    va='center',     # Вертикальное выравнивание
+    ha='center',     # Горизонтальное выравнивание
+    rotation=90      # Вертикальная ориентация
+)
 
     ax.set_yticks(list(y_positions))
     ax.set_yticklabels([str(freq) for freq in freq_values])
@@ -98,7 +110,7 @@ def plot_waterfall_3d(filepath):
     os.makedirs(output_folder, exist_ok=True)
     output_filename = os.path.splitext(os.path.basename(filepath))[0] + "_waterfall.png"
     output_path = os.path.join(output_folder, output_filename)
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.savefig(output_path, dpi=300, bbox_inches='tight', pad_inches=0.5)
     plt.close()
 
     print(f"✅ Saved: {output_path}")
