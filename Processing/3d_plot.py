@@ -73,10 +73,10 @@ def plot_waterfall_3d(filepath):
     ax.add_collection3d(poly_collection, zs=y_positions, zdir='y')
 
     # Увеличиваем отступы для осей
-    ax.set_xlabel('Field Amplitude', fontsize=12, labelpad=15)  # Увеличен labelpad
-    ax.set_ylabel('Frequency (cm⁻¹)', fontsize=12, labelpad=15)  # Увеличен labelpad
+    ax.set_xlabel('Амплитуда поля, В/нм', fontsize=12, labelpad=15)  # Увеличен labelpad
+    ax.set_ylabel('Частота поля (cм⁻¹)', fontsize=12, labelpad=15)  # Увеличен labelpad
     # ax.zaxis.set_rotate_label(False)  # Отключить автоматический поворот
-    ax.set_zlabel('Energy', fontsize=12, labelpad=0)  # Значительно увеличен labelpad для оси Z
+    ax.set_zlabel('Энергия, эВ', fontsize=12, labelpad=0)  # Значительно увеличен labelpad для оси Z
 
     ax.set_yticks(list(y_positions))
     ax.set_yticklabels([str(freq) for freq in freq_values])
